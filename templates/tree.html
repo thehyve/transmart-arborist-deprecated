@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>TranSMART tree</title>
+	<style>
+	html { margin:0; padding:0; font-size:62.5%; }
+	body { max-width:800px; min-width:300px; margin:0 auto; padding:20px 10px; font-size:14px; font-size:1.4em; }
+	h1 { font-size:1.8em; }
+	.demo { overflow:auto; border:1px solid silver; min-height: 300px;}
+	</style>
+	<link rel="stylesheet" href="/static/jstree/dist/themes/default/style.min.css" />
+	<link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+</head>
+<body>
+
+	<h1>TranSMART Tree</h1>
+	<div id="frmt" class="demo"></div>
+	<button onclick="exportJson()">Export</button>
+	<p id="demo"></p>
+
+	<script>
+	function exportJson() {
+		var v = $('#frmt').jstree(true).get_json()
+		var mytext = JSON.stringify(v);
+	  document.getElementById("demo").innerHTML = mytext;
+	}
+	</script>
+
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+	<script src="/static/jstree/dist/jstree.min.js"></script>
+
+	<script>
+
+	// data format demo
+	$('#frmt').jstree({
+		'core' : {
+			'data' : {{ json | safe }},
+			"check_callback" : true
+		},
+		"types" : {
+      "default" : {
+        "icon" : "/static/img/tree/folder.gif",
+				"valid_children" : ["alpha","numeric","highdim","default"]
+      },
+      "study" : {
+        "icon" : "/static/img/tree/study.png",
+				"valid_children" : "all"
+      },
+      "alpha" : {
+        "icon" : "/static/img/tree/alpha.gif",
+				"valid_children" : "none"
+      },
+      "numeric" : {
+        "icon" : "/static/img/tree/numeric.gif",
+				"valid_children" : "none"
+      },
+      "highdim" : {
+        "icon" : "/static/img/tree/dna_icon.png",
+				"valid_children" : "none"
+      }
+    },
+    "plugins" : [ "dnd", "sort", "contextmenu", "types" ]
+	});
+
+	</script>
+</body>
+</html>
