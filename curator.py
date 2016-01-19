@@ -6,11 +6,15 @@ UPLOAD_FOLDER = 'files'
 ALLOWED_EXTENSIONS = set(['txt', 'tsv'])
 
 app = Flask(__name__)
+if not os.path.isdir(UPLOAD_FOLDER):
+    os.mkdir(UPLOAD_FOLDER)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
 
 def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
+
 
 def columns_to_json(filename):
     import csv
@@ -26,7 +30,7 @@ def columns_to_json(filename):
         for line in csvreader:
             if line[0] != '':
                 path = line[1].split('+')
-                i=0
+                i = 0
                 last = len(path)-1
 
                 for part in path:
@@ -36,20 +40,20 @@ def columns_to_json(filename):
                         parent = '+'.join(path[0:i])
                     exists = False
                     for item in tree_array:
-                        if item['text'] == part.replace('_',' '):
+                        if item['text'] == part.replace('_', ' '):
                             exists = True
                             break
-                    if exists == False:
+                    if not exists:
                         id = '+'.join(path[0:i+1])
-                        tree_array.append({'id':id,'text':part.replace('_',' '), 'parent':parent})
-                    i+=1
+                        tree_array.append({'id': id, 'text': part.replace('_', ' '), 'parent': parent})
+                    i += 1
 
                 app.logger.debug(line)
-                leaf = line[3].replace('_',' ')
+                leaf = line[3].replace('_', ' ')
                 idpath = path + [leaf]
                 id = '+'.join(idpath)
                 parent = '+'.join(path)
-                tree_array.append({'id':id,'text':leaf, 'parent':parent, 'type':'numeric'})
+                tree_array.append({'id': id, 'text': leaf, 'parent': parent, 'type': 'numeric'})
 
         app.logger.debug(tree_array)
         return json.dumps(tree_array)
@@ -57,6 +61,7 @@ def columns_to_json(filename):
 
 @app.route('/', methods=['GET', 'POST'])
 def upload_file():
+
     if request.method == 'POST':
         file = request.files['file']
         if file and allowed_file(file.filename):
@@ -68,11 +73,12 @@ def upload_file():
 
 from flask import send_from_directory
 
+
 @app.route('/uploads/<filename>')
 def uploaded_file(filename):
     json = columns_to_json(filename)
     app.logger.debug(json)
-    return render_template('tree.html', json = json)
+    return render_template('tree.html', json=json)
     # return send_from_directory(app.config['UPLOAD_FOLDER'],
     #                            filename)
 
