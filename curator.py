@@ -45,15 +45,22 @@ def columns_to_json(filename):
                             break
                     if not exists:
                         id = '+'.join(path[0:i+1])
-                        tree_array.append({'id': id, 'text': part.replace('_', ' '), 'parent': parent})
+                        tree_array.append({
+                            'id': id,
+                            'text': part.replace('_', ' '),
+                            'parent': parent
+                            })
                     i += 1
 
-                app.logger.debug(line)
                 leaf = line[3].replace('_', ' ')
                 idpath = path + [leaf]
                 id = '+'.join(idpath)
                 parent = '+'.join(path)
-                tree_array.append({'id': id, 'text': leaf, 'parent': parent, 'type': 'numeric'})
+                tree_array.append({
+                    'id': id,
+                    'text': leaf,
+                    'parent': parent,
+                    'type': 'numeric'})
 
         app.logger.debug(tree_array)
         return json.dumps(tree_array)
