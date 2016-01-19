@@ -62,7 +62,7 @@ def columns_to_json(filename):
                 id = '+'.join(idpath)
                 text = leaf.replace('_', ' ')
                 parent = '+'.join(path)
-                tree_array.append({
+                leafnode = {
                     'id': id,
                     'text': text,
                     'parent': parent,
@@ -71,10 +71,13 @@ def columns_to_json(filename):
                         'Filename': line[0],
                         'Category Code': line[1],
                         'Column Number': line[2],
-                        'Data Label': line[3],
-                        'Data Label Source': line[4],
-                        'Control Vocab Cd': line[5]
-                        }})
+                        'Data Label': line[3]
+                        }}
+                if len(line) > 4:
+                    leafnode['data']['Data Label Source'] = line[4]
+                if len(line) > 5:
+                    leafnode['data']['Control Vocab Cd'] = line[5]
+                tree_array.append(leafnode)
 
         return json.dumps(tree_array)
 
