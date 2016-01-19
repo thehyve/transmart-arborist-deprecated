@@ -61,7 +61,7 @@ def columns_to_json(filename):
                     i += 1
 
                 leaf = line[3]
-                idpath = path + [leaf]
+                idpath = path + [leaf,line[0],line[2]]
                 id = '+'.join(idpath)
                 text = leaf.replace('_', ' ')
                 parent = '+'.join(path)
