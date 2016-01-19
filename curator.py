@@ -62,9 +62,7 @@ def columns_to_json(filename):
                     'parent': parent,
                     'type': 'numeric'})
 
-        app.logger.debug(tree_array)
         return json.dumps(tree_array)
-
 
 @app.route('/', methods=['GET', 'POST'])
 def upload_file():
@@ -84,10 +82,7 @@ from flask import send_from_directory
 @app.route('/uploads/<filename>')
 def uploaded_file(filename):
     json = columns_to_json(filename)
-    app.logger.debug(json)
     return render_template('tree.html', json=json)
-    # return send_from_directory(app.config['UPLOAD_FOLDER'],
-    #                            filename)
 
 if __name__ == '__main__':
     app.debug = True
