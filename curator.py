@@ -28,7 +28,10 @@ def columns_to_json(filename):
         next(csvreader)
 
         for line in csvreader:
-            if line[0] != '':
+            if line[0] != '' and line[2] != '' and line[3] != '':
+                if line[1] == '':
+                    line[1] = 'OTHER'
+
                 path = line[1].split('+')
                 i = 0
                 last = len(path)-1
