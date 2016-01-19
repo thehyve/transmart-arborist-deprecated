@@ -84,6 +84,9 @@ def columns_to_json(filename):
 
         return json.dumps(tree_array)
 
+def json_to_columns(json):
+    app.logger.debug("test")
+
 @app.route('/', methods=['GET', 'POST'])
 def upload_file():
 
