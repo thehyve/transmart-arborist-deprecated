@@ -24,12 +24,12 @@ def columns_to_json(filename):
         next(csvreader)
 
         for line in csvreader:
-            path = line[1].split('+')
-            i=0
-            last = len(path)-1
+            if line[0] != '':
+                path = line[1].split('+')
+                i=0
+                last = len(path)-1
 
-            for part in path:
-                if part != '':
+                for part in path:
                     if i == 0:
                         parent = '#'
                     else:
@@ -40,8 +40,16 @@ def columns_to_json(filename):
                             exists = True
                             break
                     if exists == False:
-                        tree_array.append({'id':'+'.join(path[0:i+1]),'text':part.replace('_',' '), 'parent':parent})
-                i+=1
+                        id = '+'.join(path[0:i+1])
+                        tree_array.append({'id':id,'text':part.replace('_',' '), 'parent':parent})
+                    i+=1
+
+                app.logger.debug(line)
+                leaf = line[3].replace('_',' ')
+                idpath = path + [leaf]
+                id = '+'.join(idpath)
+                parent = '+'.join(path)
+                tree_array.append({'id':id,'text':leaf, 'parent':parent, 'type':'numeric'})
 
         app.logger.debug(tree_array)
         return json.dumps(tree_array)
