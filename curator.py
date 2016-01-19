@@ -90,9 +90,6 @@ def upload_file():
                                     filename=filename))
     return render_template('upload.html')
 
-from flask import send_from_directory
-
-
 @app.route('/uploads/<filename>')
 def uploaded_file(filename):
     json = columns_to_json(filename)
