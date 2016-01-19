@@ -66,7 +66,15 @@ def columns_to_json(filename):
                     'id': id,
                     'text': text,
                     'parent': parent,
-                    'type': 'numeric'})
+                    'type': 'numeric',
+                    'data':{
+                        'Filename': line[0],
+                        'Category Code': line[1],
+                        'Column Number': line[2],
+                        'Data Label': line[3],
+                        'Data Label Source': line[4],
+                        'Control Vocab Cd': line[5]
+                        }})
 
         return json.dumps(tree_array)
 
