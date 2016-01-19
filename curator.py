@@ -27,18 +27,22 @@ def columns_to_json(filename):
             path = line[1].split('+')
             i=0
             last = len(path)-1
+
             for part in path:
                 if part != '':
-                    part = part.replace('_',' ')
+                    if i == 0:
+                        parent = '#'
+                    else:
+                        parent = '+'.join(path[0:i])
                     exists = False
                     for item in tree_array:
-                        if item['text'] == part:
+                        if item['text'] == part.replace('_',' '):
                             exists = True
                             break
                     if exists == False:
-                        tree_array.append({'text':part})
-                    # path_so_far = path[0:i]
+                        tree_array.append({'id':'+'.join(path[0:i+1]),'text':part.replace('_',' '), 'parent':parent})
                 i+=1
+
         app.logger.debug(tree_array)
         return json.dumps(tree_array)
 
