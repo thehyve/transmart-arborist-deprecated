@@ -38,27 +38,33 @@ def columns_to_json(filename):
                         parent = '#'
                     else:
                         parent = '+'.join(path[0:i])
+
+                    id = '+'.join(path[0:i+1])
+
                     exists = False
                     for item in tree_array:
-                        if item['text'] == part.replace('_', ' '):
+                        if item['id'] == id:
                             exists = True
                             break
+
                     if not exists:
-                        id = '+'.join(path[0:i+1])
+                        text = part.replace('_', ' ')
                         tree_array.append({
                             'id': id,
-                            'text': part.replace('_', ' '),
+                            'text': text,
                             'parent': parent
                             })
+
                     i += 1
 
-                leaf = line[3].replace('_', ' ')
+                leaf = line[3]
                 idpath = path + [leaf]
                 id = '+'.join(idpath)
+                text = leaf.replace('_', ' ')
                 parent = '+'.join(path)
                 tree_array.append({
                     'id': id,
-                    'text': leaf,
+                    'text': text,
                     'parent': parent,
                     'type': 'numeric'})
 
