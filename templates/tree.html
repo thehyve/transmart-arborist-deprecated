@@ -19,6 +19,7 @@
 	<div id="frmt" class="demo"></div>
 	<p><button id="export">Create output files</button></p>
 	<p id="outputlinks"></p>
+	<p id="event_result"></p>
 
 	<script src="//ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
 	<script src="/static/jstree/dist/jstree.min.js"></script>
@@ -49,7 +50,17 @@
 	<script>
 
 	// data format demo
-	$('#frmt').jstree({
+	$('#frmt')
+	// listen for event
+	.on('select_node.jstree', function (e, data) {
+    var i, j, r = [];
+    for(i = 0, j = data.selected.length; i < j; i++) {
+      r.push(data.instance.get_node(data.selected[i]).text);
+    }
+    $('#event_result').html('Selected: ' + r.join(', '));
+  })
+	// create the instance
+	.jstree({
 		'core' : {
 			'data' : {{ json | safe }},
 			"check_callback" : true
