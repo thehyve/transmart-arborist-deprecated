@@ -18,8 +18,6 @@ def allowed_file(filename):
 
 
 def columns_to_json(filename):
-    import csv
-    from collections import OrderedDict
     with open(os.path.join(app.config['UPLOAD_FOLDER'], filename), 'rb') as csvfile:
         csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
         tree_array = []
