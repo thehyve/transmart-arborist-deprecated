@@ -20,7 +20,6 @@
 		<input type="text" id="tree" name="tree" hidden="true">
 	</form>
 	<button id="export">Export</button>
-	<p id="demo"></p>
 
 	<script src="//ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
 	<script src="/static/jstree/dist/jstree.min.js"></script>
@@ -31,7 +30,6 @@
     $('button#export').bind('click', function() {
 			var v = $('#frmt').jstree(true).get_json()
 			var tree = JSON.stringify(v);
-			document.getElementById("demo").innerHTML = tree
 			document.getElementById("tree").value = tree;
 			document.forms["dataform"].submit();
       return false;
