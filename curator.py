@@ -35,13 +35,15 @@ def columns_to_json(filename):
         next(csvreader)
 
         for line in csvreader:
+            # Skip lines without filename, column number or data label
             if line[0] != '' and line[2] != '' and line[3] != '':
+                # If categorycode is empty this is a special concept that is not in the tree
+                # Eg SUBJ_ID, STUDY_ID, OMIT or DATA LABEL
                 if line[1] == '':
                     line[1] = outoftree
 
                 path = line[1].split('+')
                 i = 0
-                last = len(path)-1
 
                 for part in path:
                     if i == 0:
@@ -118,12 +120,12 @@ def getchildren(node, columnsfile, path):
         return columnsfile
 
 def json_to_columns(tree):
-    tree = json.loads(tree)
     columnsfile = []
     path = []
     for node in tree:
         columnsfile = getchildren(node, columnsfile, path)
 
+    # Sort on column number and filename
     columnsfile = sorted(columnsfile, key=lambda x: x[2])
     columnsfile = sorted(columnsfile, key=lambda x: x[0])
 
