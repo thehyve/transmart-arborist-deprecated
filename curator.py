@@ -83,23 +83,35 @@ def columns_to_json(filename):
 
         return json.dumps(tree_array)
 
-def getchildren(node, columnsfile):
+def getchildren(node, columnsfile, path):
     app.logger.debug(node)
     if node['children'] == []:
         app.logger.debug("no children")
-        columnsfile = str(columnsfile) + str(node) + "\n"
+
+        filename = node['data']['Filename']
+        categorycode = '+'.join(path).replace(' ','_')
+        columnnumber = node['data']['Column Number']
+        datalabel = node['text'].replace(' ','_')
+        datalabelsource = node['data']['Data Label Source']
+        controlvocabc = node['data']['Control Vocab Cd']
+
+        columnsfile = str(columnsfile) + '\t'.join(
+            [filename, categorycode, columnnumber, datalabel, datalabelsource, controlvocabc]
+            ) + "\n"
         return columnsfile
     else:
+        path = path + [node['text']]
         for child in node['children']:
-            columnsfile = getchildren(child, columnsfile)
-        return columnsfile    
+            columnsfile = getchildren(child, columnsfile, path)
+        return columnsfile
 
 def json_to_columns(tree):
     tree = json.loads(tree)
-    headers = ["Filename","Category Code","Column Number","Data Label","Data Label Source","Control Vocab C"]
+    headers = ["Filename","Category Code","Column Number","Data Label","Data Label Source","Control Vocab Cd"]
     columnsfile = '\t'.join(headers)+'\n'
+    path = []
     for node in tree:
-        columnsfile = getchildren(node, columnsfile)
+        columnsfile = getchildren(node, columnsfile, path)
     return columnsfile
 
 @app.route('/download', methods=['GET','POST'])
