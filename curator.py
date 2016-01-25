@@ -1,5 +1,5 @@
 import os
-from flask import Flask, request, redirect, url_for, render_template
+from flask import Flask, request, redirect, url_for, render_template, json, Response
 from werkzeug import secure_filename
 
 UPLOAD_FOLDER = 'files'
@@ -19,7 +19,6 @@ def allowed_file(filename):
 def columns_to_json(filename):
     import csv
     from collections import OrderedDict
-    from flask import json
     with open(os.path.join(app.config['UPLOAD_FOLDER'], filename), 'rb') as csvfile:
         csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
         tree_array = []
@@ -85,7 +84,17 @@ def columns_to_json(filename):
         return json.dumps(tree_array)
 
 def json_to_columns(json):
-    app.logger.debug("test")
+    return json
+
+@app.route('/download', methods=['GET','POST'])
+def download():
+    # app.logger.debug("tree = "+ str(request.values['tree']))
+    tree = request.values['tree']
+    tree = json_to_columns(tree)
+    return Response(tree,
+                   mimetype="text/plain",
+                   headers={"Content-Disposition":
+                                "attachment;filename=columns.txt"})
 
 @app.route('/', methods=['GET', 'POST'])
 def upload_file():
