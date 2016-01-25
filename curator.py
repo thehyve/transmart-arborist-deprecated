@@ -134,15 +134,23 @@ def json_to_columns(tree):
         columnsfiledata += '\t'.join(map(str,row))+'\n'
     return columnsfiledata
 
-@app.route('/download', methods=['GET','POST'])
-def download():
-    # app.logger.debug("tree = "+ str(request.values['tree']))
-    tree = request.values['tree']
+@app.route('/prepare_columnsfile', methods=['GET','POST'])
+def prepare_columnsfile():
+    app.logger.debug("fooTree = "+ str(request.get_json()))
+
+    tree = request.get_json()
     tree = json_to_columns(tree)
-    return Response(tree,
-                   mimetype="text/plain",
-                   headers={"Content-Disposition":
-                                "attachment;filename=columns.txt"})
+    app.logger.debug(tree)
+
+    columnmappingfile = open(os.path.join(app.config['UPLOAD_FOLDER'], columnmappingfilename), 'wb')
+    columnmappingfile.write(tree)
+
+    return json.jsonify(columnsfile=columnmappingfilename)
+
+@app.route('/downloads/<filename>')
+def download_file(filename):
+    return send_from_directory(app.config['UPLOAD_FOLDER'],
+                               filename)
 
 @app.route('/', methods=['GET', 'POST'])
 def upload_file():
