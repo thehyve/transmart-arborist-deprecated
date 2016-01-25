@@ -11,6 +11,15 @@ if not os.path.isdir(UPLOAD_FOLDER):
     os.mkdir(UPLOAD_FOLDER)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
+outoftree               = 'OUT OF TREE'
+filenamelabel           = 'Filename'
+categorycodelabel       = 'Category Code'
+columnnumberlabel       = 'Column Number'
+datalabellabel          = 'Data Label'
+datalabelsourcelabel    = 'Data Label Source'
+controlvocabcdlabel     = 'Control Vocab Cd'
+columnsfileheaders      = [filenamelabel,categorycodelabel,columnnumberlabel,datalabellabel,datalabelsourcelabel,controlvocabcdlabel]
+columnmappingfilename   = 'columns.txt'
 
 def allowed_file(filename):
     return '.' in filename and \
@@ -28,7 +37,7 @@ def columns_to_json(filename):
         for line in csvreader:
             if line[0] != '' and line[2] != '' and line[3] != '':
                 if line[1] == '':
-                    line[1] = 'OUT OF TREE'
+                    line[1] = outoftree
 
                 path = line[1].split('+')
                 i = 0
@@ -69,32 +78,38 @@ def columns_to_json(filename):
                     'parent': parent,
                     'type': 'numeric',
                     'data':{
-                        'Filename': line[0],
-                        'Category Code': line[1],
-                        'Column Number': line[2],
-                        'Data Label': line[3]
+                        filenamelabel:     line[0],
+                        categorycodelabel: line[1],
+                        columnnumberlabel: line[2],
+                        datalabellabel:    line[3]
                         }}
                 if len(line) > 4:
-                    leafnode['data']['Data Label Source'] = line[4]
+                    leafnode['data'][datalabelsourcelabel] = line[4]
                 if len(line) > 5:
-                    leafnode['data']['Control Vocab Cd'] = line[5]
+                    leafnode['data'][controlvocabcdlabel]  = line[5]
                 tree_array.append(leafnode)
 
         return json.dumps(tree_array)
 
 def getchildren(node, columnsfile, path):
-    app.logger.debug(node)
     if node['children'] == []:
-        app.logger.debug("no children")
-
-        filename = node['data']['Filename']
-        categorycode = '+'.join(path).replace(' ','_')
-        columnnumber = int(node['data']['Column Number'])
+        filename = node['data'][filenamelabel]
+        if path == [outoftree]:
+            categorycode = ''
+        else:
+            categorycode = '+'.join(path).replace(' ','_')
+        columnnumber = int(node['data'][columnnumberlabel])
         datalabel = node['text'].replace(' ','_')
-        datalabelsource = node['data']['Data Label Source']
-        controlvocabc = node['data']['Control Vocab Cd']
+        if datalabelsourcelabel in node['data']:
+            datalabelsource = node['data'][datalabelsourcelabel]
+        else:
+            datalabelsource = ''
+        if controlvocabcdlabel  in node['data']:
+            controlvocabcd  = node['data'][controlvocabcdlabel]
+        else:
+            controlvocabcd  = ''
 
-        columnsfile.append([filename, categorycode, columnnumber, datalabel, datalabelsource, controlvocabc])
+        columnsfile.append([filename, categorycode, columnnumber, datalabel, datalabelsource, controlvocabcd])
         return columnsfile
     else:
         path = path + [node['text']]
@@ -112,8 +127,7 @@ def json_to_columns(tree):
     columnsfile = sorted(columnsfile, key=lambda x: x[2])
     columnsfile = sorted(columnsfile, key=lambda x: x[0])
 
-    headers = ["Filename","Category Code","Column Number","Data Label","Data Label Source","Control Vocab Cd"]
-    columnsfiledata = '\t'.join(headers)+'\n'
+    columnsfiledata = '\t'.join(columnsfileheaders)+'\n'
     for row in columnsfile:
         columnsfiledata += '\t'.join(map(str,row))+'\n'
     return columnsfiledata
