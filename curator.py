@@ -90,14 +90,12 @@ def getchildren(node, columnsfile, path):
 
         filename = node['data']['Filename']
         categorycode = '+'.join(path).replace(' ','_')
-        columnnumber = node['data']['Column Number']
+        columnnumber = int(node['data']['Column Number'])
         datalabel = node['text'].replace(' ','_')
         datalabelsource = node['data']['Data Label Source']
         controlvocabc = node['data']['Control Vocab Cd']
 
-        columnsfile = str(columnsfile) + '\t'.join(
-            [filename, categorycode, columnnumber, datalabel, datalabelsource, controlvocabc]
-            ) + "\n"
+        columnsfile.append([filename, categorycode, columnnumber, datalabel, datalabelsource, controlvocabc])
         return columnsfile
     else:
         path = path + [node['text']]
@@ -107,12 +105,19 @@ def getchildren(node, columnsfile, path):
 
 def json_to_columns(tree):
     tree = json.loads(tree)
-    headers = ["Filename","Category Code","Column Number","Data Label","Data Label Source","Control Vocab Cd"]
-    columnsfile = '\t'.join(headers)+'\n'
+    columnsfile = []
     path = []
     for node in tree:
         columnsfile = getchildren(node, columnsfile, path)
-    return columnsfile
+
+    columnsfile = sorted(columnsfile, key=lambda x: x[2])
+    columnsfile = sorted(columnsfile, key=lambda x: x[0])
+
+    headers = ["Filename","Category Code","Column Number","Data Label","Data Label Source","Control Vocab Cd"]
+    columnsfiledata = '\t'.join(headers)+'\n'
+    for row in columnsfile:
+        columnsfiledata += '\t'.join(map(str,row))+'\n'
+    return columnsfiledata
 
 @app.route('/download', methods=['GET','POST'])
 def download():
