@@ -169,6 +169,26 @@ def uploaded_file(filename):
     json = columns_to_json(filename)
     return render_template('tree.html', json=json)
 
+@app.errorhandler(404)
+def errorhandler(e):
+    code = 404
+    return render_template('error.html', error = str(e), code = code), code
+
+@app.errorhandler(403)
+def errorhandler(e):
+    code = 403
+    return render_template('error.html', error = str(e), code = code), code
+
+@app.errorhandler(410)
+def errorhandler(e):
+    code = 410
+    return render_template('error.html', error = str(e), code = code), code
+
+@app.errorhandler(500)
+def errorhandler(e):
+    code = 500
+    return render_template('error.html', error = str(e), code = code), code
+
 if __name__ == '__main__':
     app.debug = True
     app.run()
