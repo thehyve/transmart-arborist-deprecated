@@ -136,11 +136,10 @@ def json_to_columns(tree):
 
 @app.route('/prepare_columnsfile', methods=['GET','POST'])
 def prepare_columnsfile():
-    app.logger.debug("fooTree = "+ str(request.get_json()))
+    # app.logger.debug("tree = "+ str(request.get_json()))
 
     tree = request.get_json()
     tree = json_to_columns(tree)
-    app.logger.debug(tree)
 
     columnmappingfile = open(os.path.join(app.config['UPLOAD_FOLDER'], columnmappingfilename), 'wb')
     columnmappingfile.write(tree)
