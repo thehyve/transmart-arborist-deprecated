@@ -8,6 +8,10 @@
 	body { max-width:800px; min-width:300px; margin:0 auto; padding:20px 10px; font-size:14px; font-size:1.4em; }
 	h1 { font-size:1.8em; }
 	.demo { overflow:auto; border:1px solid silver; min-height: 300px;}
+	label {text-align: right; float: left; width: 150px; padding-right: 5px;}
+	input[type=text] {float: left; width: 300px;}
+	select {float: left; width: 300px;}
+	fieldset p {clear: both; padding: 5px; }
 	</style>
 	<link rel="stylesheet" href="/static/jstree/dist/themes/default/style.min.css" />
 	<link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
@@ -20,7 +24,42 @@
 
 	<p><button id="export">Create output files</button></p>
 	<p id="outputlinks"></p>
-	<p id="event_result"></p>
+	<form id="datanodedetails">
+		<fieldset>
+			<legend>Data node details</legend>
+			<p>
+				<label for="datalabel">Data Label</label>
+				<input type="text" name="datalabel" required="true" />
+			</p>
+			<p>
+				<label for="nodetype">Node type</label>
+				<select name="nodetype">
+					<option value="default">Folder</option>
+					<option value="numeric">Numerical</option>
+					<option value="alpha">Categorical</option>
+					<option value="highdim">High-dimensional</option>
+				</select>
+			</p>
+			<p>
+				<label for="filename">Filename</label>
+				<input class="clinicaldata" type="text" name="filename" />
+			</p>
+			<p>
+				<label for="columnnumber">Column Number</label>
+				<input class="clinicaldata" type="text" name="columnnumber" />
+			</p>
+			<p>
+				<label for="datalabelsource">Data Label Source</label>
+				<input class="clinicaldata" type="text" name="datalabelsource" />
+			</p>
+			<p>
+				<label for="controlvocabcd">Control Vocab Cd</label>
+				<input class="clinicaldata" type="text" name="controlvocabcd" />
+			</p>
+			<input type="submit" value="Apply changes" style="float: right;" />
+			<span style="float: right; padding-right: 5px;" id="feedback"></span>
+		</fieldset>
+	</form>
 
 	<script src="//ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
 	<script src="/static/jstree/dist/jstree.min.js"></script>
@@ -47,16 +86,73 @@
 		});
 	});
 
+	var node;
 
+	$("form").submit(function (e) {
+		e.preventDefault();
+
+		if (typeof node != 'undefined') {
+
+			var text = $( "input[name='datalabel']" ).val();
+			var updated = $("#frmt").jstree('rename_node', node , text );
+			var type = $("select[name='nodetype']").val();
+			$("#frmt").jstree('set_type', node , type );
+			enableRightFields(type);
+
+			if (typeof node.data == 'undefined') {
+				node.data = {}
+			}
+
+			node.data['Filename']           = $( "input[name='filename']"         ).val();
+			node.data['Column Number']      = $( "input[name='columnnumber']"     ).val();
+			node.data['Data Label Source']  = $( "input[name='datalabelsource']"  ).val();
+			node.data['Control Vocab Cd']   = $( "input[name='controlvocabcd']"   ).val();
+			if (updated) {feedback("Successfully applied", false)}
+		} else {feedback("No node selected", true)}
+	});
+
+	function enableRightFields(type){
+		if (type == 'numeric' || type == 'alpha') {
+			$('.clinicaldata').prop('disabled', false);
+		} else {
+			$('.clinicaldata').prop('disabled', true);
+		}
+	}
+
+	function feedback(string, error) {
+		$( "span#feedback" ).html(string);
+		if (error) {
+			$( "span#feedback" ).css('color', 'red');
+		} else {
+			$( "span#feedback" ).css('color', 'green');
+		}
+		setTimeout(function() {
+			$( "span#feedback" ).html("");
+		}, 2000);
+	}
+
+	// Create the tree
 	$('#frmt')
 	// listen for event
 	.on('select_node.jstree', function (e, data) {
-    var i, j, r = [];
-    for(i = 0, j = data.selected.length; i < j; i++) {
-      r.push(data.instance.get_node(data.selected[i]).text);
-    }
-    $('#event_result').html('Selected: ' + r.join(', '));
-  })
+		node = data.instance.get_node(data.selected[0]);
+		$( "form#datanodedetails" )[0].reset();
+		$( "input[name='datalabel']" ).val(node.text);
+		$("select[name='nodetype']").val(node.type);
+
+		enableRightFields(node.type);
+
+		if (typeof node.data !== 'undefined') {
+			$( "input[name='filename']" ).val(node.data['Filename']);
+			$( "input[name='columnnumber']" ).val(node.data['Column Number']);
+			if (typeof node.data['Data Label Source'] !== 'undefined') {
+				$( "input[name='datalabelsource']" ).val(node.data['Data Label Source']);
+			}
+			if (typeof node.data['Control Vocab Cd'] !== 'undefined') {
+				$( "input[name='controlvocabcd']" ).val(node.data['Control Vocab Cd']);
+			}
+		}
+	})
 	// create the instance
 	.jstree({
 		'core' : {
