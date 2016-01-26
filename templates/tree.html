@@ -17,6 +17,7 @@
 	<h1>TranSMART Tree</h1>
 	<p><a href="/">Upload new column mapping file</a></p>
 	<div id="frmt" class="demo"></div>
+
 	<p><button id="export">Create output files</button></p>
 	<p id="outputlinks"></p>
 	<p id="event_result"></p>
@@ -25,31 +26,28 @@
 	<script src="/static/jstree/dist/jstree.min.js"></script>
 
 	<script>
-
+	// Send tree JSON to Python and create links to exorted files
 	$(function() {
-    $('button#export').bind('click', function() {
+		$('button#export').bind('click', function() {
 			var v = $('#frmt').jstree(true).get_json()
 			var tree = JSON.stringify(v);
 
 			$.ajax({
-			  method: "POST",
-			  contentType: "application/json",
+				method: "POST",
+				contentType: "application/json",
 				url: "/prepare_columnsfile",
-			  data: tree
+				data: tree
 			})
-			  .done(function( msg ) {
-			    console.log( "Data Saved: " + msg.columnsfile );
-					document.getElementById("outputlinks").innerHTML = '<a href="/downloads/'+msg.columnsfile+'" target="_blank">Column mapping file</a>';
-			  });
+			.done(function( msg ) {
+				console.log( "Data Saved: " + msg.columnsfile );
+				document.getElementById("outputlinks").innerHTML = '<a href="/downloads/'+msg.columnsfile+'" target="_blank">Column mapping file</a>';
+			});
 
-      return false;
-    });
-  });
-	</script>
+			return false;
+		});
+	});
 
-	<script>
 
-	// data format demo
 	$('#frmt')
 	// listen for event
 	.on('select_node.jstree', function (e, data) {
@@ -66,37 +64,37 @@
 			"check_callback" : true
 		},
 		"types" : {
-      "default" : {
-        "icon" : "/static/img/tree/folder.gif",
+			"default" : {
+				"icon" : "/static/img/tree/folder.gif",
 				"valid_children" : ["alpha","numeric","highdim","default"]
-      },
-      "study" : {
-        "icon" : "/static/img/tree/study.png",
+			},
+			"study" : {
+				"icon" : "/static/img/tree/study.png",
 				"valid_children" : "all"
-      },
-      "alpha" : {
-        "icon" : "/static/img/tree/alpha.gif",
+			},
+			"alpha" : {
+				"icon" : "/static/img/tree/alpha.gif",
 				"valid_children" : "none"
-      },
-      "numeric" : {
-        "icon" : "/static/img/tree/numeric.gif",
+			},
+			"numeric" : {
+				"icon" : "/static/img/tree/numeric.gif",
 				"valid_children" : "none"
-      },
-      "highdim" : {
-        "icon" : "/static/img/tree/dna_icon.png",
+			},
+			"highdim" : {
+				"icon" : "/static/img/tree/dna_icon.png",
 				"valid_children" : "none"
-      }
-    },
+			}
+		},
 		'sort': function (a, b) {
-				if ((this.get_type(a) == 'default') && (this.get_type(b) != 'default')) {
-					return -1;
-				} else if ((this.get_type(a) != 'default') && (this.get_type(b) == 'default')) {
-					return 1;
-				} else {
-					return this.get_text(a) > this.get_text(b) ? 1 : -1;
-				}
-    },
-    "plugins" : [ "dnd", "sort", "contextmenu", "types" ]
+			if ((this.get_type(a) == 'default') && (this.get_type(b) != 'default')) {
+				return -1;
+			} else if ((this.get_type(a) != 'default') && (this.get_type(b) == 'default')) {
+				return 1;
+			} else {
+				return this.get_text(a) > this.get_text(b) ? 1 : -1;
+			}
+		},
+		"plugins" : [ "dnd", "sort", "contextmenu", "types" ]
 	});
 
 	</script>
