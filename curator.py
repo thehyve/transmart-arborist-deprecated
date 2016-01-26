@@ -89,12 +89,14 @@ def columns_to_json(filename):
                     leafnode['data'][datalabelsourcelabel] = line[4]
                 if len(line) > 5:
                     leafnode['data'][controlvocabcdlabel]  = line[5]
+                if text in ['SUBJ ID','STUDY ID','DATA LABEL','DATALABEL','OMIT']:
+                    leafnode['type'] = 'codeleaf'
                 tree_array.append(leafnode)
 
         return json.dumps(tree_array)
 
 def getchildren(node, columnsfile, path):
-    if node['type'] == 'numeric' or node['type'] == 'alpha':
+    if node['type'] != 'default' and node['type'] != 'highdim':
         filename = node['data'][filenamelabel]
         if path == [outoftree]:
             categorycode = ''

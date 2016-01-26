@@ -38,6 +38,7 @@
 					<option value="numeric">Numerical</option>
 					<option value="alpha">Categorical</option>
 					<option value="highdim">High-dimensional</option>
+					<option value="codeleaf">Special concept</option>
 				</select>
 			</p>
 			<p>
@@ -179,7 +180,11 @@
 			"highdim" : {
 				"icon" : "/static/img/tree/dna_icon.png",
 				"valid_children" : "none"
-			}
+			},
+			"codeleaf" : {
+				"icon" : "/static/img/tree/code.png",
+				"valid_children" : "none"
+			},
 		},
 		'sort': function (a, b) {
 			if ((this.get_type(a) == 'default') && (this.get_type(b) != 'default')) {
