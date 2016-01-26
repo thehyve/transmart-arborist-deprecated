@@ -108,7 +108,7 @@ def getchildren(node, columnsfile, path):
             datalabelsource = node['data'][datalabelsourcelabel]
         else:
             datalabelsource = ''
-        if controlvocabcdlabel  in node['data']:
+        if controlvocabcdlabel in node['data']:
             controlvocabcd  = node['data'][controlvocabcdlabel]
         else:
             controlvocabcd  = ''
