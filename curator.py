@@ -94,7 +94,7 @@ def columns_to_json(filename):
         return json.dumps(tree_array)
 
 def getchildren(node, columnsfile, path):
-    if node['children'] == []:
+    if node['type'] == 'numeric' or node['type'] == 'alpha':
         filename = node['data'][filenamelabel]
         if path == [outoftree]:
             categorycode = ''
@@ -154,7 +154,6 @@ def download_file(filename):
 
 @app.route('/', methods=['GET', 'POST'])
 def upload_file():
-
     if request.method == 'POST':
         file = request.files['file']
         if file and allowed_file(file.filename):
