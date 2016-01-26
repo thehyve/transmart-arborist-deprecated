@@ -1,7 +1,7 @@
 # tranSMART Arborist
-> An arborist, or (less commonly) arboriculturist, is a professional in the practice of arboriculture, which is the cultivation, management, and study of individual trees, shrubs, vines, and other perennial woody plants ([Wikipedia](https://en.wikipedia.org/wiki/Arborist))
+> An *arborist* [...] is a professional in the practice of arboriculture, which is the cultivation, management, and study of individual trees, shrubs, vines, and other perennial woody plants ([Wikipedia](https://en.wikipedia.org/wiki/Arborist))
 
-Graphical tool for preparing your data for loading into the tranSMART data warehouse.
+Graphical tool to help you prepare your data for loading into the tranSMART data warehouse.
 
 * * *
 ![Reordering the tranSMART data tree](/static/img/screenshot.png?raw=true "Reordering the tranSMART data tree")
@@ -16,7 +16,7 @@ Graphical tool for preparing your data for loading into the tranSMART data wareh
 ## Usage
 Runs locally in the browser with the Python microframework Flask:
 * Install Flask as described here: http://flask.pocoo.org/docs/0.10/installation/
-* Then run `python curator.py` in your terminal, as described here: http://flask.pocoo.org/docs/0.10/quickstart
+* Then run `python arborist.py` in your terminal, as described here: http://flask.pocoo.org/docs/0.10/quickstart
 * Copy the URL from the terminal to your browser to open the application
  
 ## Loading data
