@@ -2,7 +2,9 @@
 
 Tool for curating data for the tranSMART data warehouse.
 
+* * *
 ![Reordering the tranSMART data tree](/static/img/screenshot.png?raw=true "Reordering the tranSMART data tree")
+* * *
 
 Functionality:
 * Uploading existing columns file
