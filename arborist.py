@@ -8,6 +8,7 @@ from shutil import copyfile
 
 UPLOAD_FOLDER = 'files'
 DEFAULT_STUDIES_FOLDER = 'studies'
+SETTINGS_FILE = 'arborist-settings.json'
 ALLOWED_EXTENSIONS = set(['txt', 'tsv'])
 
 app = Flask(__name__)
@@ -33,7 +34,6 @@ columnmappingfilename = 'columns.txt'
 
 
 def read_settings():
-    SETTINGS_FILE = 'arborist-settings.json'
     TEMPLATE_SETTINGS_FILE = 'arborist-settings-default.json'
 
     if not os.path.isfile(SETTINGS_FILE):
@@ -47,6 +47,14 @@ def read_settings():
         studiesfolder = DEFAULT_STUDIES_FOLDER
 
     return settings
+
+
+def write_settings(newsettings):
+    settings = read_settings()
+    for setting in newsettings:
+        settings[setting] = newsettings[setting]
+    with open(SETTINGS_FILE, 'wb') as data_file:
+        data_file.write(json.dumps(settings))
 
 
 def allowed_file(filename):
@@ -193,6 +201,11 @@ def download_file(filename):
 
 @app.route('/', methods=['GET', 'POST'])
 def study_overview():
+    if request.method == 'POST':
+        newstudiesfolder = request.form['studiesfolder']
+        if os.path.isdir(newstudiesfolder):
+            newsettings = {'studiesfolder': newstudiesfolder}
+            write_settings(newsettings)
     settings = read_settings()
     studiesfolder = settings['studiesfolder']
     studies = []
