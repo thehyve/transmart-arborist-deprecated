@@ -115,14 +115,16 @@
 	}
 
 	function feedback(string, error) {
-		$( "span#feedback" ).html(string);
+		$( "span#feedback" ).html(string).show();
 		if (error) {
 			$( "span#feedback" ).css('color', 'red');
 		} else {
 			$( "span#feedback" ).css('color', 'green');
 		}
 		setTimeout(function() {
-			$( "span#feedback" ).html("");
+			$( "span#feedback" ).fadeOut(function () {
+				$( "span#feedback" ).html("");
+			})
 		}, 2000);
 	}
 
