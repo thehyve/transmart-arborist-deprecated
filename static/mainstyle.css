@@ -13,6 +13,7 @@ body {
 }
 h1 {
   font-size:1.8em;
+  text-align: center;
 }
 div#content {
   min-height:300px;
