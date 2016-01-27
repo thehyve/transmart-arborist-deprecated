@@ -1,4 +1,6 @@
 # Output files
 files/
-
+# Virtual environment
 venv/
+# Settings file
+arborist-settings.json

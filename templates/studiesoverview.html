@@ -1,0 +1,13 @@
+{% extends "layout.html" %}
+{% block title %}Studies overview{% endblock %}
+{% block content %}
+  <h1>Studies overview</h1>
+	<p>From studies folder '{{studiesfolder}}'</p>
+	<ul>
+	{% for study in studies %}
+		<li><a href="/study/{{study}}/clinical/upload/">{{study}}</a></li>
+	{% else %}
+		<li>No studies</li>
+	{% endfor %}
+	</ul>
+{% endblock %}

@@ -1,26 +1,20 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-	<meta charset="UTF-8">
-	<title>TranSMART tree</title>
-	<style>
-	html { margin:0; padding:0; font-size:62.5%; }
-	body { max-width:800px; min-width:300px; margin:0 auto; padding:20px 10px; font-size:14px; font-size:1.4em; }
-	h1 { font-size:1.8em; }
-	.demo { overflow:auto; border:1px solid silver; min-height: 300px;}
-	label {text-align: right; float: left; width: 150px; padding-right: 5px;}
-	input[type=text] {float: left; width: 300px;}
-	select {float: left; width: 300px;}
-	fieldset p {clear: both; padding: 5px; }
-	</style>
-	<link rel="stylesheet" href="/static/jstree/dist/themes/default/style.min.css" />
-	<link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
-</head>
-<body>
-
+{% extends "layout.html" %}
+{% block title %}TranSMART tree{% endblock %}
+{% block head %}
+    {{ super() }}
+		<style>
+			div#treediv { overflow:auto; border:1px solid silver; min-height: 300px;}
+			label {text-align: right; float: left; width: 150px; padding-right: 5px;}
+			input[type=text] {float: left; width: 300px;}
+			select {float: left; width: 300px;}
+			fieldset p {clear: both; padding: 5px; }
+		</style>
+		<link rel="stylesheet" href="/static/jstree/dist/themes/default/style.min.css" />
+{% endblock %}
+{% block content %}
 	<h1>TranSMART Tree</h1>
 	<p><a href="/">Upload new column mapping file</a></p>
-	<div id="frmt" class="demo"></div>
+	<div id="treediv"></div>
 
 	<p><button id="export">Create output files</button></p>
 	<p id="outputlinks"></p>
@@ -69,7 +63,7 @@
 	// Send tree JSON to Python and create links to exorted files
 	$(function() {
 		$('button#export').bind('click', function() {
-			var v = $('#frmt').jstree(true).get_json()
+			var v = $('#treediv').jstree(true).get_json()
 			var tree = JSON.stringify(v);
 
 			$.ajax({
@@ -95,9 +89,9 @@
 		if (typeof node != 'undefined') {
 
 			var text = $( "input[name='datalabel']" ).val();
-			var updated = $("#frmt").jstree('rename_node', node , text );
+			var updated = $("#treediv").jstree('rename_node', node , text );
 			var type = $("select[name='nodetype']").val();
-			$("#frmt").jstree('set_type', node , type );
+			$("#treediv").jstree('set_type', node , type );
 			enableRightFields(type);
 
 			if (typeof node.data == 'undefined') {
@@ -113,7 +107,7 @@
 	});
 
 	function enableRightFields(type){
-		if (type == 'numeric' || type == 'alpha') {
+		if (type != 'default') {
 			$('.clinicaldata').prop('disabled', false);
 		} else {
 			$('.clinicaldata').prop('disabled', true);
@@ -133,7 +127,7 @@
 	}
 
 	// Create the tree
-	$('#frmt')
+	$('#treediv')
 	// listen for event
 	.on('select_node.jstree', function (e, data) {
 		node = data.instance.get_node(data.selected[0]);
@@ -199,5 +193,4 @@
 	});
 
 	</script>
-</body>
-</html>
+	{% endblock %}

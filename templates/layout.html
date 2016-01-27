@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% block head %}
+	    <title>{% block title %}{% endblock %} - TranSMART Arborist</title>
+			<link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}" />
+			<link rel="stylesheet" href="{{ url_for('static', filename='mainstyle.css') }}" />
+    {% endblock %}
+</head>
+<body>
+    <div id="content">{% block content %}{% endblock %}</div>
+    <div id="footer">
+        {% block footer %}
+        	tranSMART Arborist is
+					<a href="https://github.com/thehyve/transmart-arborist/blob/master/LICENSE">open source</a>
+					and available on <a href="https://github.com/thehyve/transmart-arborist">Github</a>.
+        {% endblock %}
+    </div>
+</body>
+</html>
