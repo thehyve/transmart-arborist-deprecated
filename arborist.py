@@ -200,7 +200,7 @@ def download_file(filename):
 
 
 @app.route('/', methods=['GET', 'POST'])
-def study_overview():
+def studies_overview():
     if request.method == 'POST':
         newstudiesfolder = request.form['studiesfolder']
         if os.path.isdir(newstudiesfolder):
@@ -217,6 +217,12 @@ def study_overview():
                            studies=studies)
 
 
+@app.route('/study/<study>/')
+def study_page(study):
+    return render_template('studypage.html',
+                           study=study)
+
+
 @app.route('/study/<study>/clinical/upload/', methods=['GET', 'POST'])
 def upload_file(study):
     if request.method == 'POST':
@@ -224,15 +230,15 @@ def upload_file(study):
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-            return redirect(url_for('uploaded_file',
-                                    filename=filename))
+            return redirect(url_for('edit_tree',
+                                    filename=filename, study=study))
     return render_template('upload.html')
 
 
-@app.route('/uploads/<filename>')
-def uploaded_file(filename):
+@app.route('/study/<study>/tree/<filename>')
+def edit_tree(study, filename):
     json = columns_to_json(filename)
-    return render_template('tree.html', json=json)
+    return render_template('tree.html', study=study, json=json)
 
 
 @app.errorhandler(404)

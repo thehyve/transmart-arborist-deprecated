@@ -9,7 +9,7 @@
 	</form>
 	<ul>
 	{% for study in studies %}
-		<li><a href="/study/{{study}}/clinical/upload/">{{study}}</a></li>
+		<li><a href="{{ url_for('study_page', study=study) }}">{{study}}</a></li>
 	{% else %}
 		<li>No studies</li>
 	{% endfor %}

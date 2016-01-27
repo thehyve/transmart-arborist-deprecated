@@ -13,7 +13,11 @@
 {% endblock %}
 {% block content %}
 	<h1>TranSMART Tree</h1>
-	<p><a href="/">Upload new column mapping file</a></p>
+	<p>
+		<a href="{{ url_for('studies_overview') }}">Studies overview</a>
+		- <a href="{{ url_for('study_page', study=study) }}">Study page</a>
+		- <a href="{{ url_for('upload_file', study=study) }}">Upload new column mapping file</a>
+	</p>
 	<div id="treediv"></div>
 
 	<p><button id="export">Create output files</button></p>
