@@ -4,3 +4,4 @@ files/
 venv/
 # Settings file
 arborist-settings.json
+*.pyc

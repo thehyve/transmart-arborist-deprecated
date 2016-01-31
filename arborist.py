@@ -5,6 +5,8 @@ from flask import Flask, request, redirect, url_for, render_template, json, \
 from werkzeug import secure_filename
 from collections import OrderedDict
 from shutil import copyfile
+from functions import Study_params, Clinical_params, HyveIOException
+
 
 UPLOAD_FOLDER = 'files'
 DEFAULT_STUDIES_FOLDER = 'studies'
@@ -219,8 +221,24 @@ def studies_overview():
 
 @app.route('/study/<study>/')
 def study_page(study):
-    return render_template('studypage.html',
-                           study=study)
+    settings = read_settings()
+    studiesfolder = settings['studiesfolder']
+
+    clinicalparamsfile = os.path.join(studiesfolder, study, 'clinical.params')
+    if os.path.exists(clinicalparamsfile):
+        clinicalparams = Clinical_params(clinicalparamsfile)
+        app.logger.debug(clinicalparams)
+    else:
+        app.logger.debug("{} does not exist".format(clinicalparamsfile))
+
+    studyparamsfile = os.path.join(studiesfolder, study, 'study.params')
+    if os.path.exists(studyparamsfile):
+        studyparams = Study_params(studyparamsfile)
+        app.logger.debug(studyparams)
+    else:
+        app.logger.debug("{} does not exist".format(studyparamsfile))
+
+    return render_template('studypage.html', study=study)
 
 
 @app.route('/study/<study>/clinical/upload/', methods=['GET', 'POST'])
