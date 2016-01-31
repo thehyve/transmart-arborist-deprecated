@@ -29,6 +29,8 @@ class Params(object):
                             will check whether this filename exists in a
                             subfolder (named afer the datatype) of the params
                             folder.
+                    possible_values (array of str): array with the possible
+                        values for this variable.
         '''
 
         self.directory = os.path.join(
@@ -43,7 +45,19 @@ class Params(object):
                 line = line.strip()
                 variable, value = line.split("=")
 
+                value = value.strip("'").strip("\"")
+
                 if variable in possible_variables:
+                    if 'possible_values' in possible_variables[variable]:
+                        if value not in \
+                         possible_variables[variable]['possible_values']:
+                            msg = '''Value {} is not in the possible values for
+                            variable {}. Should be one of {}'''.format(
+                                value, variable,
+                                str(possible_variables[variable]
+                                    ['possible_values']))
+                            raise HyveIOException(msg)
+
                     if 'variable_type' in possible_variables[variable]:
                         # Check for existance of file (and ignore filename 'x')
                         if possible_variables[variable]['variable_type'] == \
