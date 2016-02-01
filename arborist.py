@@ -5,7 +5,8 @@ from flask import Flask, request, redirect, url_for, render_template, json, \
 from werkzeug import secure_filename
 from collections import OrderedDict
 from shutil import copyfile
-from functions import Study_params, Clinical_params, HyveIOException
+from functions.params import Study_params, Clinical_params
+from functions.exceptions import HyveException, HyveIOException
 
 
 UPLOAD_FOLDER = 'files'
@@ -224,21 +225,26 @@ def study_page(study):
     settings = read_settings()
     studiesfolder = settings['studiesfolder']
 
-    clinicalparamsfile = os.path.join(studiesfolder, study, 'clinical.params')
-    if os.path.exists(clinicalparamsfile):
-        clinicalparams = Clinical_params(clinicalparamsfile)
-        app.logger.debug(clinicalparams)
-    else:
-        app.logger.debug("{} does not exist".format(clinicalparamsfile))
-
     studyparamsfile = os.path.join(studiesfolder, study, 'study.params')
-    if os.path.exists(studyparamsfile):
-        studyparams = Study_params(studyparamsfile)
-        app.logger.debug(studyparams)
-    else:
-        app.logger.debug("{} does not exist".format(studyparamsfile))
+    try:
+        studyparams = Study_params(studyparamsfile).get_variables()
+    except (HyveException, HyveIOException) as e:
+        studyparams = {'HyveException': str(e)}
+    except IOError as e:
+        studyparams = {}
 
-    return render_template('studypage.html', study=study)
+    clinicalparamsfile = os.path.join(studiesfolder, study, 'clinical.params')
+    try:
+        clinicalparams = Clinical_params(clinicalparamsfile).get_variables()
+    except (HyveException, HyveIOException) as e:
+        clinicalparams = {'HyveException': str(e)}
+    except IOError as e:
+        clinicalparams = {}
+
+    return render_template('studypage.html',
+                           study=study,
+                           studyparams=studyparams,
+                           clinicalparams=clinicalparams)
 
 
 @app.route('/study/<study>/clinical/upload/', methods=['GET', 'POST'])

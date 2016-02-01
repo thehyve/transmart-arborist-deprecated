@@ -1,8 +1,5 @@
 import os
-
-
-class HyveIOException(Exception):
-    pass
+from exceptions import HyveException, HyveIOException
 
 
 class Params(object):
@@ -81,13 +78,17 @@ class Params(object):
                         raise HyveException(msg)
 
     def __str__(self):
+        variablesvalues = self.get_variables()
+        return str(self.__class__) + ": " + str(variablesvalues)
+
+    def get_variables(self):
         variablesvalues = {}
         for variable in self.possible_variables:
             try:
                 variablesvalues[variable] = getattr(self, variable)
             except Exception as e:
                 print("no variable "+variable)
-        return str(self.__class__) + ": " + str(variablesvalues)
+        return variablesvalues
 
 
 class Study_params(Params):
