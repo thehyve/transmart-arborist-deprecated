@@ -19,7 +19,7 @@ class Params(object):
             possible variables (dict): A dictionary with possible variables
                 for this params file. Each item of the dict should contain the
                 variable name as key and as value a dict containing the
-                variable parameters.
+                variable parameters. All variable parameters are optional.
                 The variable parameters can include:
                     obligatory (bool, default: False): Whether this variable
                         is obligatory.
