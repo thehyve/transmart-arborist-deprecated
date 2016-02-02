@@ -269,7 +269,7 @@ def upload_file(study):
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
             return redirect(url_for('edit_tree',
                                     filename=filename, study=study))
-    return render_template('upload.html')
+    return render_template('upload.html', study=study)
 
 
 @app.route('/study/<study>/tree/<filename>')
