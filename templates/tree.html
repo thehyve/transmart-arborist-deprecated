@@ -137,7 +137,7 @@
 		node = data.instance.get_node(data.selected[0]);
 		$( "form#datanodedetails" )[0].reset();
 		$( "input[name='datalabel']" ).val(node.text);
-		$("select[name='nodetype']").val(node.type);
+		$( "select[name='nodetype']" ).val(node.type);
 
 		enableRightFields(node.type);
 
