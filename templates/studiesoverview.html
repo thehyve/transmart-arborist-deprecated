@@ -1,10 +1,12 @@
 {% extends "layout.html" %}
 {% block title %}Studies overview{% endblock %}
 {% block content %}
-	<form method="post" id="changestudiesfolder">
+	<form method="post" id="changestudiesfolder" style="display:table;width:100%;overflow: hidden;">
+		<input type="submit" value="Change" style="float:right; width: 100px;" />
+		<span style="display: block; overflow: hidden; padding-right:100px; white-space:nowrap;">
 		<label for="studiesfolder">Studies folder:</label>
-		<input name="studiesfolder" type="text" value="{{studiesfolder}}" size="100" />
-		<input type="submit" value="Change" />
+		<input name="studiesfolder" type="text" value="{{studiesfolder}}" style="width:100%" />
+		</span>
 	</form>
 	<p><a href="#" id="gotoparent">[go to parent directory]</a></p>
 	<ul>
