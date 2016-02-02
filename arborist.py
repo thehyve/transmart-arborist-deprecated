@@ -229,7 +229,7 @@ def study_page(study):
     try:
         studyparams = Study_params(studyparamsfile).get_variables()
     except (HyveException, HyveIOException) as e:
-        studyparams = {'HyveException': str(e)}
+        studyparams = {type(e).__name__: str(e)}
     except IOError as e:
         studyparams = {}
 
@@ -237,7 +237,7 @@ def study_page(study):
     try:
         clinicalparams = Clinical_params(clinicalparamsfile).get_variables()
     except (HyveException, HyveIOException) as e:
-        clinicalparams = {'HyveException': str(e)}
+        clinicalparams = {type(e).__name__: str(e)}
     except IOError as e:
         clinicalparams = {}
 
