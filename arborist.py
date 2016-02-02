@@ -209,15 +209,27 @@ def studies_overview():
         if os.path.isdir(newstudiesfolder):
             newsettings = {'studiesfolder': newstudiesfolder}
             write_settings(newsettings)
+
     settings = read_settings()
     studiesfolder = settings['studiesfolder']
-    studies = []
+    parentfolder = os.path.abspath(os.path.join(studiesfolder, os.pardir))
+    studies = {}
+
     for file in os.listdir(studiesfolder):
-        if os.path.isdir(os.path.join(studiesfolder, file)):
-            studies = studies + [file]
+        filepath = os.path.join(studiesfolder, file)
+        if os.path.isdir(filepath):
+            studies[file] = {'type': 'folder'}
+            studyparamsfile = os.path.join(filepath, 'study.params')
+            clinicalparamsfile = os.path.join(filepath, 'clinical.params')
+            if os.path.exists(studyparamsfile) or \
+                    os.path.exists(clinicalparamsfile):
+                studies[file]['type'] = 'study'
+    orderedstudies = OrderedDict(sorted(studies.items()))
+
     return render_template('studiesoverview.html',
                            studiesfolder=studiesfolder,
-                           studies=studies)
+                           parentfolder=parentfolder,
+                           studies=orderedstudies)
 
 
 @app.route('/study/<study>/')

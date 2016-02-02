@@ -1,16 +1,41 @@
 {% extends "layout.html" %}
 {% block title %}Studies overview{% endblock %}
 {% block content %}
-	<form method="post">
+	<form method="post" id="changestudiesfolder">
 		<label for="studiesfolder">Studies folder:</label>
-		<input name="studiesfolder" type="text" value="{{studiesfolder}}" width="300px" />
+		<input name="studiesfolder" type="text" value="{{studiesfolder}}" size="100" />
 		<input type="submit" value="Change" />
 	</form>
+	<p><a href="#" id="gotoparent">[go to parent directory]</a></p>
 	<ul>
 	{% for study in studies %}
-		<li><a href="{{ url_for('study_page', study=study) }}">{{study}}</a></li>
+		{% if studies[study]['type'] == 'study' %}
+		<li class="study"><a href="{{ url_for('study_page', study=study) }}">{{study}}</a></li>
+		{% else %}
+		<li class="folder"><a class="gotofolder" href="#">{{study}}</a></li>
+		{% endif %}
 	{% else %}
 		<li>No studies</li>
 	{% endfor %}
 	</ul>
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+
+<script>
+$('a#gotoparent').click( function(event) {
+	event.preventDefault();
+	$( "input[name='studiesfolder']" ).val('{{parentfolder}}');
+	$( "form#changestudiesfolder" ).submit();
+});
+
+$('a.gotofolder').click( function(event) {
+	event.preventDefault();
+	var txt = $(event.target).text();
+	$( "input[name='studiesfolder']" ).val('{{studiesfolder}}'+'/'+txt);
+	$( "form#changestudiesfolder" ).submit();
+});
+
+
+</script>
+
 {% endblock %}

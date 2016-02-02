@@ -23,3 +23,13 @@ div#footer {
   text-align: center;
   padding-top: 5px;
 }
+li.folder {
+  background: url(/static/img/tree/folder.gif) no-repeat left top;
+  padding: 0px 0px 0px 20px;
+  list-style: none;
+}
+li.study {
+  background: url(/static/img/tree/study.png) no-repeat left top;
+  padding: 0px 0px 0px 20px;
+  list-style: none;
+}
