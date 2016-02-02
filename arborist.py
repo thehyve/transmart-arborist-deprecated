@@ -217,14 +217,15 @@ def studies_overview():
 
     for file in os.listdir(studiesfolder):
         filepath = os.path.join(studiesfolder, file)
-        if os.path.isdir(filepath):
+        if os.path.isdir(filepath) and not file.startswith('.'):
             studies[file] = {'type': 'folder'}
             studyparamsfile = os.path.join(filepath, 'study.params')
             clinicalparamsfile = os.path.join(filepath, 'clinical.params')
             if os.path.exists(studyparamsfile) or \
                     os.path.exists(clinicalparamsfile):
                 studies[file]['type'] = 'study'
-    orderedstudies = OrderedDict(sorted(studies.items()))
+    orderedstudies = OrderedDict(sorted(studies.items(),
+                                        key=lambda x: x[0].lower()))
 
     return render_template('studiesoverview.html',
                            studiesfolder=studiesfolder,
