@@ -3,7 +3,6 @@ from flask import Flask, request, redirect, url_for, render_template, json, \
  Response, send_from_directory
 from werkzeug import secure_filename
 from collections import OrderedDict
-from shutil import copyfile
 from functions.params import Study_params, Clinical_params
 from functions.exceptions import HyveException, HyveIOException
 from functions.clinical import columns_to_json, json_to_columns, getchildren

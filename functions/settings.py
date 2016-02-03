@@ -1,4 +1,5 @@
 import os
+from shutil import copyfile
 from flask import json
 
 SETTINGS_FILE = 'arborist-settings.json'
