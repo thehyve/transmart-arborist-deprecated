@@ -114,9 +114,25 @@ def upload_file(study):
     return render_template('upload.html', study=study)
 
 
-@app.route('/study/<study>/tree/<filename>')
-def edit_tree(study, filename):
-    json = columns_to_json(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+@app.route('/study/<study>/tree/')
+def edit_tree(study):
+    settings = read_settings()
+    studiesfolder = settings['studiesfolder']
+
+    clinicalparamsfile = os.path.join(studiesfolder, study, 'clinical.params')
+    try:
+        clinicalparams = Clinical_params(clinicalparamsfile).get_variables()
+    except (HyveException, HyveIOException) as e:
+        clinicalparams = {type(e).__name__: str(e)}
+    except IOError as e:
+        clinicalparams = {}
+
+    if 'COLUMN_MAP_FILE' in clinicalparams:
+        columnsfile = clinicalparams['COLUMN_MAP_FILE']
+        json = columns_to_json(columnsfile)
+    else:
+        json = {}
+
     return render_template('tree.html', study=study, json=json)
 
 
