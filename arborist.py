@@ -1,15 +1,16 @@
 import os
+from collections import OrderedDict
+
 from flask import Flask, request, redirect, url_for, render_template, json, \
  Response, send_from_directory
 from werkzeug import secure_filename
-from collections import OrderedDict
+
 import urllib
 from markupsafe import Markup
 
 from functions.params import Study_params, Clinical_params
 from functions.exceptions import HyveException, HyveIOException
 from functions.clinical import columns_to_json, json_to_columns, getchildren
-from functions.settings import read_settings, write_settings
 
 UPLOAD_FOLDER = 'files'
 ALLOWED_EXTENSIONS = set(['txt', 'tsv'])
@@ -55,16 +56,19 @@ def download_file(filename):
                                filename)
 
 
-@app.route('/', methods=['GET', 'POST'])
-def studies_overview():
-    if request.method == 'POST':
-        newstudiesfolder = request.form['studiesfolder']
-        if os.path.isdir(newstudiesfolder):
-            newsettings = {'studiesfolder': newstudiesfolder}
-            write_settings(newsettings)
+@app.route('/')
+def index():
+    return redirect(url_for('studies_overview_root'))
 
-    settings = read_settings()
-    studiesfolder = settings['studiesfolder']
+
+@app.route('/folder/')
+def studies_overview_root():
+    return studies_overview('')
+
+
+@app.route('/folder/<path:studiesfolder>/')
+def studies_overview(studiesfolder):
+    studiesfolder = '/'+studiesfolder
     parentfolder = os.path.abspath(os.path.join(studiesfolder, os.pardir))
     studies = {}
 
@@ -80,16 +84,19 @@ def studies_overview():
     orderedstudies = OrderedDict(sorted(studies.items(),
                                         key=lambda x: x[0].lower()))
 
+    studiesfolder = studiesfolder.strip('/')
+    parentfolder = parentfolder.strip('/')
+
     return render_template('studiesoverview.html',
                            studiesfolder=studiesfolder,
                            parentfolder=parentfolder,
                            studies=orderedstudies)
 
 
-@app.route('/study/<study>/')
-def study_page(study):
-    settings = read_settings()
-    studiesfolder = settings['studiesfolder']
+@app.route('/folder/<path:studiesfolder>/study/<study>/')
+def study_page(studiesfolder, study):
+    studiesfolder = '/'+studiesfolder
+    app.logger.debug(studiesfolder)
 
     studyparamsfile = os.path.join(studiesfolder, study, 'study.params')
     try:
@@ -107,7 +114,10 @@ def study_page(study):
     except IOError as e:
         clinicalparams = {}
 
+    studiesfolder = studiesfolder.strip('/')
+
     return render_template('studypage.html',
+                           studiesfolder=studiesfolder,
                            study=study,
                            studyparams=studyparams,
                            clinicalparams=clinicalparams)
@@ -126,10 +136,9 @@ def study_page(study):
 #     return render_template('upload.html', study=study)
 
 
-@app.route('/study/<study>/tree/')
-def edit_tree(study):
-    settings = read_settings()
-    studiesfolder = settings['studiesfolder']
+@app.route('/folder/<path:studiesfolder>/study/<study>/tree/')
+def edit_tree(studiesfolder, study):
+    studiesfolder = '/'+studiesfolder
 
     clinicalparamsfile = os.path.join(studiesfolder, study, 'clinical.params')
     try:
@@ -145,7 +154,12 @@ def edit_tree(study):
     else:
         json = {}
 
-    return render_template('tree.html', study=study, json=json)
+    studiesfolder = studiesfolder.strip('/')
+
+    return render_template('tree.html',
+                           studiesfolder=studiesfolder,
+                           study=study,
+                           json=json)
 
 
 @app.errorhandler(404)

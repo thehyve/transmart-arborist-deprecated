@@ -15,7 +15,7 @@
 	{% for param in clinicalparams %}
 		<li>{{param}}: {{clinicalparams[param]}}</li>
 		{% if param == 'COLUMN_MAP_FILE' %}
-		<ul><li><a href="{{ url_for('edit_tree', study=study) }}">Edit tree</a></li></ul>
+		<ul><li><a href="{{ url_for('edit_tree', studiesfolder=studiesfolder, study=study) }}">Edit tree</a></li></ul>
 		{% endif %}
 	{% else %}
 		<li>No clinical.params</li>

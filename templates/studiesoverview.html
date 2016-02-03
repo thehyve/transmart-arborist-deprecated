@@ -1,50 +1,56 @@
 {% extends "layout.html" %}
 {% block title %}Studies overview{% endblock %}
 {% block content %}
-	<form method="post" id="changestudiesfolder" style="display:table;width:100%;overflow: hidden;">
-		<input type="submit" value="Change" style="float:right; width: 100px;" />
-		<span style="display: block; overflow: hidden; padding-right:100px; white-space:nowrap;">
-		<label for="studiesfolder">Studies folder:</label>
-		<input name="studiesfolder" type="text" value="{{studiesfolder}}" style="width:100%" />
-		</span>
-	</form>
 	<p>Studies are recognized based on the folder containing a <code>study.params</code> or <code>clinical.params</code> file.</p>
-	<p><a href="#" id="gotoparent">Go to parent directory</a></p>
+
+	{% if not parentfolder == '' %}
+		{% set parenturl = url_for('studies_overview', studiesfolder=parentfolder) %}
+	{% else %}
+		{% set parenturl = url_for('studies_overview_root') %}
+	{% endif %}
+
+	{% if not studiesfolder == '' %}
+	<p><a href="{{ parenturl }}" id="gotoparent">Go to parent directory</a></p>
+	{% endif %}
+
 	<ul class="folderlist">
 	{% for study in studies %}
-		{% if studies[study]['type'] == 'study' %}
-		<li class="study">
-			<a title="Use {{study}} as study" href="{{ url_for('study_page', study=study) }}"><img class="primary" src="{{ url_for('static', filename='img/tree/study.png') }}" style="vertical-align:text-bottom;opacity: 1;"></a>
-			<a title="Navigate to folder {{study}}" data-foldername="{{study}}" class="gotofolder" href="#"><img class="secondary" data-foldername="{{study}}" src="{{ url_for('static', filename='img/tree/folder.gif') }}" style="vertical-align:text-bottom;opacity: 0.2;"></a>
-			<a href="{{ url_for('study_page', study=study) }}">{{study}}</a>
-			</li>
+
+		{% if not studiesfolder == '' %}
+			{% set folderurl = url_for('studies_overview', studiesfolder=studiesfolder+'/'+study) %}
+			{% set studyurl = url_for('study_page', studiesfolder=studiesfolder, study=study) %}
 		{% else %}
-		<li class="folder">
-			<a title="Navigate to folder {{study}}" data-foldername="{{study}}" class="gotofolder" href="#"><img class="primary" data-foldername="{{study}}" src="{{ url_for('static', filename='img/tree/folder.gif') }}" style="vertical-align:text-bottom;opacity: 1;"></a>
-			<a title="Use {{study}} as study" href="{{ url_for('study_page', study=study) }}"><img class="secondary" src="{{ url_for('static', filename='img/tree/study.png') }}" style="vertical-align:text-bottom;opacity: 0.2;"></a>
-			<a data-foldername="{{study}}" class="gotofolder" href="#">{{study}}</a>
-		</li>
+			{% set folderurl = url_for('studies_overview', studiesfolder=study) %}
+			{% set studyurl = url_for('study_page', studiesfolder=studiesfolder, study=study) %}
 		{% endif %}
+
+		{% if studies[study]['type'] == 'study' %}
+
+		<li class="study">
+			<a title="Use {{study}} as study" href="{{ studyurl }}"><img class="primary" src="{{ url_for('static', filename='img/tree/study.png') }}" style="vertical-align:text-bottom;opacity: 1;"></a>
+			<a title="Navigate to folder {{study}}" data-foldername="{{study}}" class="gotofolder" href="{{ folderurl }}"><img class="secondary" data-foldername="{{study}}" src="{{ url_for('static', filename='img/tree/folder.gif') }}" style="vertical-align:text-bottom;opacity: 0.2;"></a>
+			<a href="{{ studyurl }}">{{study}}</a>
+		</li>
+
+		{% else %}
+
+		<li class="folder">
+			<a title="Navigate to folder {{study}}" data-foldername="{{study}}" class="gotofolder" href="{{ folderurl }}"><img class="primary" data-foldername="{{study}}" src="{{ url_for('static', filename='img/tree/folder.gif') }}" style="vertical-align:text-bottom;opacity: 1;"></a>
+			<a title="Use {{study}} as study" href="{{ studyurl }}"><img class="secondary" src="{{ url_for('static', filename='img/tree/study.png') }}" style="vertical-align:text-bottom;opacity: 0.2;"></a>
+			<a data-foldername="{{study}}" class="gotofolder" href="{{ folderurl }}">{{study}}</a>
+		</li>
+
+		{% endif %}
+
 	{% else %}
 		<li>No studies</li>
 	{% endfor %}
+
 	</ul>
 
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
 
 <script>
-$('a#gotoparent').click( function(event) {
-	event.preventDefault();
-	$( "input[name='studiesfolder']" ).val('{{parentfolder}}');
-	$( "form#changestudiesfolder" ).submit();
-});
-
-$('a.gotofolder').click( function(event) {
-	event.preventDefault();
-	var foldername = $(event.target).attr('data-foldername');
-	$( "input[name='studiesfolder']" ).val('{{studiesfolder}}'+'/'+foldername);
-	$( "form#changestudiesfolder" ).submit();
-});
 
 $('img.secondary').hover(
   function () {

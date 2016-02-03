@@ -10,24 +10,30 @@
 <body>
     <div id="content">
       <h1>{{ self.title() }}</h1>
-      <p><a href="{{ url_for('studies_overview') }}">Studies overview</a>
-      {% if study%}
-      > <a href="{{ url_for('study_page', study=study) }}">{{study}}</a>
-      {% endif%}
+
+      {% if studiesfolder %}
+        <p><a href="{{ url_for('studies_overview', studiesfolder=studiesfolder) }}">Studies overview</a>
+      {% endif %}
+
+      {% if study and studiesfolder %}
+        > <a href="{{ url_for('study_page', studiesfolder=studiesfolder, study=study) }}">{{study}}</a>
+      {% endif %}
+
       </p>
       <hr />
       {% block content %}{% endblock %}
     </div>
     <div id="footer">
-        {% block footer %}
-        <hr />
-        	tranSMART Arborist is
-					<a href="https://github.com/thehyve/transmart-arborist/blob/master/LICENSE">open source</a>
-					and available on <a href="https://github.com/thehyve/transmart-arborist">Github</a> -
-          <a href="https://github.com/thehyve/transmart-arborist/issues/new?title=Issue%20in%20{{request.endpoint|urlencode}}&amp;body=Issue encountered in {{request.endpoint|urlencode}} on {{request.path|urlencode}}"
-          target="_blank">
-            Click here to report an issue</a>
-        {% endblock %}
+      {% block footer %}
+      <hr />
+        tranSMART Arborist is
+        <a href="https://github.com/thehyve/transmart-arborist/blob/master/LICENSE">open source</a>
+        and available on <a href="https://github.com/thehyve/transmart-arborist">Github</a>. -
+        {% set issuetitle = ('Issue in '+request.endpoint)|urlencode %}
+        {% set issuebody = ('Issue encountered in '+request.endpoint+' on '+request.path)|urlencode %}
+        <a href="https://github.com/thehyve/transmart-arborist/issues/new?title={{ issuetitle }}&amp;body={{ issuebody }}">
+          Click here to report an issue</a>.
+      {% endblock %}
     </div>
 </body>
 </html>
