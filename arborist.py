@@ -3,6 +3,9 @@ from flask import Flask, request, redirect, url_for, render_template, json, \
  Response, send_from_directory
 from werkzeug import secure_filename
 from collections import OrderedDict
+import urllib
+from markupsafe import Markup
+
 from functions.params import Study_params, Clinical_params
 from functions.exceptions import HyveException, HyveIOException
 from functions.clinical import columns_to_json, json_to_columns, getchildren
@@ -19,6 +22,16 @@ if not os.path.isdir(UPLOAD_FOLDER):
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 columnmappingfilename = 'columns.txt'
+
+
+@app.template_filter('urlencode')
+def urlencode_filter(s):
+    ''' Necessary addition to Jinja2 filters, to escape chars for in url '''
+    if type(s) == 'Markup':
+        s = s.unescape()
+    s = s.encode('utf8')
+    s = urllib.quote_plus(s)
+    return Markup(s)
 
 
 def allowed_file(filename):
