@@ -20,6 +20,8 @@ def read_settings():
         if not os.path.isdir(DEFAULT_STUDIES_FOLDER):
             os.mkdir(DEFAULT_STUDIES_FOLDER)
         studiesfolder = DEFAULT_STUDIES_FOLDER
+    studiesfolder = os.path.abspath(studiesfolder)
+    settings['studiesfolder'] = studiesfolder
 
     return settings
 
