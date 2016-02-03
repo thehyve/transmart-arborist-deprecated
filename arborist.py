@@ -100,17 +100,17 @@ def study_page(study):
                            clinicalparams=clinicalparams)
 
 
-@app.route('/study/<study>/clinical/upload/', methods=['GET', 'POST'])
-def upload_file(study):
-    if request.method == 'POST':
-        file = request.files['file']
-        if file and allowed_file(file.filename):
-            filename = secure_filename(file.filename)
-            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-            return redirect(url_for('edit_tree',
-                                    filename=filename,
-                                    study=study))
-    return render_template('upload.html', study=study)
+# @app.route('/study/<study>/clinical/upload/', methods=['GET', 'POST'])
+# def upload_file(study):
+#     if request.method == 'POST':
+#         file = request.files['file']
+#         if file and allowed_file(file.filename):
+#             filename = secure_filename(file.filename)
+#             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+#             return redirect(url_for('edit_tree',
+#                                     filename=filename,
+#                                     study=study))
+#     return render_template('upload.html', study=study)
 
 
 @app.route('/study/<study>/tree/')
