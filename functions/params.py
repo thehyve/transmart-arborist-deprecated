@@ -28,18 +28,24 @@ class Params(object):
                             folder.
                     possible_values (array of str): array with the possible
                         values for this variable.
+                    default (str): The default value when the variable is not
+                        set.
+                    helptext (str): Description of the variable for the user.
         '''
 
         self.directory = os.path.join(
                             os.path.dirname(os.path.abspath(filename)),
                             datatype)
         self.possible_variables = possible_variables
+        self.feedback = feedback = {'errors': [], 'warnings': [], 'infos': []}
 
         with open(filename, 'r') as handle:
             for line in handle.readlines():
+                line = line.split('#')[0].strip()
                 if line == "" or line.startswith('#'):
                     continue
                 line = line.strip()
+                print line
                 variable, value = line.split("=")
 
                 value = value.strip("'").strip("\"")
@@ -53,7 +59,7 @@ class Params(object):
                                 value, variable,
                                 str(possible_variables[variable]
                                     ['possible_values']))
-                            raise HyveIOException(msg)
+                            feedback['errors'].append(msg)
 
                     if 'variable_type' in possible_variables[variable]:
                         # Check for existance of file (and ignore filename 'x')
@@ -63,7 +69,7 @@ class Params(object):
                             if not os.path.exists(value):
                                 msg = "The {} file {} doesn't exist.".format(
                                     variable, value)
-                                raise HyveIOException(msg)
+                                feedback['errors'].append(msg)
                     setattr(self, variable, value)
                 else:
                     msg = "{} doesn't have the variable {}".format(
@@ -75,7 +81,7 @@ class Params(object):
                 if possible_variables[variable]['obligatory']:
                     if not hasattr(self, variable):
                         msg = "{} not in {}".format(variable, filename)
-                        raise HyveException(msg)
+                        feedback['errors'].append(msg)
 
     def __str__(self):
         variablesvalues = self.get_variables()
@@ -90,16 +96,34 @@ class Params(object):
                 print("no variable "+variable)
         return variablesvalues
 
+    def get_possible_variables(self):
+        return self.possible_variables
+
+    def get_feedback(self):
+        return self.feedback
+
 
 class Study_params(Params):
     """Class for study.params file"""
     def __init__(self, filename):
         possible_variables = {
                                 'SECURITY_REQUIRED': {
-                                    'possible_values': ['Y', 'N']
+                                    'possible_values': ['Y', 'N'],
+                                    'default': 'N',
+                                    'helptext': ('Defines study as Private (Y)'
+                                                 ' or Public (N).')
                                 },
-                                'TOP_NODE': {},
-                                'STUDY_ID': {},
+                                'TOP_NODE': {
+                                    'default': ('\(Public|Private) Studies'
+                                                '\<STUDY_ID>'),
+                                    'helptext': 'The study top node.'
+                                },
+                                'STUDY_ID': {
+                                    'default': ('Uppercased parent directory'
+                                                'name of the params file is'
+                                                ' default.'),
+                                    'helptext': 'Identifier of the study.'
+                                },
                                 'STUDY_NAME': {}
                              }
         # Not a datatype, but to stay in line with the datatype params:
@@ -110,27 +134,39 @@ class Study_params(Params):
 
 
 class Clinical_params(Params):
-    def __init__(self, filename, batch=False, all_none=True):
-        ''' batch and all_none are in here for legacy purposes  '''
+    """Class for clinical.params file"""
+    def __init__(self, filename):
         possible_variables = {
                                 'COLUMN_MAP_FILE': {
                                     'obligatory': True,
-                                    'variable_type': 'filename'
+                                    'variable_type': 'filename',
+                                    'helptext': 'Points to the column file.'
                                     },
                                 'WORD_MAP_FILE': {
-                                    'variable_type': 'filename'
+                                    'variable_type': 'filename',
+                                    'helptext': ('Points to the file with'
+                                                 ' dictionary to be used.')
                                     },
-                                "SECURITY_REQUIRED": {},
+                                "SECURITY_REQUIRED": {
+                                    'possible_values': ['Y', 'N'],
+                                },
                                 "TOP_NODE": {},
                                 "STUDY_ID": {},
-                                "XTRIAL_FILE": {},
+                                "XTRIAL_FILE": {
+                                    'helptext': ('Points to the cross study'
+                                                 ' concepts file.')
+                                },
                                 "TAGS_FILE": {
-                                    'variable_type': 'filename'
+                                    'variable_type': 'filename',
+                                    'helptext': ('Points to the concepts tags'
+                                                 ' file.')
                                 },
                                 "RECORD_EXCLUSION_FILE": {
                                     'variable_type': 'filename'
                                 },
-                                "USE_R_UPLOAD": {},
+                                "USE_R_UPLOAD": {
+                                    'possible_values': ['Y', 'N']
+                                },
                                 "TOP_NODE_PREFIX": {}
                               }
         datatype = 'clinical'

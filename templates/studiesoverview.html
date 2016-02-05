@@ -27,8 +27,8 @@
 		{% if studies[study]['type'] == 'study' %}
 
 		<li class="study">
-			<a title="Use {{study}} as study" href="{{ studyurl }}"><img class="primary" src="{{ url_for('static', filename='img/tree/study.png') }}" style="vertical-align:text-bottom;opacity: 1;"></a>
 			<a title="Navigate to folder {{study}}" data-foldername="{{study}}" class="gotofolder" href="{{ folderurl }}"><img class="secondary" data-foldername="{{study}}" src="{{ url_for('static', filename='img/tree/folder.gif') }}" style="vertical-align:text-bottom;opacity: 0.2;"></a>
+			<a title="Use {{study}} as study" href="{{ studyurl }}"><img class="primary" src="{{ url_for('static', filename='img/tree/study.png') }}" style="vertical-align:text-bottom;opacity: 1;"></a>
 			<a href="{{ studyurl }}">{{study}}</a>
 		</li>
 

@@ -1,0 +1,78 @@
+{% extends "layout.html" %}
+{% import 'macros.html' as macros %}
+
+{% block title %}Edit {{ datatype}}.params{% endblock %}
+{% block content %}
+
+<form method="post">
+  <fieldset>
+    <legend>Parameters</legend>
+    {% for variable in variables %}
+    <p>
+      <label for="{{ variable }}">{{ variable }}</label>
+
+      {% set helpanddefault = [] %}
+
+      {% if variables[variable]['obligatory'] is defined %}
+        {% do helpanddefault.append('Mandatory.') %}
+      {% endif %}
+      {% if variables[variable]['default'] is defined %}
+        {% do helpanddefault.append('Default: \''+variables[variable]['default']+'\'') %}
+      {% endif %}
+      {% if variables[variable]['helptext'] is defined %}
+        {% do helpanddefault.append(variables[variable]['helptext']) %}
+      {% endif %}
+
+      {% set helpanddefault = helpanddefault|join("\n") %}
+
+      {% if variables[variable]['possible_values'] -%}
+
+      <select name="nodetype"
+              {% if variables[variable]['obligatory'] == True %}required{% endif %}
+              {% if helpanddefault %}
+              title="{{ helpanddefault }}"
+              {% endif %}
+              >
+        {% if variables[variable]['obligatory'] == True %}
+        <option value disabled {% if not variables[variable]['value'] %}selected{% endif %}> -- select an option -- </option>
+        {% else %}
+        <option> -- not specified -- </option>
+        {% endif %}
+        {% for possible_value in variables[variable]['possible_values'] %}
+        <option value="{{ possible_value }}"
+        {% if possible_value == variables[variable]['value'] %}selected{% endif%}
+        >{{ possible_value }}</option>
+        {% endfor %}
+      </select>
+
+      {%- else -%}
+
+      <input type="text"
+             name="{{ variable }}"
+             value="{{ variables[variable]['value'] }}"
+             {% if variables[variable]['obligatory'] == True %}required{% endif %}
+             {% if helpanddefault %}
+             placeholder="{{ helpanddefault }}"
+             title="{{ helpanddefault }}"
+             {% endif %}
+             />
+
+      {%- endif %}
+      {% if helpanddefault -%}
+      <img title="{{ helpanddefault }}" src="{{ url_for('static', filename='img/helpicon.jpg') }}" style="padding-left: 3px; float: left;" />
+      {%- endif %}
+    </p>
+    {% endfor %}
+    <input type="submit" value="Apply changes" />
+  </fieldset>
+</form>
+
+<p>{{ macros.feedbacklist(feedback) }}</p>
+
+<script>
+  $(function() {
+    $( "img" ).tooltip();
+  });
+</script>
+
+{% endblock %}

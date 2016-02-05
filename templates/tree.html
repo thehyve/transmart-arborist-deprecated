@@ -2,13 +2,6 @@
 {% block title %}TranSMART tree{% endblock %}
 {% block head %}
     {{ super() }}
-		<style>
-			div#treediv { overflow:auto; border:1px solid silver; min-height: 300px;}
-			label {text-align: right; float: left; width: 150px; padding-right: 5px;}
-			input[type=text] {float: left; width: 300px;}
-			select {float: left; width: 300px;}
-			fieldset p {clear: both; padding: 5px; }
-		</style>
 		<link rel="stylesheet" href="/static/jstree/dist/themes/default/style.min.css" />
 {% endblock %}
 {% block content %}
@@ -21,7 +14,7 @@
 			<legend>Data node details</legend>
 			<p>
 				<label for="datalabel">Data Label</label>
-				<input type="text" name="datalabel" required="true" />
+				<input type="text" name="datalabel" required />
 			</p>
 			<p>
 				<label for="nodetype">Node type</label>
@@ -49,12 +42,11 @@
 				<label for="controlvocabcd">Control Vocab Cd</label>
 				<input class="clinicaldata" type="text" name="controlvocabcd" />
 			</p>
-			<input type="submit" value="Apply changes" style="float: right;" />
+			<input type="submit" value="Apply changes" />
 			<span style="float: right; padding-right: 5px;" id="feedback"></span>
 		</fieldset>
 	</form>
 
-	<script src="//ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
 	<script src="/static/jstree/dist/jstree.min.js"></script>
 
 	<script>

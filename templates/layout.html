@@ -5,6 +5,12 @@
 	    <title>{% block title %}{% endblock %} - TranSMART Arborist</title>
 			<link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}" />
 			<link rel="stylesheet" href="{{ url_for('static', filename='mainstyle.css') }}" />
+      <link href="//code.jquery.com/ui/1.11.4/themes/blitzer/jquery-ui.css" rel="stylesheet">
+      <link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Open+Sans">
+      <link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Fjalla+One">
+      <link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Lobster">
+      <script src="//ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+      <script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
     {% endblock %}
 </head>
 <body>
@@ -12,7 +18,7 @@
       <h1>{{ self.title() }}</h1>
 
       {% if studiesfolder %}
-        <p><a href="{{ url_for('studies_overview', studiesfolder=studiesfolder) }}">Studies overview</a>
+        <p id="breadcrumb"><a href="{{ url_for('studies_overview', studiesfolder=studiesfolder) }}">Studies overview</a>
       {% endif %}
 
       {% if study and studiesfolder %}
@@ -29,9 +35,13 @@
         tranSMART Arborist is
         <a href="https://github.com/thehyve/transmart-arborist/blob/master/LICENSE">open source</a>
         and available on <a href="https://github.com/thehyve/transmart-arborist">Github</a>. -
-        {% set issuetitle = ('Issue in '+request.endpoint)|urlencode %}
-        {% set issuebody = ('Issue encountered in '+request.endpoint+' on '+request.path)|urlencode %}
-        <a href="https://github.com/thehyve/transmart-arborist/issues/new?title={{ issuetitle }}&amp;body={{ issuebody }}">
+        {% if request.endpoint and request.path %}
+          {% set issuetitle = ('Issue in '+request.endpoint)|urlencode %}
+          {% set issuebody = ('Issue encountered in '+request.endpoint+' on '+request.path)|urlencode %}
+          <a href="https://github.com/thehyve/transmart-arborist/issues/new?title={{ issuetitle }}&amp;body={{ issuebody }}">
+        {% else %}
+          <a href="https://github.com/thehyve/transmart-arborist/issues/new">
+        {% endif %}
           Click here to report an issue</a>.
       {% endblock %}
     </div>
