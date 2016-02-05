@@ -1,5 +1,7 @@
 import os
+
 from exceptions import HyveException, HyveIOException
+from feedback import get_feedback_dict, merge_feedback_dicts
 
 
 class Params(object):
@@ -36,8 +38,10 @@ class Params(object):
         self.directory = os.path.join(
                             os.path.dirname(os.path.abspath(filename)),
                             datatype)
+        self.study_directory = os.path.dirname(os.path.abspath(filename))
+        self.datatype = datatype
         self.possible_variables = possible_variables
-        self.feedback = feedback = {'errors': [], 'warnings': [], 'infos': []}
+        self.feedback = get_feedback_dict()
 
         with open(filename, 'r') as handle:
             for line in handle.readlines():
@@ -45,62 +49,110 @@ class Params(object):
                 if line == "" or line.startswith('#'):
                     continue
                 line = line.strip()
-                print line
                 variable, value = line.split("=")
 
                 value = value.strip("'").strip("\"")
 
-                if variable in possible_variables:
-                    if 'possible_values' in possible_variables[variable]:
-                        if value not in \
-                         possible_variables[variable]['possible_values']:
-                            msg = '''Value {} is not in the possible values for
-                            variable {}. Should be one of {}'''.format(
-                                value, variable,
-                                str(possible_variables[variable]
-                                    ['possible_values']))
-                            feedback['errors'].append(msg)
-
-                    if 'variable_type' in possible_variables[variable]:
-                        # Check for existance of file (and ignore filename 'x')
-                        if possible_variables[variable]['variable_type'] == \
-                                'filename' and value.lower() != 'x':
-                            value = os.path.join(self.directory, value)
-                            if not os.path.exists(value):
-                                msg = "The {} file {} doesn't exist.".format(
-                                    variable, value)
-                                feedback['errors'].append(msg)
-                    setattr(self, variable, value)
-                else:
-                    msg = "{} doesn't have the variable {}".format(
-                        self.__class__, variable)
-                    print msg
+                self.set_variable(variable, value)
 
         for variable in possible_variables:
             if 'obligatory' in possible_variables[variable]:
                 if possible_variables[variable]['obligatory']:
-                    if not hasattr(self, variable):
-                        msg = "{} not in {}".format(variable, filename)
-                        feedback['errors'].append(msg)
+                    if self.get_variable(variable) is None:
+                        msg = "Mandatory variable {} not in {}".format(
+                              variable, filename)
+                        self.feedback['errors'].append(msg)
 
     def __str__(self):
         variablesvalues = self.get_variables()
         return str(self.__class__) + ": " + str(variablesvalues)
 
+    def get_variable_path(self, variable):
+        value = self.get_variable(variable)
+        if value is not None:
+            pathvalue = os.path.join(self.directory, value)
+            if not os.path.exists(pathvalue):
+                msg = "The {} file \'{}\' doesn't exist.".format(
+                    variable, pathvalue)
+                self.feedback['errors'].append(msg)
+                return
+            else:
+                return pathvalue
+        else:
+            return
+
+    def get_variable(self, variable):
+        try:
+            return getattr(self, variable)
+        except Exception as e:
+            return
+
     def get_variables(self):
         variablesvalues = {}
         for variable in self.possible_variables:
-            try:
-                variablesvalues[variable] = getattr(self, variable)
-            except Exception as e:
-                print("no variable "+variable)
+            value = self.get_variable(variable)
+            if value is not None:
+                variablesvalues[variable] = value
         return variablesvalues
+
+    def set_variable(self, variable, value, update=False):
+        possible_variables = self.possible_variables
+
+        if variable in possible_variables:
+            if 'possible_values' in possible_variables[variable]:
+                if value not in \
+                 possible_variables[variable]['possible_values']+['']:
+                    msg = ('Value \'{}\' is not in the possible values for'
+                           ' variable {}. Should be one of {}').format(
+                        value, variable,
+                        str(possible_variables[variable]
+                            ['possible_values']))
+                    self.feedback['errors'].append(msg)
+                    return
+
+            if 'variable_type' in possible_variables[variable]:
+                # Check for existance of file (and ignore filename 'x')
+                if possible_variables[variable]['variable_type'] == \
+                        'filename' and value.lower() != 'x':
+                    pathvalue = os.path.join(self.directory, value)
+                    if not os.path.exists(pathvalue):
+                        msg = "The {} file \'{}\' doesn't exist.".format(
+                            variable, pathvalue)
+                        self.feedback['errors'].append(msg)
+                        return
+
+            if update:
+                old_value = self.get_variable(variable)
+                if old_value is not None:
+                    if old_value != value:
+                        setattr(self, variable, value)
+                        msg = "Updated variable {} from \'{}\' to \'{}\'." \
+                              .format(variable, old_value, value)
+                        self.feedback['infos'].append(msg)
+                elif value != '':
+                    setattr(self, variable, value)
+                    msg = "Set variable {} to \'{}\'.".format(
+                        variable, value)
+                    self.feedback['infos'].append(msg)
+            else:
+                setattr(self, variable, value)
+
+    def update_variable(self, variable, value):
+        self.set_variable(variable, value, update=True)
 
     def get_possible_variables(self):
         return self.possible_variables
 
     def get_feedback(self):
         return self.feedback
+
+    def save_to_file(self):
+        filename = os.path.join(self.study_directory,
+                                self.datatype+'.params')
+        with open(filename, 'w') as handle:
+            for variable in self.get_variables():
+                handle.write(variable+'='+self.get_variable(variable)+'\n')
+        handle.close()
 
 
 class Study_params(Params):

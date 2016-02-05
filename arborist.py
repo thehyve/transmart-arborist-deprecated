@@ -11,6 +11,7 @@ from markupsafe import Markup
 from functions.params import Study_params, Clinical_params
 from functions.exceptions import HyveException, HyveIOException
 from functions.clinical import columns_to_json, json_to_columns, getchildren
+from functions.feedback import get_feedback_dict, merge_feedback_dicts
 
 UPLOAD_FOLDER = 'files'
 ALLOWED_EXTENSIONS = set(['txt', 'tsv'])
@@ -100,7 +101,6 @@ def studies_overview(studiesfolder):
 @app.route('/folder/<path:studiesfolder>/s/<study>/')
 def study_page(studiesfolder, study):
     studiesfolder = '/'+studiesfolder
-    app.logger.debug(studiesfolder)
 
     paramsdict = {}
 
@@ -108,7 +108,7 @@ def study_page(studiesfolder, study):
 
         paramsfile = os.path.join(studiesfolder, study, datatype+'.params')
         paramsdict[datatype] = {}
-        feedback = {'errors': [], 'warnings': [], 'infos': []}
+        feedback = get_feedback_dict()
 
         if os.path.exists(paramsfile):
             paramsdict[datatype]['exists'] = True
@@ -131,10 +131,11 @@ def study_page(studiesfolder, study):
             feedback['errors'].append('No params file loaded')
         else:
             params = paramsobject.get_variables()
-        # TODO merge feedback from paramsobject.get_feedback() with feedback
+            params_feedback = paramsobject.get_feedback()
+            feedback = merge_feedback_dicts(feedback, params_feedback)
+            params = OrderedDict(sorted(params.items(),
+                                 key=lambda x: x[0].lower()))
 
-        params = OrderedDict(sorted(params.items(),
-                                    key=lambda x: x[0].lower()))
         paramsdict[datatype]['params'] = params
         paramsdict[datatype]['feedback'] = feedback
 
@@ -163,7 +164,7 @@ def study_page(studiesfolder, study):
 @app.route('/folder/<path:studiesfolder>/s/<study>/params/<datatype>/create/')
 def create_params(studiesfolder, study, datatype):
     studiesfolder = '/'+studiesfolder
-    feedback = {'errors': [], 'warnings': [], 'infos': []}
+    feedback = get_feedback_dict()
     paramsfile = os.path.join(studiesfolder, study, datatype+'.params')
 
     if not os.path.exists(paramsfile):
@@ -177,14 +178,37 @@ def create_params(studiesfolder, study, datatype):
                             datatype=datatype))
 
 
-@app.route('/folder/<path:studiesfolder>/s/<study>/params/<datatype>/', methods=['GET', 'POST'])
+@app.route('/folder/<path:studiesfolder>/s/<study>/params/<datatype>/',
+           methods=['GET', 'POST'])
 def edit_params(studiesfolder, study, datatype):
     studiesfolder = '/'+studiesfolder
-    feedback = {'errors': [], 'warnings': [], 'infos': []}
+    feedback = get_feedback_dict()
     paramsfile = os.path.join(studiesfolder, study, datatype+'.params')
 
     if request.method == 'POST':
-        print request.form
+        if os.path.exists(paramsfile):
+            if datatype == 'study':
+                paramsobject = Study_params(paramsfile)
+            elif datatype == 'clinical':
+                paramsobject = Clinical_params(paramsfile)
+            else:
+                feedback['errors'].append('Params file {} not supported'.
+                                          format(paramsfile))
+        else:
+            feedback['errors'].append('Params file {} does not exist'.
+                                      format(paramsfile))
+
+        try:
+            paramsobject
+        except NameError:
+            feedback['errors'].append('No params file loaded')
+        else:
+            for variable in request.form:
+                paramsobject.update_variable(variable,
+                                             request.form[variable])
+            app.logger.debug(paramsobject.get_variables())
+            paramsobject.save_to_file()
+            feedback = paramsobject.get_feedback()
 
     if os.path.exists(paramsfile):
         if datatype == 'study':
@@ -212,7 +236,8 @@ def edit_params(studiesfolder, study, datatype):
             if variable in params:
                     variables[variable]['value'] = params[variable]
 
-        # TODO merge feedback from paramsobject.get_feedback() with feedback
+        params_feedback = paramsobject.get_feedback()
+        feedback = merge_feedback_dicts(feedback, params_feedback)
 
     variables = OrderedDict(sorted(variables.items(),
                                    key=lambda x: x[0].lower()))
@@ -232,18 +257,19 @@ def edit_tree(studiesfolder, study):
     studiesfolder = '/'+studiesfolder
 
     clinicalparamsfile = os.path.join(studiesfolder, study, 'clinical.params')
-    try:
-        clinicalparams = Clinical_params(clinicalparamsfile).get_variables()
-    except (HyveException, HyveIOException) as e:
-        clinicalparams = {type(e).__name__: str(e)}
-    except IOError as e:
-        clinicalparams = {}
+    paramsobject = Clinical_params(clinicalparamsfile)
 
-    if 'COLUMN_MAP_FILE' in clinicalparams:
-        columnsfile = clinicalparams['COLUMN_MAP_FILE']
-        json = columns_to_json(columnsfile)
-    else:
+    try:
+        paramsobject
+    except NameError:
+        feedback['errors'].append('No params file loaded')
         json = {}
+    else:
+        columnsfile = paramsobject.get_variable_path('COLUMN_MAP_FILE')
+        if columnsfile is not None:
+            json = columns_to_json(columnsfile)
+        else:
+            json = {}
 
     studiesfolder = studiesfolder.strip('/')
 

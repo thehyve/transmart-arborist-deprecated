@@ -4,7 +4,9 @@
 {% block title %}Edit {{ datatype}}.params{% endblock %}
 {% block content %}
 
-<form method="post">
+<p>{{ macros.feedbacklist(feedback) }}</p>
+
+<form method="post" action="{{ url_for('edit_params', studiesfolder=studiesfolder, study=study, datatype=datatype) }}">
   <fieldset>
     <legend>Parameters</legend>
     {% for variable in variables %}
@@ -23,11 +25,11 @@
         {% do helpanddefault.append(variables[variable]['helptext']) %}
       {% endif %}
 
-      {% set helpanddefault = helpanddefault|join("\n") %}
+      {% set helpanddefault = helpanddefault|join(" ") %}
 
       {% if variables[variable]['possible_values'] -%}
 
-      <select name="nodetype"
+      <select name="{{ variable }}"
               {% if variables[variable]['obligatory'] == True %}required{% endif %}
               {% if helpanddefault %}
               title="{{ helpanddefault }}"
@@ -36,7 +38,7 @@
         {% if variables[variable]['obligatory'] == True %}
         <option value disabled {% if not variables[variable]['value'] %}selected{% endif %}> -- select an option -- </option>
         {% else %}
-        <option> -- not specified -- </option>
+        <option value> -- not specified -- </option>
         {% endif %}
         {% for possible_value in variables[variable]['possible_values'] %}
         <option value="{{ possible_value }}"
@@ -66,8 +68,6 @@
     <input type="submit" value="Apply changes" />
   </fieldset>
 </form>
-
-<p>{{ macros.feedbacklist(feedback) }}</p>
 
 <script>
   $(function() {
