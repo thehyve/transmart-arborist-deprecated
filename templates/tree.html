@@ -5,11 +5,13 @@
 		<link rel="stylesheet" href="/static/jstree/dist/themes/default/style.min.css" />
 {% endblock %}
 {% block content %}
-	<div id="treediv"></div>
 
-	<p><button id="export">Create output files</button></p>
-	<p id="outputlinks"></p>
-	<form id="datanodedetails">
+  <div id="treediv"></div>
+
+	<p><button id="save">Save column mapping file</button></p>
+	<p id="feedbacksave"></p>
+
+  <form id="datanodedetails">
 		<fieldset>
 			<legend>Data node details</legend>
 			<p>
@@ -52,20 +54,33 @@
 	<script>
 	// Send tree JSON to Python and create links to exorted files
 	$(function() {
-		$('button#export').bind('click', function() {
+		$('button#save').bind('click', function() {
 			var v = $('#treediv').jstree(true).get_json()
 			var tree = JSON.stringify(v);
 
 			$.ajax({
 				method: "POST",
 				contentType: "application/json",
-				url: "/prepare_columnsfile",
+				url: "{{ url_for('save_columnsfile', studiesfolder=studiesfolder, study=study) }}",
 				data: tree
 			})
 			.done(function( msg ) {
-				console.log( "Data Saved: " + msg.columnsfile );
-				document.getElementById("outputlinks").innerHTML = '<a href="/downloads/'+msg.columnsfile+'" target="_blank">Column mapping file</a>';
-			});
+				console.log( "Data Saved: " + msg.feedback.infos );
+				document.getElementById("feedbacksave").innerHTML = '<ul class="feedback" id="feedbacklist"></ul>';
+        for (i = 0; i < msg.feedback.errors.length; i++) {
+            $( "#feedbacklist" ).append( "<li class='error'>"+msg.feedback.errors[i]+"</li>" );
+        }
+        for (i = 0; i < msg.feedback.warnings.length; i++) {
+            $( "#feedbacklist" ).append( "<li class='warning'>"+msg.feedback.warnings[i]+"</li>" );
+        }
+        for (i = 0; i < msg.feedback.infos.length; i++) {
+            $( "#feedbacklist" ).append( "<li class='info'>"+msg.feedback.infos[i]+"</li>" );
+        }
+			})
+      .fail(function() {
+        document.getElementById("feedbacksave").innerHTML = '<ul class="feedback" id="feedbacklist"></ul>';
+        $( "#feedbacklist" ).append( "<li class='error'>Error encountered in saving column mapping file</li>" );
+      });
 
 			return false;
 		});

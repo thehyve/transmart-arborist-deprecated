@@ -13,7 +13,7 @@ from functions.exceptions import HyveException, HyveIOException
 from functions.clinical import columns_to_json, json_to_columns, getchildren
 from functions.feedback import get_feedback_dict, merge_feedback_dicts
 
-UPLOAD_FOLDER = 'files'
+STUDIES_FOLDER = 'studies'
 ALLOWED_EXTENSIONS = set(['txt', 'tsv'])
 
 app = Flask(__name__)
@@ -22,10 +22,8 @@ app.jinja_env.trim_blocks = True
 app.jinja_env.lstrip_blocks = True
 app.jinja_env.filters['path_join'] = lambda paths: os.path.join(*paths)
 
-if not os.path.isdir(UPLOAD_FOLDER):
-    os.mkdir(UPLOAD_FOLDER)
-
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+if not os.path.isdir(STUDIES_FOLDER):
+    os.mkdir(STUDIES_FOLDER)
 
 columnmappingfilename = 'columns.txt'
 possible_datatypes = ['study', 'clinical']
@@ -44,22 +42,6 @@ def urlencode_filter(s):
 def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
-
-
-@app.route('/prepare_columnsfile', methods=['GET', 'POST'])
-def prepare_columnsfile():
-    tree = request.get_json()
-    tree = json_to_columns(tree)
-    columnmappingfile = open(os.path.join(app.config['UPLOAD_FOLDER'],
-                                          columnmappingfilename), 'wb')
-    columnmappingfile.write(tree)
-    return json.jsonify(columnsfile=columnmappingfilename)
-
-
-@app.route('/downloads/<filename>')
-def download_file(filename):
-    return send_from_directory(app.config['UPLOAD_FOLDER'],
-                               filename)
 
 
 @app.route('/')
@@ -279,6 +261,37 @@ def edit_tree(studiesfolder, study):
                            studiesfolder=studiesfolder,
                            study=study,
                            json=json)
+
+
+@app.route('/folder/<path:studiesfolder>/s/<study>/tree/save_columnsfile',
+           methods=['POST'])
+def save_columnsfile(studiesfolder, study):
+    studiesfolder = '/'+studiesfolder
+    feedback = get_feedback_dict()
+
+    tree = request.get_json()
+    tree, feedback_json_to_columns = json_to_columns(tree)
+
+    feedback = merge_feedback_dicts(feedback, feedback_json_to_columns)
+
+    clinicalparamsfile = os.path.join(studiesfolder, study, 'clinical.params')
+    paramsobject = Clinical_params(clinicalparamsfile)
+
+    try:
+        paramsobject
+    except NameError:
+        feedback['errors'].append('No params file loaded')
+    else:
+        columnsfile = paramsobject.get_variable_path('COLUMN_MAP_FILE')
+
+        columnmappingfile = open(columnsfile, 'wb')
+        columnmappingfile.write(tree)
+        columnmappingfile.close()
+
+        feedback['infos'].append('Saved column mapping file \'{}\'.'.format(
+            paramsobject.get_variable('COLUMN_MAP_FILE')))
+
+    return json.jsonify(feedback=feedback)
 
 
 @app.errorhandler(404)

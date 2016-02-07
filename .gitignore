@@ -1,5 +1,6 @@
 # Output files
 files/
+studies/
 # Virtual environment
 venv/
 # Settings file
