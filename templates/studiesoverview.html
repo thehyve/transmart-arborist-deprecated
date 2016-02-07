@@ -1,7 +1,8 @@
 {% extends "layout.html" %}
 {% block title %}Studies overview{% endblock %}
 {% block content %}
-	<p>Studies are recognized based on the folder containing a <code>study.params</code> or <code>clinical.params</code> file.</p>
+	<p>Studies are recognized based on the folder containing a <code>study.params</code> or <code>clinical.params</code> file.<br />
+		You are currently in the folder: '<code>/{{ studiesfolder }}</code>'.</p>
 
 	{% if not parentfolder == '' %}
 		{% set parenturl = url_for('studies_overview', studiesfolder=parentfolder) %}
