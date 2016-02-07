@@ -13,18 +13,17 @@ from functions.exceptions import HyveException, HyveIOException
 from functions.clinical import columns_to_json, json_to_columns, getchildren
 from functions.feedback import get_feedback_dict, merge_feedback_dicts
 
-UPLOAD_FOLDER = 'files'
+STUDIES_FOLDER = 'studies'
 ALLOWED_EXTENSIONS = set(['txt', 'tsv'])
 
 app = Flask(__name__)
 app.jinja_env.add_extension("jinja2.ext.do")
 app.jinja_env.trim_blocks = True
 app.jinja_env.lstrip_blocks = True
+app.jinja_env.filters['path_join'] = lambda paths: os.path.join(*paths)
 
-if not os.path.isdir(UPLOAD_FOLDER):
-    os.mkdir(UPLOAD_FOLDER)
-
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+if not os.path.isdir(STUDIES_FOLDER):
+    os.mkdir(STUDIES_FOLDER)
 
 columnmappingfilename = 'columns.txt'
 possible_datatypes = ['study', 'clinical']
@@ -45,32 +44,29 @@ def allowed_file(filename):
            filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
 
 
-@app.route('/prepare_columnsfile', methods=['GET', 'POST'])
-def prepare_columnsfile():
-    tree = request.get_json()
-    tree = json_to_columns(tree)
-    columnmappingfile = open(os.path.join(app.config['UPLOAD_FOLDER'],
-                                          columnmappingfilename), 'wb')
-    columnmappingfile.write(tree)
-    return json.jsonify(columnsfile=columnmappingfilename)
-
-
-@app.route('/downloads/<filename>')
-def download_file(filename):
-    return send_from_directory(app.config['UPLOAD_FOLDER'],
-                               filename)
-
-
 @app.route('/')
 def index():
-    return redirect(url_for('studies_overview_root'))
+    studiesfolder = os.path.abspath(STUDIES_FOLDER)
+    studiesfolder = studiesfolder.strip('/')
+    return redirect(url_for('studies_overview', studiesfolder=studiesfolder))
 
 
-@app.route('/folder/')
-def studies_overview_root():
-    return studies_overview('')
+@app.route('/folder/create/', defaults={'studiesfolder': ''}, methods=['POST'])
+@app.route('/folder/<path:studiesfolder>/create/', methods=['POST'])
+def create_folder(studiesfolder):
+    studiesfolder = '/'+studiesfolder
+    if 'foldername' in request.form:
+        foldername = os.path.join(studiesfolder,
+                                  request.form['foldername'])
+        if not os.path.exists(foldername):
+            os.makedirs(foldername)
+
+    studiesfolder = studiesfolder.strip('/')
+
+    return redirect(url_for('studies_overview', studiesfolder=studiesfolder))
 
 
+@app.route('/folder/', defaults={'studiesfolder': ''})
 @app.route('/folder/<path:studiesfolder>/')
 def studies_overview(studiesfolder):
     studiesfolder = '/'+studiesfolder
@@ -98,6 +94,7 @@ def studies_overview(studiesfolder):
                            studies=orderedstudies)
 
 
+@app.route('/folder/s/<study>/', defaults={'studiesfolder': ''})
 @app.route('/folder/<path:studiesfolder>/s/<study>/')
 def study_page(studiesfolder, study):
     studiesfolder = '/'+studiesfolder
@@ -121,8 +118,8 @@ def study_page(studiesfolder, study):
                                           format(paramsfile))
         else:
             paramsdict[datatype]['exists'] = False
-            feedback['errors'].append('Params file {} does not exist'.
-                                      format(paramsfile))
+            feedback['errors'].append('No {} found'.
+                                      format(datatype+'.params'))
 
         params = {}
         try:
@@ -146,19 +143,6 @@ def study_page(studiesfolder, study):
                            study=study,
                            paramsdict=paramsdict,
                            possible_datatypes=possible_datatypes)
-
-
-# @app.route('/study/<study>/clinical/upload/', methods=['GET', 'POST'])
-# def upload_file(study):
-#     if request.method == 'POST':
-#         file = request.files['file']
-#         if file and allowed_file(file.filename):
-#             filename = secure_filename(file.filename)
-#             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-#             return redirect(url_for('edit_tree',
-#                                     filename=filename,
-#                                     study=study))
-#     return render_template('upload.html', study=study)
 
 
 @app.route('/folder/<path:studiesfolder>/s/<study>/params/<datatype>/create/')
@@ -277,6 +261,37 @@ def edit_tree(studiesfolder, study):
                            studiesfolder=studiesfolder,
                            study=study,
                            json=json)
+
+
+@app.route('/folder/<path:studiesfolder>/s/<study>/tree/save_columnsfile',
+           methods=['POST'])
+def save_columnsfile(studiesfolder, study):
+    studiesfolder = '/'+studiesfolder
+    feedback = get_feedback_dict()
+
+    tree = request.get_json()
+    tree, feedback_json_to_columns = json_to_columns(tree)
+
+    feedback = merge_feedback_dicts(feedback, feedback_json_to_columns)
+
+    clinicalparamsfile = os.path.join(studiesfolder, study, 'clinical.params')
+    paramsobject = Clinical_params(clinicalparamsfile)
+
+    try:
+        paramsobject
+    except NameError:
+        feedback['errors'].append('No params file loaded')
+    else:
+        columnsfile = paramsobject.get_variable_path('COLUMN_MAP_FILE')
+
+        columnmappingfile = open(columnsfile, 'wb')
+        columnmappingfile.write(tree)
+        columnmappingfile.close()
+
+        feedback['infos'].append('Saved column mapping file \'{}\'.'.format(
+            paramsobject.get_variable('COLUMN_MAP_FILE')))
+
+    return json.jsonify(feedback=feedback)
 
 
 @app.errorhandler(404)

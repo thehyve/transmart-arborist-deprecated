@@ -3,7 +3,8 @@
 
 {% block title %}Study {{study}}{% endblock %}
 {% block content %}
-
+<p>The information below was found by scanning the <code>.params</code> files corresponding to the datatypes in the folder:<br />
+	'/<code>{{ (studiesfolder, study)|path_join }}</code>'.</p>
 	{% for datatype in possible_datatypes %}
 		<h2>{{ datatype|capitalize }} data</h2>
 		<p>{{ macros.feedbacklist(paramsdict[datatype]['feedback']) }}</p>

@@ -73,7 +73,7 @@ class Params(object):
             pathvalue = os.path.join(self.directory, value)
             if not os.path.exists(pathvalue):
                 msg = "The {} file \'{}\' doesn't exist.".format(
-                    variable, pathvalue)
+                    variable, value)
                 self.feedback['errors'].append(msg)
                 return
             else:
@@ -111,15 +111,13 @@ class Params(object):
                     return
 
             if 'variable_type' in possible_variables[variable]:
-                # Check for existance of file (and ignore filename 'x')
-                if possible_variables[variable]['variable_type'] == \
-                        'filename' and value.lower() != 'x':
+                # Check for existance of file
+                if possible_variables[variable]['variable_type'] == 'filename':
                     pathvalue = os.path.join(self.directory, value)
                     if not os.path.exists(pathvalue):
                         msg = "The {} file \'{}\' doesn't exist.".format(
-                            variable, pathvalue)
+                            variable, value)
                         self.feedback['errors'].append(msg)
-                        return
 
             if update:
                 old_value = self.get_variable(variable)
@@ -136,6 +134,10 @@ class Params(object):
                     self.feedback['infos'].append(msg)
             else:
                 setattr(self, variable, value)
+        else:
+            msg = ('Variable {} not in the list of possible variables for'
+                   ' datatype {}.').format(variable, self.datatype)
+            self.feedback['errors'].append(msg)
 
     def update_variable(self, variable, value):
         self.set_variable(variable, value, update=True)

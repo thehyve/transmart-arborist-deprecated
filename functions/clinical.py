@@ -1,6 +1,7 @@
 import csv
 import os
 from flask import json
+from feedback import get_feedback_dict
 
 outoftree = 'OUT OF TREE'
 filenamelabel = 'Filename'
@@ -87,19 +88,32 @@ def columns_to_json(filename):
         return json.dumps(tree_array)
 
 
-def getchildren(node, columnsfile, path):
-    if node['type'] != 'default' and node['type'] != 'highdim':
+def getchildren(node, columnsfile, path, feedback):
+    if node['type'] == 'numeric' or node['type'] == 'alpha' \
+            or node['type'] == 'codeleaf':
         filename = node['data'][filenamelabel]
+
+        # Error handling for clinical concepts
+        if len(node['text']) != len(node['text'].strip()):
+            feedback['errors'].append(('The concept \'{}\' under folder \'{}\''
+                                       ' contains leading or trailing'
+                                       ' whitespace.')
+                                      .format(node['text'], "/".join(path)))
+
         if path == [outoftree]:
             categorycode = ''
         else:
             categorycode = '+'.join(path).replace(' ', '_')
+
         columnnumber = int(node['data'][columnnumberlabel])
+
         datalabel = node['text'].replace(' ', '_')
+
         if datalabelsourcelabel in node['data']:
             datalabelsource = node['data'][datalabelsourcelabel]
         else:
             datalabelsource = ''
+
         if controlvocabcdlabel in node['data']:
             controlvocabcd = node['data'][controlvocabcdlabel]
         else:
@@ -107,19 +121,39 @@ def getchildren(node, columnsfile, path):
 
         columnsfile.append([filename, categorycode, columnnumber, datalabel,
                             datalabelsource, controlvocabcd])
-        return columnsfile
-    else:
+        return columnsfile, feedback
+    elif node['type'] == 'default':
         path = path + [node['text']]
+
+        # Error handling for folders
+        for char in ['+', '/', '\'']:
+            if char in node['text']:
+                feedback['errors'].append(('The folder \'{}\' contains a '
+                                           '\'{}\' symbol, which will give'
+                                           ' problems when loading data.')
+                                          .format("/".join(path), char))
+        if len(node['text']) != len(node['text'].strip()):
+            feedback['errors'].append(('The folder \'{}\' contains leading or'
+                                       ' trailing whitespace.')
+                                      .format("/".join(path)))
+        if node['children'] == []:
+            feedback['warnings'].append(('The folder \'{}\' has no children'
+                                         ' and will thus be ignored.')
+                                        .format("/".join(path)))
+
         for child in node['children']:
-            columnsfile = getchildren(child, columnsfile, path)
-        return columnsfile
+            columnsfile, feedback = getchildren(child, columnsfile, path,
+                                                feedback)
+        return columnsfile, feedback
 
 
 def json_to_columns(tree):
     columnsfile = []
     path = []
+    feedback = get_feedback_dict()
+
     for node in tree:
-        columnsfile = getchildren(node, columnsfile, path)
+        columnsfile, feedback = getchildren(node, columnsfile, path, feedback)
 
     # Sort on column number and filename
     columnsfile = sorted(columnsfile, key=lambda x: x[2])
@@ -128,4 +162,5 @@ def json_to_columns(tree):
     columnsfiledata = '\t'.join(columnsfileheaders)+'\n'
     for row in columnsfile:
         columnsfiledata += '\t'.join(map(str, row))+'\n'
-    return columnsfiledata
+
+    return columnsfiledata, feedback

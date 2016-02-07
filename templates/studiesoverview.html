@@ -1,27 +1,41 @@
 {% extends "layout.html" %}
 {% block title %}Studies overview{% endblock %}
 {% block content %}
-	<p>Studies are recognized based on the folder containing a <code>study.params</code> or <code>clinical.params</code> file.</p>
+	<p>Studies are recognized based on the folder containing a <code>study.params</code> or <code>clinical.params</code> file.<br />
+		You are currently in the folder: '<code>/{{ studiesfolder }}</code>'.</p>
 
 	{% if not parentfolder == '' %}
 		{% set parenturl = url_for('studies_overview', studiesfolder=parentfolder) %}
 	{% else %}
-		{% set parenturl = url_for('studies_overview_root') %}
+		{% set parenturl = url_for('studies_overview') %}
 	{% endif %}
 
 	{% if not studiesfolder == '' %}
-	<p><a href="{{ parenturl }}" id="gotoparent">Go to parent directory</a></p>
+		{% set createfolderurl = url_for('create_folder', studiesfolder=studiesfolder) %}
+	{% else %}
+		{% set createfolderurl = url_for('create_folder') %}
 	{% endif %}
+
+	<p>
+	{% if not studiesfolder == '' %}
+	<a href="{{ parenturl }}" id="gotoparent">Go to parent directory</a> -
+	{% endif %}
+		<a id="newfolderlink" href="{{ createfolderurl }}">Create new folder</a>
+	</p>
+
+	<form method="post" id="newfolderform" action="{{ createfolderurl }}">
+		<input type="hidden" name="foldername" />
+	</form>
 
 	<ul class="folderlist">
 	{% for study in studies %}
 
 		{% if not studiesfolder == '' %}
-			{% set folderurl = url_for('studies_overview', studiesfolder=studiesfolder+'/'+study) %}
+			{% set folderurl = url_for('studies_overview', studiesfolder=(studiesfolder, study)|path_join) %}
 			{% set studyurl = url_for('study_page', studiesfolder=studiesfolder, study=study) %}
 		{% else %}
 			{% set folderurl = url_for('studies_overview', studiesfolder=study) %}
-			{% set studyurl = url_for('study_page', studiesfolder=studiesfolder, study=study) %}
+			{% set studyurl = url_for('study_page', study=study) %}
 		{% endif %}
 
 		{% if studies[study]['type'] == 'study' %}
@@ -62,6 +76,15 @@ $('img.secondary').hover(
 		$(this).css( "opacity", 0.2 );
   }
 );
+
+$('#newfolderlink').bind('click', function(event) {
+	event.preventDefault();
+	var foldername = prompt("Please enter the folder name.\nFor study folders it is recommended to use the Study ID as foldername, which should be unique, capitalized and only contain letters.", "STUDYID");
+	if (foldername != '' && foldername != null) {
+		$('input[name=foldername]').val(foldername);
+		$('#newfolderform').submit();
+	}
+});
 
 </script>
 
