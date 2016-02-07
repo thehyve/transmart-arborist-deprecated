@@ -111,9 +111,8 @@ class Params(object):
                     return
 
             if 'variable_type' in possible_variables[variable]:
-                # Check for existance of file (and ignore filename 'x')
-                if possible_variables[variable]['variable_type'] == \
-                        'filename' and value.lower() != 'x':
+                # Check for existance of file
+                if possible_variables[variable]['variable_type'] == 'filename':
                     pathvalue = os.path.join(self.directory, value)
                     if not os.path.exists(pathvalue):
                         msg = "The {} file \'{}\' doesn't exist.".format(
