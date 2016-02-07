@@ -136,8 +136,8 @@ def study_page(studiesfolder, study):
                                           format(paramsfile))
         else:
             paramsdict[datatype]['exists'] = False
-            feedback['errors'].append('Params file {} does not exist'.
-                                      format(paramsfile))
+            feedback['errors'].append('No {} found'.
+                                      format(datatype+'.params'))
 
         params = {}
         try:
