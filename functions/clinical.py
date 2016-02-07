@@ -1,23 +1,32 @@
 import csv
 import os
 from flask import json
+
 from feedback import get_feedback_dict
+from params import Clinical_params
+
 
 outoftree = 'OUT OF TREE'
+
 filenamelabel = 'Filename'
+filenamecolumn = 0
 categorycodelabel = 'Category Code'
+categorycodecolumn = 1
 columnnumberlabel = 'Column Number'
+columnnumbercolumn = 2
 datalabellabel = 'Data Label'
+datalabelcolumn = 3
 datalabelsourcelabel = 'Data Label Source'
+datalabelsourcecolumn = 4
 controlvocabcdlabel = 'Control Vocab Cd'
+controlvocabcdcolumn = 5
 columnsfileheaders = [filenamelabel, categorycodelabel, columnnumberlabel,
                       datalabellabel, datalabelsourcelabel,
                       controlvocabcdlabel]
 
 
 def columns_to_json(filename):
-    with open(filename, 'rb') as \
-     csvfile:
+    with open(filename, 'rb') as csvfile:
         csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
         tree_array = []
 
@@ -26,60 +35,70 @@ def columns_to_json(filename):
 
         for line in csvreader:
             # Skip lines without filename, column number or data label
-            if line[0] != '' and line[2] != '' and line[3] != '':
+            if line[filenamecolumn] != '' and line[columnnumbercolumn] != '' \
+                                          and line[datalabelcolumn] != '':
                 # If categorycode is empty this is a special concept that is
                 # not in the tree
                 # Eg SUBJ_ID, STUDY_ID, OMIT or DATA LABEL
-                if line[1] == '':
-                    line[1] = outoftree
 
-                path = line[1].split('+')
+                path = line[categorycodecolumn].split('+')
                 i = 0
 
-                for part in path:
-                    if i == 0:
-                        parent = '#'
-                    else:
-                        parent = '+'.join(path[0:i])
+                # Create folders for all parts in the categorycode path
+                if path != ['']:
+                    for part in path:
+                        if i == 0:
+                            parent = '#'
+                        else:
+                            parent = '+'.join(path[0:i])
 
-                    id = '+'.join(path[0:i+1])
+                        id = '+'.join(path[0:i+1])
 
-                    exists = False
-                    for item in tree_array:
-                        if item['id'] == id:
-                            exists = True
-                            break
+                        exists = False
+                        for item in tree_array:
+                            if item['id'] == id:
+                                exists = True
+                                break
 
-                    if not exists:
-                        text = part.replace('_', ' ')
-                        tree_array.append({
-                            'id': id,
-                            'text': text,
-                            'parent': parent
-                            })
+                        if not exists:
+                            text = part.replace('_', ' ')
+                            tree_array.append({
+                                'id': id,
+                                'text': text,
+                                'parent': parent
+                                })
 
-                    i += 1
+                        i += 1
 
-                leaf = line[3]
-                idpath = path + [leaf, line[0], line[2]]
+                # Add the leaf node
+                leaf = line[datalabelcolumn]
+
+                if path != ['']:
+                    parent = '+'.join(path)
+                else:
+                    parent = '#'
+
+                idpath = [leaf, line[filenamecolumn], line[columnnumbercolumn]]
                 id = '+'.join(idpath)
+
                 text = leaf.replace('_', ' ')
-                parent = '+'.join(path)
                 leafnode = {
                     'id': id,
                     'text': text,
                     'parent': parent,
                     'type': 'numeric',
                     'data': {
-                        filenamelabel:     line[0],
-                        categorycodelabel: line[1],
-                        columnnumberlabel: line[2],
-                        datalabellabel:    line[3]
+                        filenamelabel:     line[filenamecolumn],
+                        categorycodelabel: line[categorycodecolumn],
+                        columnnumberlabel: line[columnnumbercolumn],
+                        datalabellabel:    line[datalabelcolumn]
                         }}
                 if len(line) > 4:
-                    leafnode['data'][datalabelsourcelabel] = line[4]
+                    leafnode['data'][datalabelsourcelabel] = \
+                        line[datalabelsourcecolumn]
                 if len(line) > 5:
-                    leafnode['data'][controlvocabcdlabel] = line[5]
+                    leafnode['data'][controlvocabcdlabel] = \
+                        line[controlvocabcdcolumn]
                 if text in ['SUBJ ID', 'STUDY ID', 'DATA LABEL', 'DATALABEL',
                             'OMIT']:
                     leafnode['type'] = 'codeleaf'
@@ -100,10 +119,7 @@ def getchildren(node, columnsfile, path, feedback):
                                        ' whitespace.')
                                       .format(node['text'], "/".join(path)))
 
-        if path == [outoftree]:
-            categorycode = ''
-        else:
-            categorycode = '+'.join(path).replace(' ', '_')
+        categorycode = '+'.join(path).replace(' ', '_')
 
         columnnumber = int(node['data'][columnnumberlabel])
 
@@ -156,11 +172,47 @@ def json_to_columns(tree):
         columnsfile, feedback = getchildren(node, columnsfile, path, feedback)
 
     # Sort on column number and filename
-    columnsfile = sorted(columnsfile, key=lambda x: x[2])
-    columnsfile = sorted(columnsfile, key=lambda x: x[0])
+    columnsfile = sorted(columnsfile, key=lambda x: x[columnnumbercolumn])
+    columnsfile = sorted(columnsfile, key=lambda x: x[filenamecolumn])
 
     columnsfiledata = '\t'.join(columnsfileheaders)+'\n'
     for row in columnsfile:
         columnsfiledata += '\t'.join(map(str, row))+'\n'
 
     return columnsfiledata, feedback
+
+
+def get_datafiles(columnfilename):
+    datafiles = set()
+
+    with open(columnfilename, 'rb') as csvfile:
+        csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
+        next(csvreader)
+        for line in csvreader:
+            datafiles.add(line[filenamecolumn])
+
+    return datafiles
+
+
+def get_column_map_file(studiesfolder, study):
+    clinicalparamsfile = os.path.join(studiesfolder, study, 'clinical.params')
+    paramsobject = Clinical_params(clinicalparamsfile)
+    if paramsobject is not None:
+        columnsfile = paramsobject.get_variable_path('COLUMN_MAP_FILE')
+        return columnsfile
+    else:
+        return
+
+
+def add_to_column_file(datafilename, columnmappingfilename):
+    with open(datafilename, 'rb') as csvfile:
+        csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
+        headerline = csvreader.next()
+        with open(columnmappingfilename, "a") as columnmappingfile:
+            i = 1
+            for header in headerline:
+                filename = os.path.basename(datafilename)
+                folder = os.path.splitext(filename)[0]
+                columnmappingfile.write('\t'.join([filename, folder, str(i),
+                                        header, '', ''])+'\n')
+                i += 1

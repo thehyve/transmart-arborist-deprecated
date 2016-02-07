@@ -10,7 +10,9 @@ from markupsafe import Markup
 
 from functions.params import Study_params, Clinical_params
 from functions.exceptions import HyveException, HyveIOException
-from functions.clinical import columns_to_json, json_to_columns, getchildren
+from functions.clinical import columns_to_json, json_to_columns, getchildren, \
+                               get_datafiles, get_column_map_file, \
+                               add_to_column_file
 from functions.feedback import get_feedback_dict, merge_feedback_dicts
 
 STUDIES_FOLDER = 'studies'
@@ -25,7 +27,6 @@ app.jinja_env.filters['path_join'] = lambda paths: os.path.join(*paths)
 if not os.path.isdir(STUDIES_FOLDER):
     os.mkdir(STUDIES_FOLDER)
 
-columnmappingfilename = 'columns.txt'
 possible_datatypes = ['study', 'clinical']
 
 
@@ -240,27 +241,48 @@ def edit_params(studiesfolder, study, datatype):
 def edit_tree(studiesfolder, study):
     studiesfolder = '/'+studiesfolder
 
-    clinicalparamsfile = os.path.join(studiesfolder, study, 'clinical.params')
-    paramsobject = Clinical_params(clinicalparamsfile)
-
-    try:
-        paramsobject
-    except NameError:
-        feedback['errors'].append('No params file loaded')
-        json = {}
+    columnsfile = get_column_map_file(studiesfolder, study)
+    if columnsfile is not None:
+        json = columns_to_json(columnsfile)
+        clinicaldatafiles = get_datafiles(columnsfile)
     else:
-        columnsfile = paramsobject.get_variable_path('COLUMN_MAP_FILE')
-        if columnsfile is not None:
-            json = columns_to_json(columnsfile)
-        else:
-            json = {}
+        json = {}
+        clinicaldatafiles = []
 
     studiesfolder = studiesfolder.strip('/')
 
     return render_template('tree.html',
                            studiesfolder=studiesfolder,
+                           clinicaldatafiles=clinicaldatafiles,
                            study=study,
                            json=json)
+
+
+@app.route('/folder/<path:studiesfolder>/s/<study>/tree/add',
+           methods=['POST'])
+def add_datafile(studiesfolder, study):
+    studiesfolder = '/'+studiesfolder
+    file = request.files['file']
+
+    if file and allowed_file(file.filename):
+        filename = secure_filename(file.filename)
+        datafilepath = os.path.join(studiesfolder, study, 'clinical', filename)
+        if not os.path.exists(datafilepath):
+            file.save(datafilepath)
+            columnmappingfilepath = get_column_map_file(studiesfolder, study)
+            if columnmappingfilepath is not None:
+                add_to_column_file(datafilepath, columnmappingfilepath)
+            else:
+                print "no columnmappingfile"
+        else:
+            print "file already exists"
+    else:
+        print "file not allowed"
+
+    studiesfolder = studiesfolder.strip('/')
+    return redirect(url_for('edit_tree',
+                            studiesfolder=studiesfolder,
+                            study=study))
 
 
 @app.route('/folder/<path:studiesfolder>/s/<study>/tree/save_columnsfile',
@@ -274,22 +296,16 @@ def save_columnsfile(studiesfolder, study):
 
     feedback = merge_feedback_dicts(feedback, feedback_json_to_columns)
 
-    clinicalparamsfile = os.path.join(studiesfolder, study, 'clinical.params')
-    paramsobject = Clinical_params(clinicalparamsfile)
-
-    try:
-        paramsobject
-    except NameError:
-        feedback['errors'].append('No params file loaded')
-    else:
-        columnsfile = paramsobject.get_variable_path('COLUMN_MAP_FILE')
-
+    columnsfile = get_column_map_file(studiesfolder, study)
+    if columnsfile is not None:
         columnmappingfile = open(columnsfile, 'wb')
         columnmappingfile.write(tree)
         columnmappingfile.close()
 
         feedback['infos'].append('Saved column mapping file \'{}\'.'.format(
-            paramsobject.get_variable('COLUMN_MAP_FILE')))
+            os.path.split(columnsfile)[1]))
+    else:
+        feedback['errors'].append('No params file loaded')
 
     return json.jsonify(feedback=feedback)
 
