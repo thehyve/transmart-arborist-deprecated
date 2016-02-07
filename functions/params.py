@@ -118,7 +118,6 @@ class Params(object):
                         msg = "The {} file \'{}\' doesn't exist.".format(
                             variable, pathvalue)
                         self.feedback['errors'].append(msg)
-                        return
 
             if update:
                 old_value = self.get_variable(variable)
