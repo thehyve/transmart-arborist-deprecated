@@ -58,7 +58,7 @@ div#treediv {
   border: 1px solid silver;
   min-height: 300px;
 }
-label {
+form.blockform label {
   text-align: right;
   float: left;
   width: 200px;

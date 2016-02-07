@@ -6,7 +6,8 @@
 
 <p>{{ macros.feedbacklist(feedback) }}</p>
 
-<form method="post" action="{{ url_for('edit_params', studiesfolder=studiesfolder, study=study, datatype=datatype) }}">
+<form method="post" action="{{ url_for('edit_params', studiesfolder=studiesfolder, study=study, datatype=datatype) }}"
+  class="blockform">
   <fieldset>
     <legend>Parameters</legend>
     {% for variable in variables %}
