@@ -74,6 +74,9 @@ input[type=text], select {
   -webkit-box-sizing:content-box;
   box-sizing:content-box;
 }
+input[type=text][disabled], select[disabled] {
+  border-color: #eee;
+}
 select {
   /* With above hackary selects are 2px smaller than input texts */
   width: 402px;
