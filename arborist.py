@@ -69,6 +69,19 @@ def index():
     return redirect(url_for('studies_overview', studiesfolder=studiesfolder))
 
 
+@app.route('/folder/create/', defaults={'studiesfolder': ''}, methods=['POST'])
+@app.route('/folder/<path:studiesfolder>/create/', methods=['POST'])
+def create_folder(studiesfolder):
+    studiesfolder = '/'+studiesfolder
+    if 'foldername' in request.form:
+        foldername = os.path.join(studiesfolder,
+                                  request.form['foldername'])
+        if not os.path.exists(foldername):
+            os.makedirs(foldername)
+
+    studiesfolder = studiesfolder.strip('/')
+
+    return redirect(url_for('studies_overview', studiesfolder=studiesfolder))
 
 
 @app.route('/folder/', defaults={'studiesfolder': ''})

@@ -11,8 +11,21 @@
 	{% endif %}
 
 	{% if not studiesfolder == '' %}
-	<p><a href="{{ parenturl }}" id="gotoparent">Go to parent directory</a></p>
+		{% set createfolderurl = url_for('create_folder', studiesfolder=studiesfolder) %}
+	{% else %}
+		{% set createfolderurl = url_for('create_folder') %}
 	{% endif %}
+
+	<p>
+	{% if not studiesfolder == '' %}
+	<a href="{{ parenturl }}" id="gotoparent">Go to parent directory</a> -
+	{% endif %}
+		<a id="newfolderlink" href="{{ createfolderurl }}">Create new folder</a>
+	</p>
+
+	<form method="post" id="newfolderform" action="{{ createfolderurl }}">
+		<input type="hidden" name="foldername" />
+	</form>
 
 	<ul class="folderlist">
 	{% for study in studies %}
@@ -63,6 +76,15 @@ $('img.secondary').hover(
 		$(this).css( "opacity", 0.2 );
   }
 );
+
+$('#newfolderlink').bind('click', function(event) {
+	event.preventDefault();
+	var foldername = prompt("Please enter the folder name.\nFor study folders it is recommended to use the Study ID as foldername, which should be unique, capitalized and only contain letters.", "STUDYID");
+	if (foldername != '' && foldername != null) {
+		$('input[name=foldername]').val(foldername);
+		$('#newfolderform').submit();
+	}
+});
 
 </script>
 
