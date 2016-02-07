@@ -18,7 +18,7 @@
 	{% for study in studies %}
 
 		{% if not studiesfolder == '' %}
-			{% set folderurl = url_for('studies_overview', studiesfolder=studiesfolder+'/'+study) %}
+			{% set folderurl = url_for('studies_overview', studiesfolder=(studiesfolder, study)|path_join) %}
 			{% set studyurl = url_for('study_page', studiesfolder=studiesfolder, study=study) %}
 		{% else %}
 			{% set folderurl = url_for('studies_overview', studiesfolder=study) %}

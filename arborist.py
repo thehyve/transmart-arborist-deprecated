@@ -20,6 +20,7 @@ app = Flask(__name__)
 app.jinja_env.add_extension("jinja2.ext.do")
 app.jinja_env.trim_blocks = True
 app.jinja_env.lstrip_blocks = True
+app.jinja_env.filters['path_join'] = lambda paths: os.path.join(*paths)
 
 if not os.path.isdir(UPLOAD_FOLDER):
     os.mkdir(UPLOAD_FOLDER)
