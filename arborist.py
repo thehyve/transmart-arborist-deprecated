@@ -63,14 +63,14 @@ def download_file(filename):
 
 @app.route('/')
 def index():
-    return redirect(url_for('studies_overview_root'))
+    studiesfolder = os.path.abspath(STUDIES_FOLDER)
+    studiesfolder = studiesfolder.strip('/')
+    return redirect(url_for('studies_overview', studiesfolder=studiesfolder))
 
 
-@app.route('/folder/')
-def studies_overview_root():
-    return studies_overview('')
 
 
+@app.route('/folder/', defaults={'studiesfolder': ''})
 @app.route('/folder/<path:studiesfolder>/')
 def studies_overview(studiesfolder):
     studiesfolder = '/'+studiesfolder
@@ -98,6 +98,7 @@ def studies_overview(studiesfolder):
                            studies=orderedstudies)
 
 
+@app.route('/folder/s/<study>/', defaults={'studiesfolder': ''})
 @app.route('/folder/<path:studiesfolder>/s/<study>/')
 def study_page(studiesfolder, study):
     studiesfolder = '/'+studiesfolder

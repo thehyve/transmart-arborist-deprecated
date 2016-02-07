@@ -7,7 +7,7 @@
 	{% if not parentfolder == '' %}
 		{% set parenturl = url_for('studies_overview', studiesfolder=parentfolder) %}
 	{% else %}
-		{% set parenturl = url_for('studies_overview_root') %}
+		{% set parenturl = url_for('studies_overview') %}
 	{% endif %}
 
 	{% if not studiesfolder == '' %}
@@ -22,7 +22,7 @@
 			{% set studyurl = url_for('study_page', studiesfolder=studiesfolder, study=study) %}
 		{% else %}
 			{% set folderurl = url_for('studies_overview', studiesfolder=study) %}
-			{% set studyurl = url_for('study_page', studiesfolder=studiesfolder, study=study) %}
+			{% set studyurl = url_for('study_page', study=study) %}
 		{% endif %}
 
 		{% if studies[study]['type'] == 'study' %}
