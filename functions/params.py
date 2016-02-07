@@ -73,7 +73,7 @@ class Params(object):
             pathvalue = os.path.join(self.directory, value)
             if not os.path.exists(pathvalue):
                 msg = "The {} file \'{}\' doesn't exist.".format(
-                    variable, pathvalue)
+                    variable, value)
                 self.feedback['errors'].append(msg)
                 return
             else:
@@ -116,7 +116,7 @@ class Params(object):
                     pathvalue = os.path.join(self.directory, value)
                     if not os.path.exists(pathvalue):
                         msg = "The {} file \'{}\' doesn't exist.".format(
-                            variable, pathvalue)
+                            variable, value)
                         self.feedback['errors'].append(msg)
 
             if update:
