@@ -134,6 +134,10 @@ class Params(object):
                     self.feedback['infos'].append(msg)
             else:
                 setattr(self, variable, value)
+        else:
+            msg = ('Variable {} not in the list of possible variables for'
+                   ' datatype {}.').format(variable, self.datatype)
+            self.feedback['errors'].append(msg)
 
     def update_variable(self, variable, value):
         self.set_variable(variable, value, update=True)
