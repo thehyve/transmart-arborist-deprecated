@@ -60,7 +60,7 @@ def create_folder(studiesfolder):
         foldername = os.path.join(studiesfolder,
                                   request.form['foldername'])
         if not os.path.exists(foldername):
-            os.makedirs(foldername)
+            os.mkdir(foldername)
 
     studiesfolder = studiesfolder.strip('/')
 
@@ -258,7 +258,7 @@ def edit_tree(studiesfolder, study):
                            json=json)
 
 
-@app.route('/folder/<path:studiesfolder>/s/<study>/tree/add',
+@app.route('/folder/<path:studiesfolder>/s/<study>/tree/add/',
            methods=['POST'])
 def add_datafile(studiesfolder, study):
     studiesfolder = '/'+studiesfolder
@@ -285,7 +285,7 @@ def add_datafile(studiesfolder, study):
                             study=study))
 
 
-@app.route('/folder/<path:studiesfolder>/s/<study>/tree/save_columnsfile',
+@app.route('/folder/<path:studiesfolder>/s/<study>/tree/save_columnsfile/',
            methods=['POST'])
 def save_columnsfile(studiesfolder, study):
     studiesfolder = '/'+studiesfolder
