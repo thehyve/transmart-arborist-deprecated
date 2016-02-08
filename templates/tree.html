@@ -84,7 +84,7 @@
             $( "#feedbacklist" ).append( "<li class='warning'>"+msg.feedback.warnings[i]+"</li>" );
         }
         for (i = 0; i < msg.feedback.infos.length; i++) {
-            $( "#feedbacklist" ).append( "<li class='info'>"+msg.feedback.infos[i]+"</li>" );
+            $( "#feedbacklist" ).append( "<li class='message'>"+msg.feedback.infos[i]+"</li>" );
         }
 			})
       .fail(function() {

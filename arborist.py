@@ -1,8 +1,8 @@
 import os
 from collections import OrderedDict
 
-from flask import Flask, request, redirect, url_for, render_template, json, \
- Response, send_from_directory
+from flask import Flask, flash, request, redirect, url_for, render_template, \
+                  json, Response, send_from_directory
 from werkzeug import secure_filename
 
 import urllib
@@ -19,6 +19,8 @@ STUDIES_FOLDER = 'studies'
 ALLOWED_EXTENSIONS = set(['txt', 'tsv'])
 
 app = Flask(__name__)
+app.secret_key = 'not_so_secret'
+
 app.jinja_env.add_extension("jinja2.ext.do")
 app.jinja_env.trim_blocks = True
 app.jinja_env.lstrip_blocks = True
@@ -185,7 +187,8 @@ def create_params(studiesfolder, study, datatype):
 
     if not os.path.exists(paramsfile):
         with open(paramsfile, "w+"):
-            pass
+            flash('Successfully created {}.'.format(
+                os.path.basename(paramsfile)))
     if datatype != 'study':
         datatypepath = os.path.join(studiesfolder, study, datatype)
         if not os.path.exists(datatypepath):
@@ -212,11 +215,11 @@ def edit_params(studiesfolder, study, datatype):
             elif datatype == 'clinical':
                 paramsobject = Clinical_params(paramsfile)
             else:
-                feedback['errors'].append('Params file {} not supported'.
-                                          format(paramsfile))
+                flash('Params file {} not supported'.
+                      format(os.path.basename(paramsfile)), 'error')
         else:
-            feedback['errors'].append('Params file {} does not exist'.
-                                      format(paramsfile))
+            flash('Params file {} does not exist'.
+                  format(os.path.basename(paramsfile)), 'error')
 
         try:
             paramsobject
@@ -236,18 +239,18 @@ def edit_params(studiesfolder, study, datatype):
         elif datatype == 'clinical':
             paramsobject = Clinical_params(paramsfile)
         else:
-            feedback['errors'].append('Params file {} not supported'.
-                                      format(paramsfile))
+            flash('Params file {} not supported'.
+                  format(os.path.basename(paramsfile)), 'error')
     else:
-        feedback['errors'].append('Params file {} does not exist'.
-                                  format(paramsfile))
+        flash('Params file {} does not exist'.
+              format(os.path.basename(paramsfile)), 'error')
 
     params = {}
     variables = {}
     try:
         paramsobject
     except NameError:
-        feedback['errors'].append('No params file loaded')
+        pass
     else:
         variables = paramsobject.get_possible_variables()
         params = paramsobject.get_variables()
@@ -307,12 +310,15 @@ def add_datafile(studiesfolder, study):
             columnmappingfilepath = get_column_map_file(studiesfolder, study)
             if columnmappingfilepath is not None:
                 add_to_column_file(datafilepath, columnmappingfilepath)
+                flash('Data file {} added to column mapping file'.format(
+                    os.path.basename(datafilepath)))
             else:
-                print "no columnmappingfile"
+                flash('No column mapping file found', 'error')
         else:
-            print "file already exists"
+            flash('Data file {} already exists'.format(
+                os.path.basename(datafilepath)), 'error')
     else:
-        print "file not allowed"
+        flash('File type not allowed', 'error')
 
     studiesfolder = studiesfolder.strip('/')
     return redirect(url_for('edit_tree',

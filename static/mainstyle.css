@@ -98,7 +98,7 @@ li.warning {
   padding: 0px 0px 0px 20px;
   list-style: none;
 }
-li.info {
+li.message {
   background: url('/static/img/info.png') no-repeat left top;
   padding: 0px 0px 0px 20px;
   list-style: none;
