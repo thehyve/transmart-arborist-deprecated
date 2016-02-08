@@ -227,3 +227,23 @@ class Clinical_params(Params):
         super(Clinical_params, self).__init__(filename,
                                               datatype,
                                               possible_variables)
+
+
+def get_study_id(studiesfolder, study):
+    # Try studies.param first
+    paramsfile = os.path.join(studiesfolder, study, 'study.params')
+
+    if os.path.exists(paramsfile):
+        paramsobject = Study_params(paramsfile)
+        studyid = paramsobject.get_variable('STUDY_ID')
+
+    try:
+        studyid
+    except NameError:
+        pass
+    else:
+        if studyid is not None:
+            return studyid
+
+    # Otherwise just return the uppercased version of the study folder name
+    return study.upper()

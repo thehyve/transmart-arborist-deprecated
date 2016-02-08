@@ -60,6 +60,10 @@
              {% endif %}
              />
 
+      {% if variable=='COLUMN_MAP_FILE' and not variables[variable]['value'] %}
+      <button id="create_column_mapping" style="float:left; margin-left:5px;" />Create</button>
+      {% endif %}
+
       {%- endif %}
       {% if helpanddefault -%}
       <img title="{{ helpanddefault }}" src="{{ url_for('static', filename='img/helpicon.jpg') }}" style="padding-left: 3px; float: left;" />
@@ -74,6 +78,22 @@
   $(function() {
     $( "img" ).tooltip();
   });
+
+  $(function() {
+		$('button#create_column_mapping').bind('click', function() {
+			$.ajax({
+				method: "GET",
+				url: "{{ url_for('create_column_mapping', studiesfolder=studiesfolder, study=study) }}",
+			})
+			.done(function( msg ) {
+        console.log(msg.columnmappingfilename)
+        $( "input[name='COLUMN_MAP_FILE']").val(msg.columnmappingfilename)
+      });
+
+      return false;
+    });
+  });
+
 </script>
 
 {% endblock %}

@@ -8,7 +8,7 @@ from werkzeug import secure_filename
 import urllib
 from markupsafe import Markup
 
-from functions.params import Study_params, Clinical_params
+from functions.params import Study_params, Clinical_params, get_study_id
 from functions.exceptions import HyveException, HyveIOException
 from functions.clinical import columns_to_json, json_to_columns, getchildren, \
                                get_datafiles, get_column_map_file, \
@@ -146,6 +146,28 @@ def study_page(studiesfolder, study):
                            possible_datatypes=possible_datatypes)
 
 
+@app.route(('/folder/<path:studiesfolder>/s/<study>/clinical/columnmapping/'
+            'create/'))
+def create_column_mapping(studiesfolder, study):
+    studiesfolder = '/'+studiesfolder
+
+    studyid = get_study_id(studiesfolder, study)
+
+    datatypepath = os.path.join(studiesfolder, study, 'clinical')
+    if not os.path.exists(datatypepath):
+        os.mkdir(datatypepath)
+
+    columnmappingfilename = studyid+'_column_mapping.tsv'
+    columnmappingfilepath = os.path.join(datatypepath, columnmappingfilename)
+    if not os.path.exists(columnmappingfilepath):
+        with open(columnmappingfilepath, "w+") as handle:
+            tree = {}
+            columnsfiledata, feedback = json_to_columns(tree=tree)
+            handle.write(columnsfiledata)
+
+    return json.jsonify(columnmappingfilename=columnmappingfilename)
+
+
 @app.route('/folder/<path:studiesfolder>/s/<study>/params/<datatype>/create/')
 def create_params(studiesfolder, study, datatype):
     studiesfolder = '/'+studiesfolder
@@ -155,6 +177,10 @@ def create_params(studiesfolder, study, datatype):
     if not os.path.exists(paramsfile):
         with open(paramsfile, "w+"):
             pass
+    if datatype != 'study':
+        datatypepath = os.path.join(studiesfolder, study, datatype)
+        if not os.path.exists(datatypepath):
+            os.mkdir(datatypepath)
 
     studiesfolder = studiesfolder.strip('/')
     return redirect(url_for('edit_params',
