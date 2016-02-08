@@ -33,14 +33,14 @@
       {% block footer %}
       <hr />
         tranSMART Arborist is
-        <a href="https://github.com/thehyve/transmart-arborist/blob/master/LICENSE">open source</a>
-        and available on <a href="https://github.com/thehyve/transmart-arborist">Github</a>. -
+        <a target="_blank" href="https://github.com/thehyve/transmart-arborist/blob/master/LICENSE">open source</a>
+        and available on <a target="_blank" href="https://github.com/thehyve/transmart-arborist">Github</a>. -
         {% if request.endpoint and request.path %}
           {% set issuetitle = ('Issue in '+request.endpoint)|urlencode %}
           {% set issuebody = ('Issue encountered in '+request.endpoint+' on '+request.path)|urlencode %}
-          <a href="https://github.com/thehyve/transmart-arborist/issues/new?title={{ issuetitle }}&amp;body={{ issuebody }}">
+          <a target="_blank" href="https://github.com/thehyve/transmart-arborist/issues/new?title={{ issuetitle }}&amp;body={{ issuebody }}">
         {% else %}
-          <a href="https://github.com/thehyve/transmart-arborist/issues/new">
+          <a target="_blank" href="https://github.com/thehyve/transmart-arborist/issues/new">
         {% endif %}
           Click here to report an issue</a>.
       {% endblock %}

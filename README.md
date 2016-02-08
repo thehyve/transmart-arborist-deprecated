@@ -8,15 +8,19 @@ Graphical tool to help you prepare your data for loading into the tranSMART data
 * * *
 
 ## Functionality
-* Uploading existing columns file
-* Adding, deleting and reordering nodes in the tree
-* Editing the values in the columns file for each node
-* Downloading adjusted columns file
+* Browse your file system for tranSMART study folders or create a new one
+* Create and edit your study and clinical parameter files
+* Edit your study tree, as represented in the column mapping file
+ * Adding, deleting and drag-and-drop reordering of nodes in the tree
+ * Editing the values in the columns file for each node
 
-## Usage
-Runs locally in the browser with the Python microframework Flask:
-* Install Flask as described here: http://flask.pocoo.org/docs/0.10/installation/
-* Then run `python arborist.py` in your terminal, as described here: http://flask.pocoo.org/docs/0.10/quickstart
+## Installation
+Keep in mind the application has only been tested on Mac for now.
+* Install the Python microframework Flask as described here: http://flask.pocoo.org/docs/0.10/installation/
+* Download [the latest stable release](https://github.com/thehyve/transmart-arborist/releases/latest) from this repository
+
+## Starting the application
+* Run `python arborist.py` in your terminal, as described here: http://flask.pocoo.org/docs/0.10/quickstart
 * Copy the URL from the terminal to your browser to open the application
  
 ## Loading data
