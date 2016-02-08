@@ -23,6 +23,8 @@ controlvocabcdcolumn = 5
 columnsfileheaders = [filenamelabel, categorycodelabel, columnnumberlabel,
                       datalabellabel, datalabelsourcelabel,
                       controlvocabcdlabel]
+wordmapheaders = ['Filename', 'Column Number', 'Original Data Value',
+                  'New Data Value']
 
 
 def columns_to_json(filename):
@@ -216,3 +218,8 @@ def add_to_column_file(datafilename, columnmappingfilename):
                 columnmappingfile.write('\t'.join([filename, folder, str(i),
                                         header, '', ''])+'\n')
                 i += 1
+
+
+def get_word_map():
+    wordmapdata = '\t'.join(wordmapheaders)+'\n'
+    return wordmapdata

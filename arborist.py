@@ -12,7 +12,7 @@ from functions.params import Study_params, Clinical_params, get_study_id
 from functions.exceptions import HyveException, HyveIOException
 from functions.clinical import columns_to_json, json_to_columns, getchildren, \
                                get_datafiles, get_column_map_file, \
-                               add_to_column_file
+                               add_to_column_file, get_word_map
 from functions.feedback import get_feedback_dict, merge_feedback_dicts
 
 STUDIES_FOLDER = 'studies'
@@ -126,7 +126,7 @@ def study_page(studiesfolder, study):
         try:
             paramsobject
         except NameError:
-            feedback['errors'].append('No params file loaded')
+            pass
         else:
             params = paramsobject.get_variables()
             params_feedback = paramsobject.get_feedback()
@@ -146,10 +146,16 @@ def study_page(studiesfolder, study):
                            possible_datatypes=possible_datatypes)
 
 
-@app.route(('/folder/<path:studiesfolder>/s/<study>/clinical/columnmapping/'
-            'create/'))
-def create_column_mapping(studiesfolder, study):
+@app.route(('/folder/<path:studiesfolder>/s/<study>/clinical/create/'))
+def create_mapping_file(studiesfolder, study):
     studiesfolder = '/'+studiesfolder
+    columnmappingfile = 'COLUMN_MAP_FILE'
+    wordmappingfile = 'WORD_MAP_FILE'
+
+    mappingfile = request.args['variable']
+
+    if mappingfile not in [columnmappingfile, wordmappingfile]:
+        return
 
     studyid = get_study_id(studiesfolder, study)
 
@@ -157,15 +163,18 @@ def create_column_mapping(studiesfolder, study):
     if not os.path.exists(datatypepath):
         os.mkdir(datatypepath)
 
-    columnmappingfilename = studyid+'_column_mapping.tsv'
-    columnmappingfilepath = os.path.join(datatypepath, columnmappingfilename)
-    if not os.path.exists(columnmappingfilepath):
-        with open(columnmappingfilepath, "w+") as handle:
+    mappingfilename = studyid+'_'+mappingfile+'.tsv'
+    mappingfilepath = os.path.join(datatypepath, mappingfilename)
+    if not os.path.exists(mappingfilepath):
+        with open(mappingfilepath, "w+") as handle:
             tree = {}
-            columnsfiledata, feedback = json_to_columns(tree=tree)
-            handle.write(columnsfiledata)
+            if mappingfile == columnmappingfile:
+                mappingfiledata, feedback = json_to_columns(tree=tree)
+            elif mappingfile == wordmappingfile:
+                mappingfiledata = get_word_map()
+            handle.write(mappingfiledata)
 
-    return json.jsonify(columnmappingfilename=columnmappingfilename)
+    return json.jsonify(mappingfilename=mappingfilename)
 
 
 @app.route('/folder/<path:studiesfolder>/s/<study>/params/<datatype>/create/')
@@ -212,7 +221,7 @@ def edit_params(studiesfolder, study, datatype):
         try:
             paramsobject
         except NameError:
-            feedback['errors'].append('No params file loaded')
+            pass
         else:
             for variable in request.form:
                 paramsobject.update_variable(variable,

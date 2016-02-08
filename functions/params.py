@@ -58,7 +58,8 @@ class Params(object):
         for variable in possible_variables:
             if 'obligatory' in possible_variables[variable]:
                 if possible_variables[variable]['obligatory']:
-                    if self.get_variable(variable) is None:
+                    if self.get_variable(variable) is None or \
+                            self.get_variable(variable) == '':
                         msg = "Mandatory variable {} not in {}".format(
                               variable, filename)
                         self.feedback['errors'].append(msg)

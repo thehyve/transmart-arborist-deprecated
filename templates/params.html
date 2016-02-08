@@ -60,8 +60,8 @@
              {% endif %}
              />
 
-      {% if variable=='COLUMN_MAP_FILE' and not variables[variable]['value'] %}
-      <button id="create_column_mapping" style="float:left; margin-left:5px;" />Create</button>
+      {% if (variable=='COLUMN_MAP_FILE' or variable=='WORD_MAP_FILE') and not variables[variable]['value'] %}
+      <button name="{{ variable }}" data-variable="{{ variable }}" class='create_file' style="float:left; margin-left:5px;" />Create</button>
       {% endif %}
 
       {%- endif %}
@@ -80,14 +80,33 @@
   });
 
   $(function() {
-		$('button#create_column_mapping').bind('click', function() {
+		$('button.create_file').bind('click', function(event) {
+      var variable = $(this).data('variable')
+      console.log(variable)
+
 			$.ajax({
 				method: "GET",
-				url: "{{ url_for('create_column_mapping', studiesfolder=studiesfolder, study=study) }}",
+				url: "{{ url_for('create_mapping_file', studiesfolder=studiesfolder, study=study) }}",
+        data: {'variable': variable}
 			})
 			.done(function( msg ) {
-        console.log(msg.columnmappingfilename)
-        $( "input[name='COLUMN_MAP_FILE']").val(msg.columnmappingfilename)
+        console.log(msg.mappingfilename)
+        $( "input[name='"+variable+"']").val(msg.mappingfilename)
+      });
+
+      return false;
+    });
+  });
+
+  $(function() {
+		$('button#create_word_mapping').bind('click', function() {
+			$.ajax({
+				method: "GET",
+				url: "{{ url_for('create_mapping_file', studiesfolder=studiesfolder, study=study) }}",
+			})
+			.done(function( msg ) {
+        console.log(msg.mappingfilename)
+        $( "input[name='WORD_MAP_FILE']").val(msg.mappingfilename)
       });
 
       return false;
