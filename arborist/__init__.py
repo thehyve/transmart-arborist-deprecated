@@ -310,12 +310,12 @@ def add_datafile(studiesfolder, study):
             columnmappingfilepath = get_column_map_file(studiesfolder, study)
             if columnmappingfilepath is not None:
                 add_to_column_file(datafilepath, columnmappingfilepath)
-                flash('Data file {} added to column mapping file'.format(
+                flash('Data file \'{}\' added to column mapping file'.format(
                     os.path.basename(datafilepath)))
             else:
                 flash('No column mapping file found', 'error')
         else:
-            flash('Data file {} already exists'.format(
+            flash('Data file \'{}\' already exists'.format(
                 os.path.basename(datafilepath)), 'error')
     else:
         flash('File type not allowed', 'error')
