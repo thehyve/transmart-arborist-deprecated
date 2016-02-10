@@ -178,8 +178,7 @@ class Study_params(Params):
                                                 'name of the params file is'
                                                 ' default.'),
                                     'helptext': 'Identifier of the study.'
-                                },
-                                'STUDY_NAME': {}
+                                }
                              }
         # Not a datatype, but to stay in line with the datatype params:
         datatype = 'study'
@@ -202,11 +201,6 @@ class Clinical_params(Params):
                                     'helptext': ('Points to the file with'
                                                  ' dictionary to be used.')
                                     },
-                                "SECURITY_REQUIRED": {
-                                    'possible_values': ['Y', 'N'],
-                                },
-                                "TOP_NODE": {},
-                                "STUDY_ID": {},
                                 "XTRIAL_FILE": {
                                     'helptext': ('Points to the cross study'
                                                  ' concepts file.')
@@ -216,13 +210,23 @@ class Clinical_params(Params):
                                     'helptext': ('Points to the concepts tags'
                                                  ' file.')
                                 },
-                                "RECORD_EXCLUSION_FILE": {
-                                    'variable_type': 'filename'
+                                "SECURITY_REQUIRED": {
+                                    'possible_values': ['Y', 'N'],
+                                    'default': 'N',
+                                    'helptext': ('Defines study as Private (Y)'
+                                                 ' or Public (N).')
                                 },
-                                "USE_R_UPLOAD": {
-                                    'possible_values': ['Y', 'N']
+                                "TOP_NODE": {
+                                    'default': ('\(Public|Private) Studies'
+                                                '\<STUDY_ID>'),
+                                    'helptext': 'The study top node.'
                                 },
-                                "TOP_NODE_PREFIX": {}
+                                "STUDY_ID": {
+                                    'default': ('Uppercased parent directory'
+                                                'name of the params file is'
+                                                ' default.'),
+                                    'helptext': 'Identifier of the study.'
+                                }
                               }
         datatype = 'clinical'
         super(Clinical_params, self).__init__(filename,
