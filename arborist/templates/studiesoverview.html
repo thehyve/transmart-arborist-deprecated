@@ -18,9 +18,13 @@
 
 	<p>
 	{% if not studiesfolder == '' %}
-	<a href="{{ parenturl }}" id="gotoparent">Go to parent directory</a> -
+	<a href="{{ parenturl }}" id="gotoparent">
+		<img style="padding-right:5px; vertical-align:middle;" src="{{ url_for('static', filename='img/tree/folder.gif') }}" />Go to parent directory
+	</a> -
 	{% endif %}
-		<a id="newfolderlink" href="{{ createfolderurl }}">Create new folder</a>
+		<a id="newfolderlink" href="{{ createfolderurl }}">
+			<img style="padding-right:5px; vertical-align:middle;" src="{{ url_for('static', filename='img/addfolder.png') }}" />Create new folder
+		</a>
 	</p>
 
 	<form method="post" id="newfolderform" action="{{ createfolderurl }}">
