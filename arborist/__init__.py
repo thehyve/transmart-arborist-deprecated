@@ -57,7 +57,7 @@ def index():
 @app.route('/folder/create/', defaults={'studiesfolder': ''}, methods=['POST'])
 @app.route('/folder/<path:studiesfolder>/create/', methods=['POST'])
 def create_folder(studiesfolder):
-    studiesfolder = '/'+studiesfolder
+    # studiesfolder = '/'+studiesfolder
     if 'foldername' in request.form:
         foldername = os.path.join(studiesfolder,
                                   request.form['foldername'])
@@ -72,7 +72,7 @@ def create_folder(studiesfolder):
 @app.route('/folder/', defaults={'studiesfolder': ''})
 @app.route('/folder/<path:studiesfolder>/')
 def studies_overview(studiesfolder):
-    studiesfolder = '/'+studiesfolder
+    # studiesfolder = '/'+studiesfolder
     parentfolder = os.path.abspath(os.path.join(studiesfolder, os.pardir))
     studies = {}
 
@@ -100,7 +100,7 @@ def studies_overview(studiesfolder):
 @app.route('/folder/s/<study>/', defaults={'studiesfolder': ''})
 @app.route('/folder/<path:studiesfolder>/s/<study>/')
 def study_page(studiesfolder, study):
-    studiesfolder = '/'+studiesfolder
+    # studiesfolder = '/'+studiesfolder
 
     paramsdict = {}
 
@@ -150,7 +150,7 @@ def study_page(studiesfolder, study):
 
 @app.route(('/folder/<path:studiesfolder>/s/<study>/clinical/create/'))
 def create_mapping_file(studiesfolder, study):
-    studiesfolder = '/'+studiesfolder
+    # studiesfolder = '/'+studiesfolder
     columnmappingfile = 'COLUMN_MAP_FILE'
     wordmappingfile = 'WORD_MAP_FILE'
 
@@ -181,7 +181,7 @@ def create_mapping_file(studiesfolder, study):
 
 @app.route('/folder/<path:studiesfolder>/s/<study>/params/<datatype>/create/')
 def create_params(studiesfolder, study, datatype):
-    studiesfolder = '/'+studiesfolder
+    # studiesfolder = '/'+studiesfolder
     feedback = get_feedback_dict()
     paramsfile = os.path.join(studiesfolder, study, datatype+'.params')
 
@@ -204,7 +204,7 @@ def create_params(studiesfolder, study, datatype):
 @app.route('/folder/<path:studiesfolder>/s/<study>/params/<datatype>/',
            methods=['GET', 'POST'])
 def edit_params(studiesfolder, study, datatype):
-    studiesfolder = '/'+studiesfolder
+    # studiesfolder = '/'+studiesfolder
     feedback = get_feedback_dict()
     paramsfile = os.path.join(studiesfolder, study, datatype+'.params')
 
@@ -277,7 +277,7 @@ def edit_params(studiesfolder, study, datatype):
 
 @app.route('/folder/<path:studiesfolder>/s/<study>/tree/')
 def edit_tree(studiesfolder, study):
-    studiesfolder = '/'+studiesfolder
+    # studiesfolder = '/'+studiesfolder
 
     columnsfile = get_column_map_file(studiesfolder, study)
     if columnsfile is not None:
@@ -299,7 +299,7 @@ def edit_tree(studiesfolder, study):
 @app.route('/folder/<path:studiesfolder>/s/<study>/tree/add/',
            methods=['POST'])
 def add_datafile(studiesfolder, study):
-    studiesfolder = '/'+studiesfolder
+    # studiesfolder = '/'+studiesfolder
     file = request.files['file']
 
     if file and allowed_file(file.filename):
@@ -329,7 +329,7 @@ def add_datafile(studiesfolder, study):
 @app.route('/folder/<path:studiesfolder>/s/<study>/tree/save_columnsfile/',
            methods=['POST'])
 def save_columnsfile(studiesfolder, study):
-    studiesfolder = '/'+studiesfolder
+    # studiesfolder = '/'+studiesfolder
     feedback = get_feedback_dict()
 
     tree = request.get_json()
