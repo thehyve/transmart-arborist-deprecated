@@ -18,7 +18,16 @@ from functions.feedback import get_feedback_dict, merge_feedback_dicts
 STUDIES_FOLDER = 'studies'
 ALLOWED_EXTENSIONS = set(['txt', 'tsv'])
 
-app = Flask(__name__)
+path = os.path.dirname(os.path.realpath(__file__))
+if path.find('library.zip') >=0:
+    pos = path.find('library.zip')
+    path = path[:pos]
+    app = Flask(__name__,
+                static_folder=path+'static',
+                template_folder=path+'templates')
+else:
+    app = Flask(__name__)
+    
 app.secret_key = 'not_so_secret'
 
 app.jinja_env.add_extension("jinja2.ext.do")
