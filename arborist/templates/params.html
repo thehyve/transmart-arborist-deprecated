@@ -16,7 +16,7 @@
 
       {% set helpanddefault = [] %}
 
-      {% if variables[variable]['obligatory'] is defined %}
+      {% if variables[variable]['mandatory'] is defined %}
         {% do helpanddefault.append('Mandatory.') %}
       {% endif %}
       {% if variables[variable]['default'] is defined %}
@@ -31,12 +31,12 @@
       {% if variables[variable]['possible_values'] -%}
 
       <select name="{{ variable }}"
-              {% if variables[variable]['obligatory'] == True %}required{% endif %}
+              {% if variables[variable]['mandatory'] == True %}required{% endif %}
               {% if helpanddefault %}
               title="{{ helpanddefault }}"
               {% endif %}
               >
-        {% if variables[variable]['obligatory'] == True %}
+        {% if variables[variable]['mandatory'] == True %}
         <option value disabled {% if not variables[variable]['value'] %}selected{% endif %}> -- select an option -- </option>
         {% else %}
         <option value> -- not specified -- </option>
@@ -53,7 +53,7 @@
       <input type="text"
              name="{{ variable }}"
              value="{{ variables[variable]['value'] }}"
-             {% if variables[variable]['obligatory'] == True %}required{% endif %}
+             {% if variables[variable]['mandatory'] == True %}required{% endif %}
              {% if helpanddefault %}
              placeholder="{{ helpanddefault }}"
              title="{{ helpanddefault }}"
