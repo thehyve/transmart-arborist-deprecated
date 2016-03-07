@@ -11,10 +11,11 @@ from markupsafe import Markup
 
 from functions.params import Clinical_params, Expression_params, get_study_id
 from functions.exceptions import HyveException, HyveIOException
-from functions.clinical import columns_to_json, json_to_columns, getchildren, \
+from functions.clinical import columns_to_tree, json_to_columns, getchildren, \
                                get_datafiles, get_column_map_file, \
                                add_to_column_file, get_word_map
 from functions.feedback import get_feedback_dict, merge_feedback_dicts
+from functions.highdim import subject_sample_to_tree, get_subject_sample_map
 
 STUDIES_FOLDER = 'studies'
 ALLOWED_EXTENSIONS = set(['txt', 'tsv'])
@@ -278,13 +279,23 @@ def edit_params(studiesfolder, study, datatype):
 def edit_tree(studiesfolder, study):
     studiesfolder = '/'+studiesfolder
 
+    # Get column mapping file and paths in there
     columnsfile = get_column_map_file(studiesfolder, study)
     if columnsfile is not None:
-        json = columns_to_json(columnsfile)
+        tree_array = columns_to_tree(columnsfile)
         clinicaldatafiles = get_datafiles(columnsfile)
     else:
-        json = {}
+        tree_array = []
         clinicaldatafiles = []
+
+    # Get expression subject sample mapping and paths in there
+    subject_sample_map = get_subject_sample_map(studiesfolder,
+                                                study,
+                                                'expression')
+    if subject_sample_map is not None:
+        tree_array = subject_sample_to_tree(subject_sample_map, tree_array)
+
+    treejson = json.dumps(tree_array)
 
     studiesfolder = studiesfolder.strip('/')
 
@@ -292,7 +303,7 @@ def edit_tree(studiesfolder, study):
                            studiesfolder=studiesfolder,
                            clinicaldatafiles=clinicaldatafiles,
                            study=study,
-                           json=json)
+                           json=treejson)
 
 
 @app.route('/folder/<path:studiesfolder>/s/<study>/tree/add/',

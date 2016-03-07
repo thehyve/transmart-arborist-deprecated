@@ -1,6 +1,5 @@
 import csv
 import os
-from flask import json
 
 from feedback import get_feedback_dict
 from params import Clinical_params
@@ -27,7 +26,7 @@ wordmapheaders = ['Filename', 'Column Number', 'Original Data Value',
                   'New Data Value']
 
 
-def columns_to_json(filename):
+def columns_to_tree(filename):
     with open(filename, 'rb') as csvfile:
         csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
         tree_array = []
@@ -43,7 +42,7 @@ def columns_to_json(filename):
                 # not in the tree
                 # Eg SUBJ_ID, STUDY_ID, OMIT or DATA LABEL
 
-                path = line[categorycodecolumn].split('+')
+                path = line[categorycodecolumn].replace(' ', '_').split('+')
                 i = 0
 
                 # Create folders for all parts in the categorycode path
@@ -106,7 +105,7 @@ def columns_to_json(filename):
                     leafnode['type'] = 'codeleaf'
                 tree_array.append(leafnode)
 
-        return json.dumps(tree_array)
+        return tree_array
 
 
 def getchildren(node, columnsfile, path, feedback):
@@ -162,6 +161,8 @@ def getchildren(node, columnsfile, path, feedback):
         for child in node['children']:
             columnsfile, feedback = getchildren(child, columnsfile, path,
                                                 feedback)
+        return columnsfile, feedback
+    else:
         return columnsfile, feedback
 
 
