@@ -121,7 +121,7 @@ def study_page(studiesfolder, study):
         else:
             paramsdict[datatype]['exists'] = False
             feedback['infos'].append('No {} found'.
-                                      format(datatype+'.params'))
+                                     format(datatype+'.params'))
 
         params = {}
         try:
