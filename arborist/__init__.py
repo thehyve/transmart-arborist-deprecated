@@ -58,7 +58,7 @@ def allowed_file(filename):
 
 
 def add_slash_if_not_windows(url_path):
-    if sys.platform != 'Win32':
+    if sys.platform != 'win32':
         url_path = '/' + url_path
     return url_path
 
