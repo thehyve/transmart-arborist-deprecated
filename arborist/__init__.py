@@ -18,7 +18,20 @@ from functions.feedback import get_feedback_dict, merge_feedback_dicts
 STUDIES_FOLDER = 'studies'
 ALLOWED_EXTENSIONS = set(['txt', 'tsv'])
 
-app = Flask(__name__)
+path = os.path.dirname(os.path.realpath(__file__))
+# See if the application is run from inside a .app (MacOSX)
+if path.find('.app/Contents/Resources/') >=0:
+    pos = path.rfind('lib/')
+    path = path[:pos]
+    static_path = path + 'static'
+    template_path = path + 'templates'
+    app = Flask(__name__,
+                static_folder=static_path,
+                template_folder=template_path)
+else:
+    app = Flask(__name__)
+
+
 app.secret_key = 'not_so_secret'
 
 app.jinja_env.add_extension("jinja2.ext.do")
