@@ -20,12 +20,21 @@ STUDIES_FOLDER = 'studies'
 ALLOWED_EXTENSIONS = set(['txt', 'tsv'])
 
 path = os.path.dirname(os.path.realpath(__file__))
+# See if the application is run from windows executable.
 if path.find('library.zip') >= 0:
     pos = path.find('library.zip')
     path = path[:pos]
     app = Flask(__name__,
                 static_folder=path+'static',
                 template_folder=path+'templates')
+
+# See if the application is run from inside a .app (MacOSX)
+elif path.find('.app/Contents/Resources/') >= 0:
+    pos = path.rfind('lib/')
+    path = path[:pos]
+    app = Flask(__name__,
+                static_folder=path + 'static',
+                template_folder=path + 'templates')
 else:
     app = Flask(__name__)
 
