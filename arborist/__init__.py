@@ -1,4 +1,5 @@
 import os
+import sys
 from collections import OrderedDict
 
 from flask import Flask, flash, request, redirect, url_for, render_template, \
@@ -19,7 +20,7 @@ STUDIES_FOLDER = 'studies'
 ALLOWED_EXTENSIONS = set(['txt', 'tsv'])
 
 path = os.path.dirname(os.path.realpath(__file__))
-if path.find('library.zip') >=0:
+if path.find('library.zip') >= 0:
     pos = path.find('library.zip')
     path = path[:pos]
     app = Flask(__name__,
@@ -27,7 +28,7 @@ if path.find('library.zip') >=0:
                 template_folder=path+'templates')
 else:
     app = Flask(__name__)
-    
+
 app.secret_key = 'not_so_secret'
 
 app.jinja_env.add_extension("jinja2.ext.do")
@@ -56,6 +57,12 @@ def allowed_file(filename):
            filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
 
 
+def add_slash_if_not_windows(url_path):
+    if sys.platform != 'Win32':
+        url_path = '/' + url_path
+    return url_path
+
+
 @app.route('/')
 def index():
     studiesfolder = os.path.abspath(STUDIES_FOLDER)
@@ -66,7 +73,7 @@ def index():
 @app.route('/folder/create/', defaults={'studiesfolder': ''}, methods=['POST'])
 @app.route('/folder/<path:studiesfolder>/create/', methods=['POST'])
 def create_folder(studiesfolder):
-    # studiesfolder = '/'+studiesfolder
+    studiesfolder = add_slash_if_not_windows(studiesfolder)
     if 'foldername' in request.form:
         foldername = os.path.join(studiesfolder,
                                   request.form['foldername'])
@@ -81,7 +88,7 @@ def create_folder(studiesfolder):
 @app.route('/folder/', defaults={'studiesfolder': ''})
 @app.route('/folder/<path:studiesfolder>/')
 def studies_overview(studiesfolder):
-    # studiesfolder = '/'+studiesfolder
+    studiesfolder = add_slash_if_not_windows(studiesfolder)
     parentfolder = os.path.abspath(os.path.join(studiesfolder, os.pardir))
     studies = {}
 
@@ -109,7 +116,7 @@ def studies_overview(studiesfolder):
 @app.route('/folder/s/<study>/', defaults={'studiesfolder': ''})
 @app.route('/folder/<path:studiesfolder>/s/<study>/')
 def study_page(studiesfolder, study):
-    # studiesfolder = '/'+studiesfolder
+    studiesfolder = add_slash_if_not_windows(studiesfolder)
 
     paramsdict = {}
 
@@ -159,7 +166,7 @@ def study_page(studiesfolder, study):
 
 @app.route(('/folder/<path:studiesfolder>/s/<study>/clinical/create/'))
 def create_mapping_file(studiesfolder, study):
-    # studiesfolder = '/'+studiesfolder
+    studiesfolder = add_slash_if_not_windows(studiesfolder)
     columnmappingfile = 'COLUMN_MAP_FILE'
     wordmappingfile = 'WORD_MAP_FILE'
 
@@ -190,7 +197,7 @@ def create_mapping_file(studiesfolder, study):
 
 @app.route('/folder/<path:studiesfolder>/s/<study>/params/<datatype>/create/')
 def create_params(studiesfolder, study, datatype):
-    # studiesfolder = '/'+studiesfolder
+    studiesfolder = add_slash_if_not_windows(studiesfolder)
     feedback = get_feedback_dict()
     paramsfile = os.path.join(studiesfolder, study, datatype+'.params')
 
@@ -213,7 +220,7 @@ def create_params(studiesfolder, study, datatype):
 @app.route('/folder/<path:studiesfolder>/s/<study>/params/<datatype>/',
            methods=['GET', 'POST'])
 def edit_params(studiesfolder, study, datatype):
-    # studiesfolder = '/'+studiesfolder
+    studiesfolder = add_slash_if_not_windows(studiesfolder)
     feedback = get_feedback_dict()
     paramsfile = os.path.join(studiesfolder, study, datatype+'.params')
 
@@ -286,7 +293,7 @@ def edit_params(studiesfolder, study, datatype):
 
 @app.route('/folder/<path:studiesfolder>/s/<study>/tree/')
 def edit_tree(studiesfolder, study):
-    # studiesfolder = '/'+studiesfolder
+    studiesfolder = add_slash_if_not_windows(studiesfolder)
 
     columnsfile = get_column_map_file(studiesfolder, study)
     if columnsfile is not None:
@@ -308,7 +315,7 @@ def edit_tree(studiesfolder, study):
 @app.route('/folder/<path:studiesfolder>/s/<study>/tree/add/',
            methods=['POST'])
 def add_datafile(studiesfolder, study):
-    # studiesfolder = '/'+studiesfolder
+    studiesfolder = add_slash_if_not_windows(studiesfolder)
     file = request.files['file']
 
     if file and allowed_file(file.filename):
@@ -338,7 +345,7 @@ def add_datafile(studiesfolder, study):
 @app.route('/folder/<path:studiesfolder>/s/<study>/tree/save_columnsfile/',
            methods=['POST'])
 def save_columnsfile(studiesfolder, study):
-    # studiesfolder = '/'+studiesfolder
+    studiesfolder = add_slash_if_not_windows(studiesfolder)
     feedback = get_feedback_dict()
 
     tree = request.get_json()
