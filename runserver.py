@@ -12,12 +12,12 @@ args = parser.parse_args()
 
 
 def get_open_port():
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        s.bind(('', 0))
-        s.listen(1)
-        port = s.getsockname()[1]
-        s.close()
-        return port
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s.bind(('', 0))
+    s.listen(1)
+    port = s.getsockname()[1]
+    s.close()
+    return port
 
 if not args.port:
     port = get_open_port()
