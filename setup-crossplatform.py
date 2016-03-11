@@ -82,12 +82,11 @@ def osx_app_build_options():
                       'excludes': ['mime'],
                       }
 
-    extra_options = dict(
-         setup_requires=['py2app'],
-         app=[mainscript],
-         options={'py2app': py2app_options},
-         data_files=data_files,
-         )
+    extra_options = dict(setup_requires=['py2app'],
+                         app=[mainscript],
+                         options={'py2app': py2app_options},
+                         data_files=data_files,
+                         )
     return extra_options
 
 
@@ -112,12 +111,12 @@ def win32_exe_build_options():
                                    ],
                       }
 
-    extra_options = dict(
-        setup_requires=['py2exe'],
-        console=[mainscript],
-        options={'py2exe': py2exe_options},
-        data_files=data_files,
-    )
+    extra_options = dict(setup_requires=['py2exe'],
+                         console=[mainscript],
+                         options={'py2exe': py2exe_options},
+                         data_files=data_files,
+                         )
+    return extra_options
 
 
 if sys.platform == 'darwin' and 'py2app' in sys.argv:
