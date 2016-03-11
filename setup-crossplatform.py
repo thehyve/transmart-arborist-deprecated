@@ -1,14 +1,17 @@
 """
-py2app/py2exe build script for transmart-arborist.
+Author: Jochem Bijlard (j.bijlard@gmail.com)
+Setuptools and py2app/py2exe build script for transmart-arborist.
 
-Will automatically ensure that all build prerequisites are available
-via ez_setup
+To install dependencies for your machine:
+    Usage:
+        python setup.py install
 
-Usage (Mac OS X):
-    python setup.py py2app
+To build a packaged executable:
+    Usage (Mac OS X):
+        python setup.py py2app
 
-Usage (Windows):
-    python setup.py py2exe
+        Usage (Windows):
+        python setup.py py2exe
 """
 
 import sys
@@ -19,6 +22,20 @@ from setuptools import setup, find_packages
 # ez_setup.use_setuptools()
 
 mainscript = 'runserver.py'
+extra_options = {}
+# Which directories to take all normal files from, these have to be specified explicitely.
+patterns = [
+          'static/*',
+          'templates/*',
+          'static/img/*',
+          'static/img/message/*',
+          'static/img/tree/*',
+          'static/jstree/*',
+          'static/jstree/dist/*',
+          'static/jstree/dist/themes/*',
+          'static/jstree/dist/themes/default/*',
+          'static/jstree/dist/themes/default-dark/*',
+           ]
 
 
 def find_data_files(source, target, patterns):
@@ -44,25 +61,13 @@ def find_data_files(source, target, patterns):
                 ret.setdefault(path, []).append(filename)
     return sorted(ret.items())
 
-# Which directories to take all normal files from
-patterns = [
-          'static/*',
-          'templates/*',
-          'static/img/*',
-          'static/img/message/*',
-          'static/img/tree/*',
-          'static/jstree/*',
-          'static/jstree/dist/*',
-          'static/jstree/dist/themes/*',
-          'static/jstree/dist/themes/default/*',
-          'static/jstree/dist/themes/default-dark/*',
-           ]
 
-
-extra_options = {}
-if sys.platform == 'darwin' and 'py2app' in sys.argv:
-    import py2app
-    data_files = find_data_files(source=os.getcwd(),
+def osx_app_build_options():
+    """
+    Collects additional requirements for building a MacOSX packaged executable. Only works on
+    OS X and must have py2app manually installed.
+    """
+    data_files = find_data_files(source=os.getcwd() + '/arborist',
                                  target='',
                                  patterns=patterns)
     py2app_options = {'argv_emulation': True,
@@ -83,11 +88,17 @@ if sys.platform == 'darwin' and 'py2app' in sys.argv:
          options={'py2app': py2app_options},
          data_files=data_files,
          )
+    return extra_options
 
 
-elif sys.platform == 'win32' and 'py2exe' in sys.argv:
+def win32_exe_build_options():
+    """
+    This collects additional requirements for building a Windows executable.
+    only works when running from Windows and having manually
+    installed the py2exe package.
+    """
     import py2exe
-    data_files = find_data_files(source=os.getcwd(),
+    data_files = find_data_files(source=os.getcwd() + r'/arborist',
                                  target='',
                                  patterns=patterns)
     py2exe_options = {'packages': ['werkzeug',
@@ -107,6 +118,14 @@ elif sys.platform == 'win32' and 'py2exe' in sys.argv:
         options={'py2exe': py2exe_options},
         data_files=data_files,
     )
+
+
+if sys.platform == 'darwin' and 'py2app' in sys.argv:
+    extra_options = osx_app_build_options()
+
+
+elif sys.platform == 'win32' and 'py2exe' in sys.argv:
+    extra_options = win32_exe_build_options()
 
 
 setup(
