@@ -24,6 +24,8 @@ if not args.port:
 else:
     port = args.port
 
-running_on = 'http://localhost:{}'.format(port)
-webbrowser.open(running_on, new=0, autoraise=True)
+if not args.debug:
+    running_on = 'http://localhost:{}'.format(port)
+    webbrowser.open(running_on, new=0, autoraise=True)
+
 app.run(debug=args.debug, port=port)
