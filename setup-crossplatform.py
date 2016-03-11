@@ -11,46 +11,103 @@ Usage (Windows):
     python setup.py py2exe
 """
 
-import ez_setup
-ez_setup.use_setuptools()
 import sys
+import os
+import glob
 from setuptools import setup, find_packages
-
-# sys.path.append('/Users/wardweistra/tools/transmart-arborist/venv/bin')
+# import ez_setup
+# ez_setup.use_setuptools()
 
 mainscript = 'runserver.py'
 
-if sys.platform == 'darwin':
+
+def find_data_files(source, target, patterns):
+    """Locates the specified data-files and returns the matches
+    in a data_files compatible format.
+
+    source is the root of the source data tree.
+        Use '' or '.' for current directory.
+    target is the root of the target data tree.
+        Use '' or '.' for the distribution directory.
+    patterns is a sequence of glob-patterns for the
+        files you want to copy.
+    """
+    if glob.has_magic(source) or glob.has_magic(target):
+        raise ValueError("Magic not allowed in src, target")
+    ret = {}
+    for pattern in patterns:
+        pattern = os.path.join(source, pattern)
+        for filename in glob.glob(pattern):
+            if os.path.isfile(filename):
+                targetpath = os.path.join(target, os.path.relpath(filename, source))
+                path = os.path.dirname(targetpath)
+                ret.setdefault(path, []).append(filename)
+    return sorted(ret.items())
+
+# Which directories to take all normal files from
+patterns = [
+          'static/*',
+          'templates/*',
+          'static/img/*',
+          'static/img/message/*',
+          'static/img/tree/*',
+          'static/jstree/*',
+          'static/jstree/dist/*',
+          'static/jstree/dist/themes/*',
+          'static/jstree/dist/themes/default/*',
+          'static/jstree/dist/themes/default-dark/*',
+           ]
+
+
+extra_options = {}
+if sys.platform == 'darwin' and 'py2app' in sys.argv:
+    import py2app
+    data_files = find_data_files(source=os.getcwd(),
+                                 target='',
+                                 patterns=patterns)
+    py2app_options = {'argv_emulation': True,
+                      'packages': ['jinja2',
+                                   'flask',
+                                   'email',
+                                   ],
+                      'includes': ['os',
+                                   'flask',
+                                   'sys',
+                                   ],
+                      'excludes': ['mime'],
+                      }
+
     extra_options = dict(
          setup_requires=['py2app'],
          app=[mainscript],
-         # Cross-platform applications generally expect sys.argv to
-         # be used for opening files.
-        #  options=dict(py2app=dict(argv_emulation=True)),
-        #  options={
-        #         'py2app': {
-        #             'argv_emulation':True,
-        #             # 'packages': ['werkzeug','email.mime','jinja2.ext'],
-        #             # 'includes': ['os',
-        #             #              'flask',
-        #             #              'sys',
-        #             #              ]
-        #                     }
-        #         }
-    )
-elif sys.platform == 'win32':
+         options={'py2app': py2app_options},
+         data_files=data_files,
+         )
+
+
+elif sys.platform == 'win32' and 'py2exe' in sys.argv:
+    import py2exe
+    data_files = find_data_files(source=os.getcwd(),
+                                 target='',
+                                 patterns=patterns)
+    py2exe_options = {'packages': ['werkzeug',
+                                   'email.mime',
+                                   'jinja2',
+                                   ],
+                      'includes': ['os',
+                                   'flask',
+                                   'sys',
+                                   'jinja2.ext',
+                                   ],
+                      }
+
     extra_options = dict(
         setup_requires=['py2exe'],
-        app=[mainscript],
-    )
-else:
-    extra_options = dict(
-        # Normally unix-like platforms will use "setup.py install"
-        # and install the main script as such
-        scripts=[mainscript],
+        console=[mainscript],
+        options={'py2exe': py2exe_options},
+        data_files=data_files,
     )
 
-DATA_FILES = []
 
 setup(
     name='tranSMART Arborist',
@@ -60,11 +117,10 @@ setup(
     author='Ward Weistra',
     author_email='ward@thehyve.nl',
     license='GNU General Public License V3',
-    data_files=DATA_FILES,
-    # packages=find_packages(),
+    packages=find_packages(),
     include_package_data=True,
     zip_safe=False,
-    install_requires=['jinja2','flask'],
-    scripts=['runserver.py'],
+    install_requires=['Flask'],
+    scripts=[mainscript],
     **extra_options
 )
