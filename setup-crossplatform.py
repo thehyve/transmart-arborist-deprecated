@@ -18,8 +18,6 @@ import sys
 import os
 import glob
 from setuptools import setup, find_packages
-# import ez_setup
-# ez_setup.use_setuptools()
 
 mainscript = 'runserver.py'
 extra_options = {}
