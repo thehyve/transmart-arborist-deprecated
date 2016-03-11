@@ -7,5 +7,5 @@ venv/
 arborist-settings.json
 *.pyc
 dist/
-*.egg-info/
+*.egg*
 build/
