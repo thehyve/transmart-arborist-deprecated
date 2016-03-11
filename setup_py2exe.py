@@ -10,6 +10,7 @@ sys.path.append(r'C:\Python27\Lib')
 sys.path.append(r'C:\Python27\Lib\site-packages')
 sys.path.append(r'C:\Python27\lib')
 
+
 def find_data_files(source, target, patterns):
     """Locates the specified data-files and returns the matches
     in a data_files compatible format.
@@ -25,12 +26,12 @@ def find_data_files(source, target, patterns):
         raise ValueError("Magic not allowed in src, target")
     ret = {}
     for pattern in patterns:
-        pattern = os.path.join(source,pattern)
+        pattern = os.path.join(source, pattern)
         for filename in glob.glob(pattern):
             if os.path.isfile(filename):
-                targetpath = os.path.join(target,os.path.relpath(filename,source))
+                targetpath = os.path.join(target, os.path.relpath(filename, source))
                 path = os.path.dirname(targetpath)
-                ret.setdefault(path,[]).append(filename)
+                ret.setdefault(path, []).append(filename)
     return sorted(ret.items())
 
 # Where to start looking for static files
@@ -53,6 +54,17 @@ data_files = find_data_files(source=static_source,
                              target='',
                              patterns=patterns)
 
+py2exe_options = {'packages': ['werkzeug',
+                               'email.mime',
+                               'jinja2'
+                               ],
+                  'includes': ['os',
+                               'flask',
+                               'sys',
+                               'jinja2.ext'
+                               ],
+                  }
+
 setup(
       name='tranSMART Arborist',
       version='1.3',
@@ -63,14 +75,8 @@ setup(
       license='GNU General Public License V3',
       console=['runserver.py'],
       options={
-                'py2exe': {
-                    'packages':['werkzeug','email.mime','jinja2'],
-                    'includes': ['os',
-                                 'flask',
-                                 'sys',
-                                 'jinja2.ext'
-                                 ],
-                            }
+                'py2exe': {py2exe_options
+
                 },
       data_files=data_files
 )
