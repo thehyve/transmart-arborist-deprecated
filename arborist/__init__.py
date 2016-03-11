@@ -1,3 +1,4 @@
+
 import os
 import sys
 from collections import OrderedDict
@@ -9,7 +10,7 @@ from werkzeug import secure_filename
 import urllib
 from markupsafe import Markup
 
-from functions.params import Study_params, Clinical_params, get_study_id
+from functions.params import Clinical_params, Expression_params, get_study_id
 from functions.exceptions import HyveException, HyveIOException
 from functions.clinical import columns_to_json, json_to_columns, getchildren, \
                                get_datafiles, get_column_map_file, \
@@ -48,7 +49,7 @@ app.jinja_env.filters['path_join'] = lambda paths: os.path.join(*paths)
 if not os.path.isdir(STUDIES_FOLDER):
     os.mkdir(STUDIES_FOLDER)
 
-possible_datatypes = ['study', 'clinical']
+possible_datatypes = ['clinical', 'expression']
 
 
 @app.template_filter('urlencode')
@@ -105,10 +106,8 @@ def studies_overview(studiesfolder):
         filepath = os.path.join(studiesfolder, file)
         if os.path.isdir(filepath) and not file.startswith('.'):
             studies[file] = {'type': 'folder'}
-            studyparamsfile = os.path.join(filepath, 'study.params')
             clinicalparamsfile = os.path.join(filepath, 'clinical.params')
-            if os.path.exists(studyparamsfile) or \
-                    os.path.exists(clinicalparamsfile):
+            if os.path.exists(clinicalparamsfile):
                 studies[file]['type'] = 'study'
     orderedstudies = OrderedDict(sorted(studies.items(),
                                         key=lambda x: x[0].lower()))
@@ -137,16 +136,16 @@ def study_page(studiesfolder, study):
 
         if os.path.exists(paramsfile):
             paramsdict[datatype]['exists'] = True
-            if datatype == 'study':
-                paramsobject = Study_params(paramsfile)
-            elif datatype == 'clinical':
+            if datatype == 'clinical':
                 paramsobject = Clinical_params(paramsfile)
+            elif datatype == 'expression':
+                paramsobject = Expression_params(paramsfile)
             else:
                 feedback['errors'].append('Params file {} not supported'.
                                           format(paramsfile))
         else:
             paramsdict[datatype]['exists'] = False
-            feedback['errors'].append('No {} found'.
+            feedback['infos'].append('No {} found'.
                                       format(datatype+'.params'))
 
         params = {}
@@ -235,10 +234,10 @@ def edit_params(studiesfolder, study, datatype):
 
     if request.method == 'POST':
         if os.path.exists(paramsfile):
-            if datatype == 'study':
-                paramsobject = Study_params(paramsfile)
-            elif datatype == 'clinical':
+            if datatype == 'clinical':
                 paramsobject = Clinical_params(paramsfile)
+            elif datatype == 'expression':
+                paramsobject = Expression_params(paramsfile)
             else:
                 flash('Params file {} not supported'.
                       format(os.path.basename(paramsfile)), 'error')
@@ -259,10 +258,10 @@ def edit_params(studiesfolder, study, datatype):
             feedback = paramsobject.get_feedback()
 
     if os.path.exists(paramsfile):
-        if datatype == 'study':
-            paramsobject = Study_params(paramsfile)
-        elif datatype == 'clinical':
+        if datatype == 'clinical':
             paramsobject = Clinical_params(paramsfile)
+        elif datatype == 'expression':
+            paramsobject = Expression_params(paramsfile)
         else:
             flash('Params file {} not supported'.
                   format(os.path.basename(paramsfile)), 'error')
