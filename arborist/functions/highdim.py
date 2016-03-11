@@ -46,7 +46,6 @@ def subject_sample_to_tree(filename, tree_array):
                     exists = False
                     for item in tree_array:
                         if item['id'] == id:
-                            print item['id']
                             exists = True
                             break
 
@@ -74,7 +73,6 @@ def subject_sample_to_tree(filename, tree_array):
             exists = False
             for item in tree_array:
                 if item['id'] == id:
-                    print item['id']
                     exists = True
                     break
 

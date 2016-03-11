@@ -52,20 +52,15 @@ app.jinja_env.filters['path_join'] = lambda paths: os.path.join(*paths)
 def add_slash_if_not_windows(url_path):
     if sys.platform != 'win32':
         url_path = '/' + url_path
-        print "not windows: "+url_path
-    else:
-        print "windows: "+url_path
     return url_path
 
 
 class FolderPathConverter(BaseConverter):
     def __init__(self, url_map):
-        print "init!"
         super(FolderPathConverter, self).__init__(url_map)
         self.regex = '.*'
 
     def to_python(self, value):
-        print "FolderPathConverter: "+value
         return add_slash_if_not_windows(value)
 
     def to_url(self, value):
@@ -219,7 +214,8 @@ def create_mapping_file(studiesfolder, study):
     return json.jsonify(mappingfilename=mappingfilename)
 
 
-@app.route('/folder/<folderpath:studiesfolder>/s/<study>/params/<datatype>/create/')
+@app.route(('/folder/<folderpath:studiesfolder>/s/<study>/params/<datatype>/'
+            'create/'))
 def create_params(studiesfolder, study, datatype):
     feedback = get_feedback_dict()
     paramsfile = os.path.join(studiesfolder, study, datatype+'.params')
@@ -370,7 +366,8 @@ def add_datafile(studiesfolder, study):
                             study=study))
 
 
-@app.route('/folder/<folderpath:studiesfolder>/s/<study>/tree/save_columnsfile/',
+@app.route(('/folder/<folderpath:studiesfolder>/s/<study>/tree/'
+            'save_columnsfile/'),
            methods=['POST'])
 def save_columnsfile(studiesfolder, study):
     feedback = get_feedback_dict()
