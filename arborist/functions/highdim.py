@@ -100,8 +100,8 @@ def get_subject_sample_map(studiesfolder, study, datatype):
         expressionparamsfile = os.path.join(studiesfolder,
                                             study,
                                             'expression.params')
-        paramsobject = Expression_params(expressionparamsfile)
-        if paramsobject is not None:
+        if os.path.exists(expressionparamsfile):
+            paramsobject = Expression_params(expressionparamsfile)
             subject_sample_map = paramsobject.get_variable_path('MAP_FILENAME')
             return subject_sample_map
         else:
