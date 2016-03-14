@@ -18,6 +18,7 @@ Graphical tool to help you prepare your data for loading into the tranSMART data
 ## Installation
 Keep in mind the application has only been tested on Mac OS X 10.10 or newer, and Windows 7 or newer.
 * Clone this repository and run the setup with `python setup.py install`.
+ * Use `git clone --recursive` OR run `git module init` and `git module update` to also download a transmart test dataset.
 * Download [the latest stable release](https://github.com/thehyve/transmart-arborist/releases/latest) from this repository
 
 ## Starting the application
