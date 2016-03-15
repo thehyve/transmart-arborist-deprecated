@@ -27,7 +27,7 @@ wordmapheaders = ['Filename', 'Column Number', 'Original Data Value',
 
 
 def columns_to_tree(filename):
-    with open(filename, 'rb') as csvfile:
+    with open(filename, 'rU') as csvfile:
         csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
         tree_array = []
 
@@ -188,7 +188,7 @@ def json_to_columns(tree):
 def get_datafiles(columnfilename):
     datafiles = set()
 
-    with open(columnfilename, 'rb') as csvfile:
+    with open(columnfilename, 'rU') as csvfile:
         csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
         next(csvreader)
         for line in csvreader:

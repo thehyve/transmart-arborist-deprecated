@@ -21,7 +21,7 @@ sourcecdcolumn = 9
 
 def subject_sample_to_tree(filename, tree_array):
 
-    with open(filename, 'rb') as csvfile:
+    with open(filename, 'rU') as csvfile:
         csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
         # Skipping header
         next(csvreader)
