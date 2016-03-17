@@ -80,7 +80,10 @@ def urlencode_filter(s):
     if type(s) == 'Markup':
         s = s.unescape()
     s = s.encode('utf8')
-    s = urllib.parse.quote_plus(s)
+    if sys.version_info.major == 2:
+        s = urllib.quote_plus(s)
+    else:
+        s = urllib.parse.quote_plus(s)
     return Markup(s)
 
 
