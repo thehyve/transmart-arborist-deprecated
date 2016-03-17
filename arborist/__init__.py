@@ -1,4 +1,4 @@
-
+#!/usr/bin/env python3
 import os
 import sys
 from collections import OrderedDict
@@ -11,13 +11,13 @@ from werkzeug.routing import BaseConverter, ValidationError
 import urllib
 from markupsafe import Markup
 
-from functions.params import Clinical_params, Expression_params, get_study_id
-from functions.exceptions import HyveException, HyveIOException
-from functions.clinical import columns_to_tree, json_to_columns, getchildren, \
+from .functions.params import Clinical_params, Expression_params, get_study_id
+from .functions.exceptions import HyveException, HyveIOException
+from .functions.clinical import columns_to_tree, json_to_columns, getchildren, \
                                get_datafiles, get_column_map_file, \
                                add_to_column_file, get_word_map
-from functions.feedback import get_feedback_dict, merge_feedback_dicts
-from functions.highdim import subject_sample_to_tree, get_subject_sample_map
+from .functions.feedback import get_feedback_dict, merge_feedback_dicts
+from .functions.highdim import subject_sample_to_tree, get_subject_sample_map
 
 STUDIES_FOLDER = 'studies'
 ALLOWED_EXTENSIONS = set(['txt', 'tsv'])
@@ -80,7 +80,7 @@ def urlencode_filter(s):
     if type(s) == 'Markup':
         s = s.unescape()
     s = s.encode('utf8')
-    s = urllib.quote_plus(s)
+    s = urllib.parse.quote_plus(s)
     return Markup(s)
 
 
@@ -379,7 +379,7 @@ def save_columnsfile(studiesfolder, study):
 
     columnsfile = get_column_map_file(studiesfolder, study)
     if columnsfile is not None:
-        columnmappingfile = open(columnsfile, 'wb')
+        columnmappingfile = open(columnsfile, 'w')
         columnmappingfile.write(tree)
         columnmappingfile.close()
 

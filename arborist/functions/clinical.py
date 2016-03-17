@@ -1,8 +1,8 @@
 import csv
 import os
 
-from feedback import get_feedback_dict
-from params import Clinical_params
+from .feedback import get_feedback_dict
+from .params import Clinical_params
 
 
 outoftree = 'OUT OF TREE'
