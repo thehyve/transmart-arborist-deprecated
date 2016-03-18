@@ -55,13 +55,20 @@ def add_slash_if_not_windows(url_path):
     return url_path
 
 
+def replace_back_with_forward_slash(string):
+    string = string.replace('\\', '/')
+    return string
+
+
 class FolderPathConverter(BaseConverter):
     def __init__(self, url_map):
         super(FolderPathConverter, self).__init__(url_map)
         self.regex = '.*'
 
     def to_python(self, value):
-        return add_slash_if_not_windows(value)
+        value = add_slash_if_not_windows(value)
+        value = replace_back_with_forward_slash(value)
+        return value
 
     def to_url(self, value):
         return value
