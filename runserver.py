@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 from arborist import app
 import socket
 import argparse

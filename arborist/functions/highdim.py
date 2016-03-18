@@ -1,7 +1,7 @@
 import csv
 import os
 
-from params import Expression_params
+from .params import Expression_params
 
 subject_sample_map_headers = ['STUDY_ID', 'SITE_ID', 'SUBJECT_ID', 'SAMPLE_ID',
                               'PLATFORM', 'TISSUETYPE', 'ATTR1', 'ATTR2',
