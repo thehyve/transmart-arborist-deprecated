@@ -1,7 +1,7 @@
 import os
 
-from exceptions import HyveException, HyveIOException
-from feedback import get_feedback_dict, merge_feedback_dicts
+from .exceptions import HyveException, HyveIOException
+from .feedback import get_feedback_dict, merge_feedback_dicts
 
 
 class Params(object):
