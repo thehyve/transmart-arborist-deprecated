@@ -220,7 +220,7 @@ def get_column_map_file(studiesfolder, study):
 def add_to_column_file(datafilename, columnmappingfilename):
     with open(datafilename, 'rU') as csvfile:
         csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
-        headerline = csvreader.next()
+        headerline = next(csvreader)
         with open(columnmappingfilename, "a") as columnmappingfile:
             i = 1
             for header in headerline:
