@@ -77,6 +77,7 @@ def osx_app_build_options():
                                    'sys',
                                    ],
                       'excludes': ['mime'],
+                      'iconfile': 'resources/images/boris.icns',
                       }
 
     extra_options = dict(setup_requires=['py2app'],
