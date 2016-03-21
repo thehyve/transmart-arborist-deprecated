@@ -118,6 +118,7 @@ def win32_exe_build_options():
                       }
 
     extra_options = dict(setup_requires=['py2exe'],
+                         zipfile=None,
                          console=[{'script': mainscript,
                                    'icon_resources': [(0, 'resources/images/icons/boris.ico')]
                                    }],
