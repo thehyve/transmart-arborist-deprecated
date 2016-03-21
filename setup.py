@@ -77,7 +77,7 @@ def osx_app_build_options():
                                    'sys',
                                    ],
                       'excludes': ['mime'],
-                      'iconfile': 'resources/images/boris.icns',
+                      'iconfile': 'resources/images/icons/boris.icns',
                       }
 
     extra_options = dict(setup_requires=['py2app'],
@@ -107,10 +107,13 @@ def win32_exe_build_options():
                                    'sys',
                                    'jinja2.ext',
                                    ],
+                      'icon_resources': [(0, 'resources/images/icons/boris.ico')],
                       }
 
     extra_options = dict(setup_requires=['py2exe'],
-                         console=[mainscript],
+                         console=[{'script': mainscript,
+                                   'icon_resources': [(0, 'resources/images/icons/boris.ico')]
+                                   }],
                          options={'py2exe': py2exe_options},
                          data_files=data_files,
                          )
