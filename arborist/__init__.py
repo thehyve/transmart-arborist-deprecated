@@ -23,13 +23,12 @@ STUDIES_FOLDER = 'studies'
 ALLOWED_EXTENSIONS = ['txt', 'tsv']
 
 # See if the application is run from an executable.
-if sys.platform == 'win32':
-    if hasattr(sys, 'frozen') or hasattr(sys, 'importers'):
-        path = os.path.dirname(sys.executable)
-        app = Flask(__name__,
-                    static_folder=os.path.join(path, 'static'),
-                    template_folder=os.path.join(path, 'templates')
-                    )
+if sys.platform == 'win32' and (hasattr(sys, 'frozen') or hasattr(sys, 'importers')):
+    path = os.path.dirname(sys.executable)
+    app = Flask(__name__,
+                static_folder=os.path.join(path, 'static'),
+                template_folder=os.path.join(path, 'templates')
+                )
 
 # See if the application is run from inside a .app (MacOSX)
 if sys.platform == 'darwin' and (hasattr(sys, 'frozen') or hasattr(sys, 'importers')):
