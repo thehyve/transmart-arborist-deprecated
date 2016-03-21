@@ -31,7 +31,7 @@ if sys.platform == 'win32' and (hasattr(sys, 'frozen') or hasattr(sys, 'importer
                 )
 
 # See if the application is run from inside a .app (MacOSX)
-if sys.platform == 'darwin' and (hasattr(sys, 'frozen') or hasattr(sys, 'importers')):
+elif sys.platform == 'darwin' and (hasattr(sys, 'frozen') or hasattr(sys, 'importers')):
     path = os.path.dirname(os.path.realpath(__file__))
     pos = path.rfind('lib/')
     path = path[:pos]
