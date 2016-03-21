@@ -114,6 +114,7 @@ def win32_exe_build_options():
                                    'jinja2.ext',
                                    ],
                       'dist_dir': DIST_DIR,
+                      'bundle_files': 1,
                       }
 
     extra_options = dict(setup_requires=['py2exe'],

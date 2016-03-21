@@ -20,24 +20,26 @@ from .functions.feedback import get_feedback_dict, merge_feedback_dicts
 from .functions.highdim import subject_sample_to_tree, get_subject_sample_map
 
 STUDIES_FOLDER = 'studies'
-ALLOWED_EXTENSIONS = set(['txt', 'tsv'])
+ALLOWED_EXTENSIONS = ['txt', 'tsv']
 
-path = os.path.dirname(os.path.realpath(__file__))
-# See if the application is run from windows executable.
-if path.find('library.zip') >= 0:
-    pos = path.find('library.zip')
-    path = path[:pos]
-    app = Flask(__name__,
-                static_folder=path+'static',
-                template_folder=path+'templates')
+# See if the application is run from an executable.
+if sys.platform == 'win32':
+    if hasattr(sys, 'frozen') or hasattr(sys, 'importers'):
+        path = os.path.dirname(sys.executable)
+        app = Flask(__name__,
+                    static_folder=os.path.join(path, 'static'),
+                    template_folder=os.path.join(path, 'templates')
+                    )
 
 # See if the application is run from inside a .app (MacOSX)
-elif path.find('.app/Contents/Resources/') >= 0:
+if sys.platform == 'darwin' and (hasattr(sys, 'frozen') or hasattr(sys, 'importers')):
+    path = os.path.dirname(os.path.realpath(__file__))
     pos = path.rfind('lib/')
     path = path[:pos]
     app = Flask(__name__,
-                static_folder=path + 'static',
-                template_folder=path + 'templates')
+                static_folder=os.path.join(path, 'static'),
+                template_folder=os.path.join(path, 'templates')
+                )
 else:
     app = Flask(__name__)
 
