@@ -4,7 +4,7 @@
 Graphical tool to help you prepare your data for loading into the tranSMART data warehouse.
 
 * * *
-![Reordering the tranSMART data tree](/arborist/static/img/screenshot.png?raw=true "Reordering the tranSMART data tree")
+![Reordering the tranSMART data tree](/resources/images/screenshot.png?raw=true "Reordering the tranSMART data tree")
 * * *
 
 ## Functionality
