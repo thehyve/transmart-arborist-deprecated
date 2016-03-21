@@ -4,7 +4,7 @@
 Graphical tool to help you prepare your data for loading into the tranSMART data warehouse.
 
 * * *
-![Boris](/resources/images/boris_full.svg "Boris!")
+![Boris](/resources/images/boris_full.jpg "Boris!")
 ![Reordering the tranSMART data tree](/resources/images/screenshot.png?raw=true "Reordering the tranSMART data tree")
 * * *
 
