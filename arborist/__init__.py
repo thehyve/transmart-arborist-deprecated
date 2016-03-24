@@ -11,7 +11,7 @@ from werkzeug.routing import BaseConverter, ValidationError
 import urllib
 from markupsafe import Markup
 
-from .functions.params import Clinical_params, Expression_params, get_study_id
+from .functions.params import ClinicalParams, ExpressionParams, get_study_id
 from .functions.exceptions import HyveException, HyveIOException
 from .functions.clinical import columns_to_tree, json_to_columns, getchildren, \
                                get_datafiles, get_column_map_file, \
@@ -159,9 +159,9 @@ def study_page(studiesfolder, study):
         if os.path.exists(paramsfile):
             paramsdict[datatype]['exists'] = True
             if datatype == 'clinical':
-                paramsobject = Clinical_params(paramsfile)
+                paramsobject = ClinicalParams(paramsfile)
             elif datatype == 'expression':
-                paramsobject = Expression_params(paramsfile)
+                paramsobject = ExpressionParams(paramsfile)
             else:
                 feedback['errors'].append('Params file {} not supported'.
                                           format(paramsfile))
@@ -255,9 +255,9 @@ def edit_params(studiesfolder, study, datatype):
     if request.method == 'POST':
         if os.path.exists(paramsfile):
             if datatype == 'clinical':
-                paramsobject = Clinical_params(paramsfile)
+                paramsobject = ClinicalParams(paramsfile)
             elif datatype == 'expression':
-                paramsobject = Expression_params(paramsfile)
+                paramsobject = ExpressionParams(paramsfile)
             else:
                 flash('Params file {} not supported'.
                       format(os.path.basename(paramsfile)), 'error')
@@ -279,9 +279,9 @@ def edit_params(studiesfolder, study, datatype):
 
     if os.path.exists(paramsfile):
         if datatype == 'clinical':
-            paramsobject = Clinical_params(paramsfile)
+            paramsobject = ClinicalParams(paramsfile)
         elif datatype == 'expression':
-            paramsobject = Expression_params(paramsfile)
+            paramsobject = ExpressionParams(paramsfile)
         else:
             flash('Params file {} not supported'.
                   format(os.path.basename(paramsfile)), 'error')
