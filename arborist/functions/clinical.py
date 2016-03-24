@@ -37,7 +37,7 @@ def columns_not_present(line, column_list):
 
 
 def columns_to_tree(filename):
-    with open(filename, 'rU') as csvfile:
+    with open(filename, 'r') as csvfile:
         csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
         tree_array = []
 
@@ -118,8 +118,10 @@ def columns_to_tree(filename):
 
 
 def getchildren(node, columnsfile, path, feedback):
-    if node['type'] == 'numeric' or node['type'] == 'alpha' \
-            or node['type'] == 'codeleaf':
+    node_type = node.get('type', 'default')
+    node_children = node.get('children', [])
+
+    if node_type == 'numeric' or node_type == 'alpha' or node_type == 'codeleaf':
         filename = node['data'][filenamelabel]
 
         # Error handling for clinical concepts
@@ -148,7 +150,7 @@ def getchildren(node, columnsfile, path, feedback):
         columnsfile.append([filename, categorycode, columnnumber, datalabel,
                             datalabelsource, controlvocabcd])
         return columnsfile, feedback
-    elif node['type'] == 'default':
+    elif node_type == 'default':
         path = path + [node['text']]
 
         # Error handling for folders
@@ -162,12 +164,12 @@ def getchildren(node, columnsfile, path, feedback):
             feedback['errors'].append(('The folder \'{}\' contains leading or'
                                        ' trailing whitespace.')
                                       .format("/".join(path)))
-        if node['children'] == []:
+        if not node_children:
             feedback['warnings'].append(('The folder \'{}\' has no children'
                                          ' and will thus be ignored.')
                                         .format("/".join(path)))
 
-        for child in node['children']:
+        for child in node_children:
             columnsfile, feedback = getchildren(child, columnsfile, path,
                                                 feedback)
         return columnsfile, feedback
@@ -197,7 +199,7 @@ def json_to_columns(tree):
 def get_datafiles(columnfilename):
     datafiles = set()
 
-    with open(columnfilename, 'rU') as csvfile:
+    with open(columnfilename, 'r') as csvfile:
         csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
         next(csvreader)
         for line in csvreader:
@@ -218,7 +220,7 @@ def get_column_map_file(studiesfolder, study):
 
 
 def add_to_column_file(datafilename, columnmappingfilename):
-    with open(datafilename, 'rU') as csvfile:
+    with open(datafilename, 'r') as csvfile:
         csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
         headerline = next(csvreader)
         with open(columnmappingfilename, "a") as columnmappingfile:
