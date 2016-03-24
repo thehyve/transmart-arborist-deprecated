@@ -26,18 +26,23 @@ class ArboristBaseTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         exec_path = os.path.split(os.path.abspath(__file__))[0]
-        cls.prefixed_path = '/folder' + exec_path
+        cls.url_prefix = '/folder/'
+        cls.prefixed_path = cls.url_prefix + exec_path
         cls.tmp_root = tempfile.mkdtemp()
-        cls.tmp_study = cls.tmp_root + '/test_study'
-        cls.tmp_clinical = cls.tmp_study + '/clinical'
-        cls.tmp_expression = cls.tmp_study + '/expression'
-        cls.tmp_empty_study = cls.tmp_root + '/empty_study'
-        os.mkdir(cls.tmp_study)
-        os.mkdir(cls.tmp_clinical)
-        os.mkdir(cls.tmp_expression)
-        os.mkdir(cls.tmp_empty_study)
-        cls.test_study_path = '/folder' + cls.tmp_root + '/s/test_study'
-        cls.empty_study_path = '/folder' + cls.tmp_root + '/s/empty_study'
+        cls.tmp_study = os.path.join(cls.tmp_root, 'test_study')
+        cls.tmp_clinical = os.path.join(cls.tmp_study, 'clinical')
+        cls.tmp_expression = os.path.join(cls.tmp_study, 'expression')
+        cls.tmp_empty_study = os.path.join(cls.tmp_root, 'empty_study')
+        temporary_dir_list = [cls.tmp_study,
+                              cls.tmp_clinical,
+                              cls.tmp_expression,
+                              cls.tmp_empty_study,
+                              ]
+        for dir_name in temporary_dir_list:
+            print("Creating tmp dir: {}".format(dir_name))
+            os.mkdir(dir_name)
+        cls.test_study_path = cls.url_prefix + cls.tmp_root + '/s/test_study'
+        cls.empty_study_path = cls.url_prefix + cls.tmp_root + '/s/empty_study'
         with open(cls.tmp_clinical + '/col_map_file.tsv', 'w') as col_map_file:
             for line in column_map_list:
                 col_map_file.write(line)
@@ -56,28 +61,44 @@ class ArboristBaseTests(unittest.TestCase):
         arborist.app.config['TESTING'] = True
         self.app = arborist.app.test_client()
 
+    @staticmethod
+    def single_forward_slashed(string):
+        """
+        Converts string so that it starts and ends with foward slash and replaces all double and backslashes for
+        a single forward slash.
+
+        :param string input string
+        :returns: returns the string
+        """
+        string = '/{}/'.format(string)
+        string = string.replace('//', '/')
+        string = string.replace('\\', '/')
+        return string
+
     def test_if_root_redirect_works(self):
         rv = self.app.get('/', follow_redirects=True)
         assert b'Studies overview' in rv.data
 
     def test_navigator_working(self):
-        rv = self.app.get('/folder' + self.tmp_root, follow_redirects=True)
+        path = self.single_forward_slashed(self.url_prefix + self.tmp_root)
+        rv = self.app.get(path, follow_redirects=True)
         assert b'Studies overview' in rv.data
 
     def test_create_new_folder(self):
-        path = '/folder' + self.tmp_root + '/create/'
+        path = self.single_forward_slashed(self.url_prefix + self.tmp_root + '/create/')
         form_data = dict(foldername='empty_test_folder')
         rv = self.app.post(path, follow_redirects=True, data=form_data)
         assert b'data-foldername="empty_test_folder"' in rv.data
 
     def test_create_clinical_params(self):
-        clin_param_path = self.empty_study_path + '/params/clinical/'
-        create_path = clin_param_path + 'create'
+        clin_param_path = self.single_forward_slashed(self.empty_study_path + '/params/clinical/')
+        create_path = self.single_forward_slashed(clin_param_path + '/create/')
+        create_path = create_path[:-1]  # TODO fix this: Strips the last forward slash, else it wont create.
         form_data = dict(COLUMN_MAP_FILE='col_map_file.tsv',
                          SECURITY_REQUIRED='Y',
                          STUDY_ID='empty_study')
         rv = self.app.get(self.empty_study_path, follow_redirects=True)
-        self.assertTrue(b'COLUMN_MAP_FILE:' not in rv.data)
+        assert b'COLUMN_MAP_FILE:' not in rv.data
         rv = self.app.post(create_path, follow_redirects=True)
         assert b'Successfully created clinical.params.' in rv.data
         rv = self.app.post(clin_param_path, follow_redirects=True, data=form_data)
@@ -86,8 +107,8 @@ class ArboristBaseTests(unittest.TestCase):
         assert b'COLUMN_MAP_FILE:' in rv.data
 
     def test_column_map_open_and_save(self):
-        tree_view = self.test_study_path + '/tree/'
-        tree_save = self.test_study_path + '/tree/save_columnsfile/'
+        tree_view = self.single_forward_slashed(self.test_study_path + '/tree/')
+        tree_save = self.single_forward_slashed(self.test_study_path + '/tree/save_columnsfile/')
         rv = self.app.get(tree_view, follow_redirects=True)
         assert rv.status == '200 OK'
         json = re.search(b'\[\{.*\}\]', rv.data).group(0)
