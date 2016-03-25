@@ -7,7 +7,7 @@ from .feedback import get_feedback_dict, merge_feedback_dicts
 class Params(object):
     """Base class for all Params files"""
     def __init__(self, filename, datatype, possible_variables):
-        ''' Used to create a params representation
+        """ Used to create a params representation
 
         Args:
             filename (str): String representation of the path of the
@@ -33,7 +33,7 @@ class Params(object):
                     default (str): The default value when the variable is not
                         set.
                     helptext (str): Description of the variable for the user.
-        '''
+        """
 
         study_specific_possible_variables = {
             "SECURITY_REQUIRED": {
@@ -177,7 +177,7 @@ class Params(object):
         handle.close()
 
 
-class Clinical_params(Params):
+class ClinicalParams(Params):
     """Class for clinical.params file"""
     def __init__(self, filename):
         possible_variables = {
@@ -199,12 +199,12 @@ class Clinical_params(Params):
             }
                               }
         datatype = 'clinical'
-        super(Clinical_params, self).__init__(filename,
-                                              datatype,
-                                              possible_variables)
+        super(ClinicalParams, self).__init__(filename,
+                                             datatype,
+                                             possible_variables)
 
 
-class Expression_params(Params):
+class ExpressionParams(Params):
     """Class for expression.params file"""
     def __init__(self, filename):
         possible_variables = {
@@ -245,9 +245,9 @@ class Expression_params(Params):
             }
                               }
         datatype = 'expression'
-        super(Expression_params, self).__init__(filename,
-                                                datatype,
-                                                possible_variables)
+        super(ExpressionParams, self).__init__(filename,
+                                               datatype,
+                                               possible_variables)
 
 
 def get_study_id(studiesfolder, study):
@@ -255,7 +255,7 @@ def get_study_id(studiesfolder, study):
     paramsfile = os.path.join(studiesfolder, study, 'clinical.params')
 
     if os.path.exists(paramsfile):
-        paramsobject = Clinical_params(paramsfile)
+        paramsobject = ClinicalParams(paramsfile)
         studyid = paramsobject.get_variable('STUDY_ID')
 
     try:
