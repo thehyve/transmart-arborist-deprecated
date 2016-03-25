@@ -1,0 +1,2 @@
+recursive-include arborist/templates *
+recursive-include arborist/static *

@@ -1,4 +1,4 @@
-from exceptions import HyveException
+from .exceptions import HyveException
 feedback_categories = ['errors', 'warnings', 'infos']
 
 

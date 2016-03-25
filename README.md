@@ -16,13 +16,17 @@ Graphical tool to help you prepare your data for loading into the tranSMART data
  * Editing the values in the columns file for each node
 
 ## Installation
-Keep in mind the application has only been tested on Mac for now.
-* Install the Python microframework Flask as described here: http://flask.pocoo.org/docs/0.10/installation/
+Keep in mind the application has only been tested on Mac OS X 10.10 or newer, and Windows 7 or newer.
+* Clone this repository and run the setup with `python setup.py install`.
+ * Use `git clone --recursive` OR run `git module init` and `git module update` to also download a transmart test dataset.
 * Download [the latest stable release](https://github.com/thehyve/transmart-arborist/releases/latest) from this repository
 
 ## Starting the application
-* Run `python runserver.py` in your terminal, as described here: http://flask.pocoo.org/docs/0.10/quickstart
-* Copy the URL from the terminal to your browser to open the application
- 
+* Run `python runserver.py` in your terminal, this should open The Arborist in your default webbrowser.
+* Additional running options can be viewed by running `python runserver.py --help`
+
 ## Loading data
 Once your data is prepared we suggest using [transmart-batch](https://github.com/thehyve/transmart-batch) for loading it into tranSMART.
+
+## For additional documentation
+See these [docs](docs).

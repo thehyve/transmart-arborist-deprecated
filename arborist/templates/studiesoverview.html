@@ -1,7 +1,7 @@
 {% extends "layout.html" %}
 {% block title %}Studies overview{% endblock %}
 {% block content %}
-	<p>Studies are recognized based on the folder containing a <code>study.params</code> or <code>clinical.params</code> file.<br />
+	<p>Studies are recognized based on the folder containing a <code>clinical.params</code> file.<br />
 		You are currently in the folder: '<code>/{{ studiesfolder }}</code>'.</p>
 
 	{% if not parentfolder == '' %}
@@ -18,9 +18,13 @@
 
 	<p>
 	{% if not studiesfolder == '' %}
-	<a href="{{ parenturl }}" id="gotoparent">Go to parent directory</a> -
+	<a href="{{ parenturl }}" id="gotoparent">
+		<img style="padding-right:5px; vertical-align:middle;" src="{{ url_for('static', filename='img/folder.png') }}" />Go to parent directory
+	</a> -
 	{% endif %}
-		<a id="newfolderlink" href="{{ createfolderurl }}">Create new folder</a>
+		<a id="newfolderlink" href="{{ createfolderurl }}">
+			<img style="padding-right:5px; vertical-align:middle;" src="{{ url_for('static', filename='img/addfolder.png') }}" />Create new folder
+		</a>
 	</p>
 
 	<form method="post" id="newfolderform" action="{{ createfolderurl }}">
