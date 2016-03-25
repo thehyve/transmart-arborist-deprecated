@@ -4,7 +4,7 @@ import unittest
 import tempfile
 import shutil
 import re
-
+from flask import url_for, request
 
 column_map_list = ['file1\tCharacteristic\t8\tAge',
                    'fil1\tCharacteristic\t9\tGender',
@@ -118,6 +118,17 @@ class ArboristBaseTests(unittest.TestCase):
                                     ('Referer', tree_view),
                                     ('Content-Type', 'application/json')],
                            data=json)
+
+    def test_set_default_cookie(self):
+        rv = self.app.get(self.test_study_path + '/set_default', follow_redirects=True)
+        assert rv.status == '204 NO CONTENT'
+
+    def test_redirect_to_home(self):
+        rv = self.app.get('/', follow_redirects=True)
+        assert self.tmp_root not in rv.data.decode('utf-8')
+        self.app.set_cookie('localhost', 'default_folder', self.tmp_root)
+        rv = self.app.get('/', follow_redirects=True)
+        assert self.tmp_root in rv.data.decode('utf-8')
 
 if __name__ == '__main__':
     unittest.main()
