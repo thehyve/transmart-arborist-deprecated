@@ -118,6 +118,7 @@ class ArboristBaseTests(unittest.TestCase):
                                     ('Referer', tree_view),
                                     ('Content-Type', 'application/json')],
                            data=json)
+        assert rv.status == '200 OK'
 
     def test_set_default_cookie(self):
         rv = self.app.get(self.test_study_path + '/set_default', follow_redirects=True)
