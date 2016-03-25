@@ -1,9 +1,8 @@
 import csv
 import os
-from flask import json
 
-from feedback import get_feedback_dict
-from params import Clinical_params
+from .feedback import get_feedback_dict
+from .params import ClinicalParams
 
 
 outoftree = 'OUT OF TREE'
@@ -27,8 +26,18 @@ wordmapheaders = ['Filename', 'Column Number', 'Original Data Value',
                   'New Data Value']
 
 
-def columns_to_json(filename):
-    with open(filename, 'rb') as csvfile:
+def columns_not_present(line, column_list):
+    """Return True if one or more of column_list are not present"""
+    if len(line) == 0:
+        return False
+    for column in column_list:
+        if line[column] == '':
+            return False
+    return True
+
+
+def columns_to_tree(filename):
+    with open(filename, 'rU') as csvfile:
         csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
         tree_array = []
 
@@ -37,13 +46,12 @@ def columns_to_json(filename):
 
         for line in csvreader:
             # Skip lines without filename, column number or data label
-            if line[filenamecolumn] != '' and line[columnnumbercolumn] != '' \
-                                          and line[datalabelcolumn] != '':
+            if columns_not_present(line, [filenamecolumn, columnnumbercolumn, datalabelcolumn]):
                 # If categorycode is empty this is a special concept that is
                 # not in the tree
                 # Eg SUBJ_ID, STUDY_ID, OMIT or DATA LABEL
 
-                path = line[categorycodecolumn].split('+')
+                path = line[categorycodecolumn].replace(' ', '_').split('+')
                 i = 0
 
                 # Create folders for all parts in the categorycode path
@@ -106,7 +114,7 @@ def columns_to_json(filename):
                     leafnode['type'] = 'codeleaf'
                 tree_array.append(leafnode)
 
-        return json.dumps(tree_array)
+        return tree_array
 
 
 def getchildren(node, columnsfile, path, feedback):
@@ -163,6 +171,8 @@ def getchildren(node, columnsfile, path, feedback):
             columnsfile, feedback = getchildren(child, columnsfile, path,
                                                 feedback)
         return columnsfile, feedback
+    else:
+        return columnsfile, feedback
 
 
 def json_to_columns(tree):
@@ -187,18 +197,19 @@ def json_to_columns(tree):
 def get_datafiles(columnfilename):
     datafiles = set()
 
-    with open(columnfilename, 'rb') as csvfile:
+    with open(columnfilename, 'rU') as csvfile:
         csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
         next(csvreader)
         for line in csvreader:
-            datafiles.add(line[filenamecolumn])
+            if len(line) > 0:
+                datafiles.add(line[filenamecolumn])
 
     return datafiles
 
 
 def get_column_map_file(studiesfolder, study):
     clinicalparamsfile = os.path.join(studiesfolder, study, 'clinical.params')
-    paramsobject = Clinical_params(clinicalparamsfile)
+    paramsobject = ClinicalParams(clinicalparamsfile)
     if paramsobject is not None:
         columnsfile = paramsobject.get_variable_path('COLUMN_MAP_FILE')
         return columnsfile
@@ -207,9 +218,9 @@ def get_column_map_file(studiesfolder, study):
 
 
 def add_to_column_file(datafilename, columnmappingfilename):
-    with open(datafilename, 'rb') as csvfile:
+    with open(datafilename, 'rU') as csvfile:
         csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
-        headerline = csvreader.next()
+        headerline = next(csvreader)
         with open(columnmappingfilename, "a") as columnmappingfile:
             i = 1
             for header in headerline:

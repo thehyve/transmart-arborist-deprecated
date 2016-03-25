@@ -1,0 +1,13 @@
+Filename	Category Code	Column Number	Data Label	Data Label Source	Control Vocab Cd
+Cell-line_NHTMP.txt	Subjects	1	SUBJ_ID		
+Cell-line_NHTMP.txt	Subjects	2	General_call		
+Cell-line_clinical.txt	Characteristics	1	\	2	
+Cell-line_clinical.txt	Subjects	1	SUBJ_ID		
+Cell-line_clinical.txt	Characteristics	2	DATA_LABEL		
+Cell-line_clinical.txt	Characteristics	3	Organism		
+Cell-line_clinical.txt	Characteristics	4	Origin_tissue		
+Cell-line_clinical.txt	Characteristics	5	Cell_type		
+Cell-line_clinical.txt	Characteristics	6	Disease		
+Cell-line_clinical.txt	Characteristics	7	Race		
+Cell-line_clinical.txt	Characteristics	8	Age		
+Cell-line_clinical.txt	Characteristics	9	Gender		
