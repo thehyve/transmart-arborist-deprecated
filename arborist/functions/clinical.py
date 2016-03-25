@@ -2,7 +2,7 @@ import csv
 import os
 
 from .feedback import get_feedback_dict
-from .params import Clinical_params
+from .params import ClinicalParams
 
 
 outoftree = 'OUT OF TREE'
@@ -209,7 +209,7 @@ def get_datafiles(columnfilename):
 
 def get_column_map_file(studiesfolder, study):
     clinicalparamsfile = os.path.join(studiesfolder, study, 'clinical.params')
-    paramsobject = Clinical_params(clinicalparamsfile)
+    paramsobject = ClinicalParams(clinicalparamsfile)
     if paramsobject is not None:
         columnsfile = paramsobject.get_variable_path('COLUMN_MAP_FILE')
         return columnsfile

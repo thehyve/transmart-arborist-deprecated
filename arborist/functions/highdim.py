@@ -1,7 +1,7 @@
 import csv
 import os
 
-from .params import Expression_params
+from .params import ExpressionParams
 
 subject_sample_map_headers = ['STUDY_ID', 'SITE_ID', 'SUBJECT_ID', 'SAMPLE_ID',
                               'PLATFORM', 'TISSUETYPE', 'ATTR1', 'ATTR2',
@@ -101,7 +101,7 @@ def get_subject_sample_map(studiesfolder, study, datatype):
                                             study,
                                             'expression.params')
         if os.path.exists(expressionparamsfile):
-            paramsobject = Expression_params(expressionparamsfile)
+            paramsobject = ExpressionParams(expressionparamsfile)
             subject_sample_map = paramsobject.get_variable_path('MAP_FILENAME')
             return subject_sample_map
         else:
