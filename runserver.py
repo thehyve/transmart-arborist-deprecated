@@ -4,9 +4,9 @@ import argparse
 import webbrowser
 
 parser = argparse.ArgumentParser(description='Launch the Arborist')
-parser.add_argument('--debug', action="store_true", default=False, help="Run in debug mode")
+parser.add_argument('--debug', action='store_true', default=False, help='Run in debug mode')
 parser.add_argument('--port', type=int,
-                    help="Set port to try to listen to. By default the OS is asked what port to use.")
+                    help='Set port to try to listen to. By default the OS is asked what port to use.')
 args = parser.parse_args()
 
 

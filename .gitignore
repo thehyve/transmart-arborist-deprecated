@@ -9,3 +9,4 @@ arborist-settings.json
 dist/
 *.egg*
 build/
+.idea/
