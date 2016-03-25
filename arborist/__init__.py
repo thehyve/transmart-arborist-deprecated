@@ -102,9 +102,13 @@ def allowed_file(filename):
 
 @app.route('/')
 def index():
-    studiesfolder = os.path.abspath(STUDIES_FOLDER)
-    studiesfolder = studiesfolder.strip('/')
-    return redirect(url_for('studies_overview', studiesfolder=studiesfolder))
+    default_folder = request.cookies.get('default_folder')
+    if default_folder:
+        return redirect(url_for('studies_overview', studiesfolder=default_folder))
+    else:
+        studiesfolder = os.path.abspath(STUDIES_FOLDER)
+        studiesfolder = studiesfolder.strip('/')
+        return redirect(url_for('studies_overview', studiesfolder=studiesfolder))
 
 
 @app.route('/folder/create/', defaults={'studiesfolder': ''}, methods=['POST'])
@@ -195,7 +199,15 @@ def study_page(studiesfolder, study):
                            possible_datatypes=possible_datatypes)
 
 
-@app.route(('/folder/<folderpath:studiesfolder>/s/<study>/clinical/create/'))
+@app.route('/folder/<folderpath:studiesfolder>/set_default/', methods=["GET"])
+def set_default_folder(studiesfolder):
+    response = app.make_response(('', 204))
+    response.set_cookie('default_folder', value=studiesfolder)
+    flash('Default folder set.')
+    return response
+
+
+@app.route('/folder/<folderpath:studiesfolder>/s/<study>/clinical/create/')
 def create_mapping_file(studiesfolder, study):
     columnmappingfile = 'COLUMN_MAP_FILE'
     wordmappingfile = 'WORD_MAP_FILE'
