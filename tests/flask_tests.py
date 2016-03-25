@@ -55,6 +55,7 @@ class ArboristBaseTests(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls):
+        print("Finished. Cleaning up temporary files.")
         shutil.rmtree(cls.tmp_root)
 
     def setUp(self):
