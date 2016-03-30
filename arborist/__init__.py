@@ -319,6 +319,26 @@ def edit_params(studiesfolder, study, datatype):
                            feedback=feedback)
 
 
+@app.route('/treeview/<folderpath:mapfile>')
+def treeview(mapfile):
+    columnsfile = mapfile
+    if columnsfile is not None:
+        tree_array = columns_to_tree(columnsfile)
+        clinicaldatafiles = []
+    else:
+        tree_array = []
+        clinicaldatafiles = []
+
+    treejson = json.dumps(tree_array)
+
+    return render_template('tree.html',
+                           studiesfolder=mapfile,
+                           clinicaldatafiles=clinicaldatafiles,
+                           study='This content has to be removed.',
+                           json=treejson,
+                           treeview=True)
+
+
 @app.route('/folder/<folderpath:studiesfolder>/s/<study>/tree/')
 def edit_tree(studiesfolder, study):
     columnsfile = get_column_map_file(studiesfolder, study)
