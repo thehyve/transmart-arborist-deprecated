@@ -16,19 +16,28 @@
 		{% set createfolderurl = url_for('create_folder') %}
 	{% endif %}
 
+	{% set set_default_url = url_for('set_default_folder', studiesfolder=studiesfolder) %}
+
 	<p>
 	{% if not studiesfolder == '' %}
-	<a href="{{ parenturl }}" id="gotoparent">
-		<img style="padding-right:5px; vertical-align:middle;" src="{{ url_for('static', filename='img/folder.png') }}" />Go to parent directory
-	</a> -
+		<a href="{{ parenturl }}" id="gotoparent">
+			<img style="padding-right:5px; vertical-align:middle;" src="{{ url_for('static', filename='img/folder.png') }}" />Go to parent directory
+		</a> -
 	{% endif %}
 		<a id="newfolderlink" href="{{ createfolderurl }}">
 			<img style="padding-right:5px; vertical-align:middle;" src="{{ url_for('static', filename='img/addfolder.png') }}" />Create new folder
+		</a> -
+		<a id="set_default_link" href="{{ set_default_url }}">
+			<img style="padding-right:5px; vertical-align:middle;" src="{{ url_for('static', filename='img/pin.png') }}" />Set default folder
 		</a>
 	</p>
 
 	<form method="post" id="newfolderform" action="{{ createfolderurl }}">
 		<input type="hidden" name="foldername" />
+	</form>
+
+	<form id="set_default_form" action="{{ set_default_url }}" >
+		<input type = 'hidden' name="defaultfolder"/>
 	</form>
 
 	<ul class="folderlist">
