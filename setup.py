@@ -3,14 +3,14 @@ Setuptools and py2app/py2exe build script for transmart-arborist.
 
 To install dependencies for your machine:
     Usage:
-        python setup.py install
+        python3 setup.py install
 
 To build a packaged executable:
     Usage (Mac OS X):
-        python setup.py py2app
+        python3 setup.py py2app
 
         Usage (Windows):
-        python setup.py py2exe
+        python3 setup.py py2exe
 """
 
 import sys
@@ -18,9 +18,14 @@ import os
 import glob
 from setuptools import setup, find_packages
 
+
+NAME = 'tranSMART Arborist'
+VERSION = '1.2.4-1'
+DIST_DIR = '{} v{}'.format(NAME, VERSION)
+
 mainscript = 'runserver.py'
 extra_options = {}
-# Which directories to take all normal files from, these have to be specified explicitely.
+# Which directories to take all normal files from, these have to be specified explicitly.
 patterns = [
           'static/*',
           'templates/*',
@@ -77,6 +82,8 @@ def osx_app_build_options():
                                    'sys',
                                    ],
                       'excludes': ['mime'],
+                      'iconfile': 'resources/images/icons/boris.icns',
+                      'dist_dir': DIST_DIR,
                       }
 
     extra_options = dict(setup_requires=['py2app'],
@@ -106,10 +113,15 @@ def win32_exe_build_options():
                                    'sys',
                                    'jinja2.ext',
                                    ],
+                      'dist_dir': DIST_DIR,
+                      'bundle_files': 1,
                       }
 
     extra_options = dict(setup_requires=['py2exe'],
-                         console=[mainscript],
+                         zipfile=None,
+                         console=[{'script': mainscript,
+                                   'icon_resources': [(0, 'resources/images/icons/boris.ico')]
+                                   }],
                          options={'py2exe': py2exe_options},
                          data_files=data_files,
                          )
@@ -125,8 +137,8 @@ elif sys.platform == 'win32' and 'py2exe' in sys.argv:
 
 
 setup(
-    name='tranSMART Arborist',
-    version='1.3',
+    name=NAME,
+    version=VERSION,
     description='Graphical tool to help you prepare your data for loading into the tranSMART data warehouse',
     url='https://github.com/thehyve/transmart-arborist',
     author='Ward Weistra and Jochem Bijlard',
