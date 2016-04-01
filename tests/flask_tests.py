@@ -62,38 +62,24 @@ class ArboristBaseTests(unittest.TestCase):
         arborist.app.config['TESTING'] = True
         self.app = arborist.app.test_client()
 
-    @staticmethod
-    def single_forward_slashed(string):
-        """
-        Converts string so that it starts and ends with foward slash and replaces all double and backslashes for
-        a single forward slash.
-
-        :param string input string
-        :returns: returns the string
-        """
-        string = '/{}/'.format(string)
-        string = string.replace('//', '/')
-        string = string.replace('\\', '/')
-        return string
-
     def test_if_root_redirect_works(self):
         rv = self.app.get('/', follow_redirects=True)
         assert b'Studies overview' in rv.data
 
     def test_navigator_working(self):
-        path = self.single_forward_slashed(self.url_prefix + self.tmp_root)
+        path = arborist.single_forward_slashed(self.url_prefix + self.tmp_root)
         rv = self.app.get(path, follow_redirects=True)
         assert b'Studies overview' in rv.data
 
     def test_create_new_folder(self):
-        path = self.single_forward_slashed(self.url_prefix + self.tmp_root + '/create/')
+        path = arborist.single_forward_slashed(self.url_prefix + self.tmp_root + '/create/')
         form_data = dict(foldername='empty_test_folder')
         rv = self.app.post(path, follow_redirects=True, data=form_data)
         assert b'data-foldername="empty_test_folder"' in rv.data
 
     def test_create_clinical_params(self):
-        clin_param_path = self.single_forward_slashed(self.empty_study_path + '/params/clinical/')
-        create_path = self.single_forward_slashed(clin_param_path + '/create/')
+        clin_param_path = arborist.single_forward_slashed(self.empty_study_path + '/params/clinical/')
+        create_path = arborist.single_forward_slashed(clin_param_path + '/create/')
         create_path = create_path[:-1]  # TODO fix this: Strips the last forward slash, else it wont create.
         form_data = dict(COLUMN_MAP_FILE='col_map_file.tsv',
                          SECURITY_REQUIRED='Y',
@@ -108,8 +94,8 @@ class ArboristBaseTests(unittest.TestCase):
         assert b'COLUMN_MAP_FILE:' in rv.data
 
     def test_column_map_open_and_save(self):
-        tree_view = self.single_forward_slashed(self.test_study_path + '/tree/')
-        tree_save = self.single_forward_slashed(self.test_study_path + '/tree/save_columnsfile/')
+        tree_view = arborist.single_forward_slashed(self.test_study_path + '/tree/')
+        tree_save = arborist.single_forward_slashed(self.test_study_path + '/tree/save_columnsfile/')
         rv = self.app.get(tree_view, follow_redirects=True)
         assert rv.status == '200 OK'
         json = re.search(b'\[\{.*\}\]', rv.data).group(0)
@@ -119,6 +105,7 @@ class ArboristBaseTests(unittest.TestCase):
                                     ('Referer', tree_view),
                                     ('Content-Type', 'application/json')],
                            data=json)
+        assert b'Saved column mapping file' in rv.data
 
 if __name__ == '__main__':
     unittest.main()

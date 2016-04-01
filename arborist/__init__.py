@@ -55,7 +55,14 @@ def add_slash_if_not_windows(url_path):
     return url_path
 
 
-def replace_back_with_forward_slash(string):
+def single_forward_slashed(string):
+    """
+    Converts string so that all double and backslashes for a single forward slash.
+
+    :param string: input string
+    :return: returns the new string
+    """
+    string = string.replace('//', '/')
     string = string.replace('\\', '/')
     return string
 
@@ -67,11 +74,13 @@ class FolderPathConverter(BaseConverter):
 
     def to_python(self, value):
         value = add_slash_if_not_windows(value)
-        value = replace_back_with_forward_slash(value)
+        value = single_forward_slashed(value)
         return value
 
     def to_url(self, value):
+        value = single_forward_slashed(value)
         return value
+
 
 app.url_map.converters['folderpath'] = FolderPathConverter
 
