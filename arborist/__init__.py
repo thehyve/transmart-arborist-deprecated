@@ -114,13 +114,14 @@ def index():
     return redirect(url_for('studies_overview', studiesfolder=studiesfolder))
 
 
-@app.route('/folder/create/', defaults={'studiesfolder': ''}, methods=['POST'])
+@app.route('/folder/create/', defaults={'studiesfolder': '/'}, methods=['POST'])
 @app.route('/folder/<folderpath:studiesfolder>/create/', methods=['POST'])
 def create_folder(studiesfolder):
     if 'foldername' in request.form:
         foldername = os.path.join(studiesfolder,
                                   request.form['foldername'])
         if not os.path.exists(foldername):
+            # TODO handle case where no permission to create folder
             os.mkdir(foldername)
 
     return redirect(url_for('studies_overview', studiesfolder=studiesfolder))
@@ -129,7 +130,7 @@ def create_folder(studiesfolder):
 @app.route('/folder/', defaults={'studiesfolder': '/'})
 @app.route('/folder/<folderpath:studiesfolder>/')
 def studies_overview(studiesfolder):
-    parentfolder = os.path.abspath(os.path.join(studiesfolder, os.pardir))
+
     studies = {}
 
     for file in os.listdir(studiesfolder):
@@ -142,9 +143,22 @@ def studies_overview(studiesfolder):
     orderedstudies = OrderedDict(sorted(studies.items(),
                                         key=lambda x: x[0].lower()))
 
+    rootfolder = False
+    parentfolder = ''
+    if studiesfolder == '/':
+        rootfolder = True
+    elif studiesfolder.endswith(':\\'):
+        rootfolder = True
+        studiesfolder = urlencode_filter(studiesfolder)
+    else:
+        parentfolder = os.path.abspath(os.path.join(studiesfolder, os.pardir))
+        if parentfolder.endswith(':\\'):
+            parentfolder = urlencode_filter(parentfolder)
+
     return render_template('studiesoverview.html',
                            studiesfolder=studiesfolder,
                            parentfolder=parentfolder,
+                           rootfolder=rootfolder,
                            studies=orderedstudies)
 
 

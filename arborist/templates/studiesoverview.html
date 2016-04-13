@@ -4,20 +4,18 @@
 	<p>Studies are recognized based on the folder containing a <code>clinical.params</code> file.<br />
 		You are currently in the folder: '<code>{{ studiesfolder }}</code>'.</p>
 
-	{% if not parentfolder == '' %}
+	{% if not rootfolder %}
 		{% set parenturl = url_for('studies_overview', studiesfolder=parentfolder) %}
-	{% else %}
-		{% set parenturl = url_for('studies_overview') %}
 	{% endif %}
 
-	{% if not studiesfolder == '' %}
+	{% if not rootfolder %}
 		{% set createfolderurl = url_for('create_folder', studiesfolder=studiesfolder) %}
 	{% else %}
 		{% set createfolderurl = url_for('create_folder') %}
 	{% endif %}
 
 	<p>
-	{% if not studiesfolder == '' %}
+	{% if not rootfolder %}
 	<a href="{{ parenturl }}" id="gotoparent">
 		<img style="padding-right:5px; vertical-align:middle;" src="{{ url_for('static', filename='img/folder.png') }}" />Go to parent directory
 	</a> -
@@ -34,14 +32,9 @@
 	<ul class="folderlist">
 	{% for study in studies %}
 
-		{% if not studiesfolder == '' %}
-			{% set folderurl = url_for('studies_overview', studiesfolder=(studiesfolder, study)|path_join) %}
-			{% set studyurl = url_for('study_page', studiesfolder=studiesfolder, study=study) %}
-		{% else %}
-			{% set folderurl = url_for('studies_overview', studiesfolder=study) %}
-			{% set studyurl = url_for('study_page', study=study) %}
-		{% endif %}
-
+		{% set folderurl = url_for('studies_overview', studiesfolder=(studiesfolder, study)|path_join) %}
+		{% set studyurl = url_for('study_page', studiesfolder=studiesfolder, study=study) %}
+		
 		{% if studies[study]['type'] == 'study' %}
 
 		<li class="study">
