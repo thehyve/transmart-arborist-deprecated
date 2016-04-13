@@ -4,7 +4,9 @@
 	<p>Studies are recognized based on the folder containing a <code>clinical.params</code> file.<br />
 		You are currently in the folder: '<code>{{ studiesfolder }}</code>'.</p>
 
-	{% if not parentfolder == '' %}
+	{% if parentfolder.endswith(':/') %}
+		{% set parenturl = url_for('studies_overview', studiesfolder=parentfolder|urlencode) %}
+	{% elif not parentfolder == '' %}
 		{% set parenturl = url_for('studies_overview', studiesfolder=parentfolder) %}
 	{% else %}
 		{% set parenturl = url_for('studies_overview') %}
