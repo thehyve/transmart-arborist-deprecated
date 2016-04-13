@@ -126,7 +126,7 @@ def create_folder(studiesfolder):
     return redirect(url_for('studies_overview', studiesfolder=studiesfolder))
 
 
-@app.route('/folder/', defaults={'studiesfolder': ''})
+@app.route('/folder/', defaults={'studiesfolder': '/'})
 @app.route('/folder/<folderpath:studiesfolder>/')
 def studies_overview(studiesfolder):
     parentfolder = os.path.abspath(os.path.join(studiesfolder, os.pardir))
