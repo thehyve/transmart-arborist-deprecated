@@ -339,8 +339,14 @@ def treeview(mapfile):
                            treeview=True)
 
 
-@app.route('/return_from_embeded_view', methods=['POST'])
-def shutdown():
+@app.route('/return_from_embeded_view/<folderpath:mapfile>', methods=['POST'])
+def shutdown(mapfile):
+    tree = request.get_json()
+    tree, feedback_json_to_columns = json_to_columns(tree)
+
+    with open(mapfile, 'w') as f:
+        f.write(tree)
+
     shutdown_server()
     return 'Server shutting down...'
 

@@ -1,10 +1,36 @@
-{% extends "layout.html" %}
-{% block title %}TranSMART tree{% endblock %}
-{% block head %}
-    {{ super() }}
-		<link rel="stylesheet" href="/static/jstree/dist/themes/default/style.min.css" />
-{% endblock %}
-{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% block head %}
+	    <title>{% block title %} - TranSMART Arborist</title>
+			<link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}" />
+			<link rel="stylesheet" href="{{ url_for('static', filename='mainstyle.css') }}" />
+      <link href="//code.jquery.com/ui/1.11.4/themes/blitzer/jquery-ui.css" rel="stylesheet">
+      <link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Open+Sans">
+      <link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Fjalla+One">
+      <link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Droid+Serif">
+      <script src="//ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+      <script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+      <link rel="stylesheet" href="/static/jstree/dist/themes/default/style.min.css" />
+
+    {% endblock %}
+</head>
+<body>
+    <!--<div id="content">-->
+      <!--<h1>{{ self.title() }}</h1>-->
+      <!--<hr />-->
+
+      <!--{% with messages = get_flashed_messages(with_categories=true) %}-->
+        <!--{% if messages %}-->
+          <!--<ul class="feedback">-->
+            <!--{% for category, message in messages %}-->
+              <!--<li class="{{ category }}">{{ message }}</li>-->
+            <!--{% endfor %}-->
+          <!--</ul>-->
+        <!--{% endif %}-->
+      <!--{% endwith %}-->
+    <!--</div>-->
+
   <h2>Data files</h2>
   <ul>
     {% for clinicaldatafile in clinicaldatafiles %}
@@ -18,8 +44,9 @@
 
   <div id="treediv"></div>
 
-	<p><button id="save">Save column mapping file</button>
-        <button id="embeded_return">Return to Jupyter</button>
+	<p>
+		<!--<button id="save">Save column mapping file</button>-->
+        <button id="embeded_return">Save and return to Jupyter</button>
     </p>
 	<p id="feedbacksave"></p>
 
@@ -108,7 +135,7 @@
 			$.ajax({
 				method: "POST",
 				contentType: "application/json",
-				url: "{{ url_for('shutdown') }}",
+				url: "{{ url_for('shutdown', mapfile=studiesfolder) }}",
 				data: tree
 			})
 			.done(function( msg ) {
