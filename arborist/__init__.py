@@ -331,12 +331,25 @@ def treeview(mapfile):
 
     treejson = json.dumps(tree_array)
 
-    return render_template('tree.html',
+    return render_template('jupyter_embeded.html',
                            studiesfolder=mapfile,
                            clinicaldatafiles=clinicaldatafiles,
                            study='This content has to be removed.',
                            json=treejson,
                            treeview=True)
+
+
+@app.route('/return_from_embeded_view', methods=['POST'])
+def shutdown():
+    shutdown_server()
+    return 'Server shutting down...'
+
+
+def shutdown_server():
+    func = request.environ.get('werkzeug.server.shutdown')
+    if func is None:
+        raise RuntimeError('Not running with the Werkzeug Server')
+    func()
 
 
 @app.route('/folder/<folderpath:studiesfolder>/s/<study>/tree/')
