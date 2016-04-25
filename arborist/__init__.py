@@ -217,10 +217,10 @@ def study_page(studiesfolder, study):
 
 @app.route('/folder/<folderpath:studiesfolder>/set_default/', methods=["GET"])
 def set_default_folder(studiesfolder):
-    response = app.make_response(('', 204))
-    response.set_cookie('default_folder', value=studiesfolder)
     feedback = "Saved "+studiesfolder
-    return json.jsonify(feedback=feedback)
+    response = app.make_response((json.jsonify(feedback=feedback), 200))
+    response.set_cookie('default_folder', value=studiesfolder)
+    return response
 
 
 @app.route('/folder/<folderpath:studiesfolder>/s/<study>/clinical/create/')
