@@ -18,17 +18,22 @@
 
 	<p>
 	{% if not studiesfolder == '' %}
-	<a href="{{ parenturl }}" id="gotoparent">
-		<img style="padding-right:5px; vertical-align:middle;" src="{{ url_for('static', filename='img/folder.png') }}" />Go to parent directory
-	</a> -
+		<a href="{{ parenturl }}" id="gotoparent">
+			<img style="padding-right:5px; vertical-align:middle;" src="{{ url_for('static', filename='img/folder.png') }}" />Go to parent directory</a> -
 	{% endif %}
 		<a id="newfolderlink" href="{{ createfolderurl }}">
-			<img style="padding-right:5px; vertical-align:middle;" src="{{ url_for('static', filename='img/addfolder.png') }}" />Create new folder
-		</a>
+			<img style="padding-right:5px; vertical-align:middle;" src="{{ url_for('static', filename='img/addfolder.png') }}" />Create new folder</a> -
+		<a id="set_default_link" href="#">
+			<img style="padding-right:5px; vertical-align:middle;" src="{{ url_for('static', filename='img/pin.png') }}" />Set default folder</a>
+		<span style="padding-left: 5px;" id="feedback"></span>
 	</p>
 
 	<form method="post" id="newfolderform" action="{{ createfolderurl }}">
 		<input type="hidden" name="foldername" />
+	</form>
+
+	<form id="set_default_form" action="{{ set_default_url }}" >
+		<input type = 'hidden' name="defaultfolder"/>
 	</form>
 
 	<ul class="folderlist">
@@ -89,6 +94,42 @@ $('#newfolderlink').bind('click', function(event) {
 		$('#newfolderform').submit();
 	}
 });
+
+// Store the default folder
+$(function() {
+	$('a#set_default_link').bind('click', function() {
+
+		$.ajax({
+			method: "GET",
+			contentType: "application/json",
+			url: "{{ url_for('set_default_folder', studiesfolder=studiesfolder) }}"
+		})
+		.done(function( msg ) {
+			console.log( "Data Saved: " + msg.feedback );
+			feedback("Saved!", false)
+		})
+		.fail(function( ) {
+			console.log( "Something went wrong" );
+			feedback("Failed...", true)
+		});
+
+		return false;
+	});
+});
+
+function feedback(string, error) {
+	$( "span#feedback" ).html(string).show();
+	if (error) {
+		$( "span#feedback" ).css('color', 'red');
+	} else {
+		$( "span#feedback" ).css('color', 'green');
+	}
+	setTimeout(function() {
+		$( "span#feedback" ).fadeOut(function () {
+			$( "span#feedback" ).html("");
+		})
+	}, 2000);
+}
 
 </script>
 
