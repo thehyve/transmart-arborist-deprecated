@@ -10,7 +10,7 @@ Graphical tool to help you prepare your data for loading into the tranSMART data
 
 ## Functionality
 * Browse your file system for tranSMART study folders or create a new one
-* Create and edit your study and clinical parameter files
+* Create and edit your clinical and expression parameter files
 * Create and edit your study tree, as represented in the column mapping file
  * Adding data files to your study tree
  * Manually adding, deleting and drag-and-drop reordering of nodes in the tree
