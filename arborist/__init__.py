@@ -56,7 +56,14 @@ def add_slash_if_not_windows(url_path):
     return url_path
 
 
-def replace_back_with_forward_slash(string):
+def single_forward_slashed(string):
+    """
+    Converts string so that all double and backslashes for a single forward slash.
+
+    :param string: input string
+    :return: returns the new string
+    """
+    string = string.replace('//', '/')
     string = string.replace('\\', '/')
     return string
 
@@ -68,11 +75,13 @@ class FolderPathConverter(BaseConverter):
 
     def to_python(self, value):
         value = add_slash_if_not_windows(value)
-        value = replace_back_with_forward_slash(value)
+        value = single_forward_slashed(value)
         return value
 
     def to_url(self, value):
+        value = single_forward_slashed(value)
         return value
+
 
 app.url_map.converters['folderpath'] = FolderPathConverter
 
@@ -111,24 +120,23 @@ def index():
         return redirect(url_for('studies_overview', studiesfolder=studiesfolder))
 
 
-@app.route('/folder/create/', defaults={'studiesfolder': ''}, methods=['POST'])
+@app.route('/folder/create/', defaults={'studiesfolder': '/'}, methods=['POST'])
 @app.route('/folder/<folderpath:studiesfolder>/create/', methods=['POST'])
 def create_folder(studiesfolder):
     if 'foldername' in request.form:
         foldername = os.path.join(studiesfolder,
                                   request.form['foldername'])
         if not os.path.exists(foldername):
+            # TODO handle case where no permission to create folder
             os.mkdir(foldername)
-
-    studiesfolder = studiesfolder.strip('/')
 
     return redirect(url_for('studies_overview', studiesfolder=studiesfolder))
 
 
-@app.route('/folder/', defaults={'studiesfolder': ''})
+@app.route('/folder/', defaults={'studiesfolder': '/'})
 @app.route('/folder/<folderpath:studiesfolder>/')
 def studies_overview(studiesfolder):
-    parentfolder = os.path.abspath(os.path.join(studiesfolder, os.pardir))
+
     studies = {}
 
     for file in os.listdir(studiesfolder):
@@ -141,12 +149,22 @@ def studies_overview(studiesfolder):
     orderedstudies = OrderedDict(sorted(studies.items(),
                                         key=lambda x: x[0].lower()))
 
-    studiesfolder = studiesfolder.strip('/')
-    parentfolder = parentfolder.strip('/')
+    rootfolder = False
+    parentfolder = ''
+    if studiesfolder == '/':
+        rootfolder = True
+    elif studiesfolder.endswith(':\\'):
+        rootfolder = True
+        studiesfolder = urlencode_filter(studiesfolder)
+    else:
+        parentfolder = os.path.abspath(os.path.join(studiesfolder, os.pardir))
+        if parentfolder.endswith(':\\'):
+            parentfolder = urlencode_filter(parentfolder)
 
     return render_template('studiesoverview.html',
                            studiesfolder=studiesfolder,
                            parentfolder=parentfolder,
+                           rootfolder=rootfolder,
                            studies=orderedstudies)
 
 
@@ -189,8 +207,6 @@ def study_page(studiesfolder, study):
 
         paramsdict[datatype]['params'] = params
         paramsdict[datatype]['feedback'] = feedback
-
-    studiesfolder = studiesfolder.strip('/')
 
     return render_template('studypage.html',
                            studiesfolder=studiesfolder,
@@ -252,7 +268,6 @@ def create_params(studiesfolder, study, datatype):
         if not os.path.exists(datatypepath):
             os.mkdir(datatypepath)
 
-    studiesfolder = studiesfolder.strip('/')
     return redirect(url_for('edit_params',
                             studiesfolder=studiesfolder,
                             study=study,
@@ -322,8 +337,6 @@ def edit_params(studiesfolder, study, datatype):
     variables = OrderedDict(sorted(variables.items(),
                                    key=lambda x: x[0].lower()))
 
-    studiesfolder = studiesfolder.strip('/')
-
     return render_template('params.html',
                            studiesfolder=studiesfolder,
                            study=study,
@@ -350,8 +363,6 @@ def edit_tree(studiesfolder, study):
         tree_array = subject_sample_to_tree(subject_sample_map, tree_array)
 
     treejson = json.dumps(tree_array)
-
-    studiesfolder = studiesfolder.strip('/')
 
     return render_template('tree.html',
                            studiesfolder=studiesfolder,
@@ -383,7 +394,6 @@ def add_datafile(studiesfolder, study):
     else:
         flash('File type not allowed', 'error')
 
-    studiesfolder = studiesfolder.strip('/')
     return redirect(url_for('edit_tree',
                             studiesfolder=studiesfolder,
                             study=study))
