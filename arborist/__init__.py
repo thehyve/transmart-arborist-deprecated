@@ -20,24 +20,25 @@ from .functions.feedback import get_feedback_dict, merge_feedback_dicts
 from .functions.highdim import subject_sample_to_tree, get_subject_sample_map
 
 STUDIES_FOLDER = 'studies'
-ALLOWED_EXTENSIONS = set(['txt', 'tsv'])
+ALLOWED_EXTENSIONS = ['txt', 'tsv']
 
-path = os.path.dirname(os.path.realpath(__file__))
-# See if the application is run from windows executable.
-if path.find('library.zip') >= 0:
-    pos = path.find('library.zip')
-    path = path[:pos]
+# See if the application is run from an executable.
+if sys.platform == 'win32' and (hasattr(sys, 'frozen') or hasattr(sys, 'importers')):
+    path = os.path.dirname(sys.executable)
     app = Flask(__name__,
-                static_folder=path+'static',
-                template_folder=path+'templates')
+                static_folder=os.path.join(path, 'static'),
+                template_folder=os.path.join(path, 'templates')
+                )
 
 # See if the application is run from inside a .app (MacOSX)
-elif path.find('.app/Contents/Resources/') >= 0:
+elif sys.platform == 'darwin' and (hasattr(sys, 'frozen') or hasattr(sys, 'importers')):
+    path = os.path.dirname(os.path.realpath(__file__))
     pos = path.rfind('lib/')
     path = path[:pos]
     app = Flask(__name__,
-                static_folder=path + 'static',
-                template_folder=path + 'templates')
+                static_folder=os.path.join(path, 'static'),
+                template_folder=os.path.join(path, 'templates')
+                )
 else:
     app = Flask(__name__)
 
@@ -110,8 +111,13 @@ def allowed_file(filename):
 
 @app.route('/')
 def index():
-    studiesfolder = os.path.abspath(STUDIES_FOLDER)
-    return redirect(url_for('studies_overview', studiesfolder=studiesfolder))
+    default_folder = request.cookies.get('default_folder')
+    if default_folder:
+        return redirect(url_for('studies_overview', studiesfolder=default_folder))
+    else:
+        studiesfolder = os.path.abspath(STUDIES_FOLDER)
+        studiesfolder = studiesfolder.strip('/')
+        return redirect(url_for('studies_overview', studiesfolder=studiesfolder))
 
 
 @app.route('/folder/create/', defaults={'studiesfolder': '/'}, methods=['POST'])
@@ -209,7 +215,15 @@ def study_page(studiesfolder, study):
                            possible_datatypes=possible_datatypes)
 
 
-@app.route(('/folder/<folderpath:studiesfolder>/s/<study>/clinical/create/'))
+@app.route('/folder/<folderpath:studiesfolder>/set_default/', methods=["GET"])
+def set_default_folder(studiesfolder):
+    response = app.make_response(('', 204))
+    response.set_cookie('default_folder', value=studiesfolder)
+    feedback = "Saved "+studiesfolder
+    return json.jsonify(feedback=feedback)
+
+
+@app.route('/folder/<folderpath:studiesfolder>/s/<study>/clinical/create/')
 def create_mapping_file(studiesfolder, study):
     columnmappingfile = 'COLUMN_MAP_FILE'
     wordmappingfile = 'WORD_MAP_FILE'

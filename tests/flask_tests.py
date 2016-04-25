@@ -4,7 +4,7 @@ import unittest
 import tempfile
 import shutil
 import re
-
+from flask import url_for, request, json
 
 column_map_list = ['file1\tCharacteristic\t8\tAge',
                    'fil1\tCharacteristic\t9\tGender',
@@ -41,8 +41,9 @@ class ArboristBaseTests(unittest.TestCase):
         for dir_name in temporary_dir_list:
             print("Creating tmp dir: {}".format(dir_name))
             os.mkdir(dir_name)
-        cls.test_study_path = cls.url_prefix + cls.tmp_root + '/s/test_study'
-        cls.empty_study_path = cls.url_prefix + cls.tmp_root + '/s/empty_study'
+        cls.folderpath = cls.url_prefix + cls.tmp_root
+        cls.test_study_path = cls.folderpath + '/s/test_study'
+        cls.empty_study_path = cls.folderpath + '/s/empty_study'
         with open(cls.tmp_clinical + '/col_map_file.tsv', 'w') as col_map_file:
             for line in column_map_list:
                 col_map_file.write(line)
@@ -105,7 +106,23 @@ class ArboristBaseTests(unittest.TestCase):
                                     ('Referer', tree_view),
                                     ('Content-Type', 'application/json')],
                            data=json)
-        assert b'Saved column mapping file' in rv.data
+        assert rv.status == '200 OK'
+
+    def test_set_default_cookie(self):
+        rv = self.app.get(self.folderpath + '/set_default', follow_redirects=True)
+        assert rv.status == '200 OK'
+        jsonresponse = json.loads(rv.data)
+        assert 'feedback' in jsonresponse
+        feedback = jsonresponse['feedback']
+        assert feedback.startswith('Saved ')
+        assert feedback.endswith(arborist.single_forward_slashed(self.tmp_root).strip('/'))
+
+    def test_redirect_to_home(self):
+        rv = self.app.get('/', follow_redirects=True)
+        assert self.tmp_root not in rv.data.decode('utf-8')
+        self.app.set_cookie('localhost', 'default_folder', self.tmp_root)
+        rv = self.app.get('/', follow_redirects=True)
+        assert arborist.single_forward_slashed(self.tmp_root) in rv.data.decode('utf-8')
 
 if __name__ == '__main__':
     unittest.main()
