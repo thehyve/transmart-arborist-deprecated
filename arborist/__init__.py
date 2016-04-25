@@ -113,6 +113,9 @@ def allowed_file(filename):
 def index():
     default_folder = request.cookies.get('default_folder')
     if default_folder:
+        if default_folder.endswith(':/'):
+            default_folder = default_folder[:-1]+'\\'
+            default_folder = urlencode_filter(default_folder)
         return redirect(url_for('studies_overview', studiesfolder=default_folder))
     else:
         studiesfolder = os.path.abspath(STUDIES_FOLDER)
@@ -153,8 +156,9 @@ def studies_overview(studiesfolder):
     parentfolder = ''
     if studiesfolder == '/':
         rootfolder = True
-    elif studiesfolder.endswith(':\\'):
+    elif studiesfolder.endswith(':/'): # Converted to have one / instead of \\
         rootfolder = True
+        studiesfolder = studiesfolder[:-1]+'\\'
         studiesfolder = urlencode_filter(studiesfolder)
     else:
         parentfolder = os.path.abspath(os.path.join(studiesfolder, os.pardir))
