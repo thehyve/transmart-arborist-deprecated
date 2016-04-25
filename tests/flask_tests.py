@@ -128,14 +128,14 @@ class ArboristBaseTests(unittest.TestCase):
         assert 'feedback' in jsonresponse
         feedback = jsonresponse['feedback']
         assert feedback.startswith('Saved ')
-        assert feedback.endswith(self.tmp_root)
+        assert feedback.endswith(self.single_forward_slashed(self.tmp_root).strip('/'))
 
     def test_redirect_to_home(self):
         rv = self.app.get('/', follow_redirects=True)
         assert self.tmp_root not in rv.data.decode('utf-8')
         self.app.set_cookie('localhost', 'default_folder', self.tmp_root)
         rv = self.app.get('/', follow_redirects=True)
-        assert self.tmp_root in rv.data.decode('utf-8')
+        assert self.single_forward_slashed(self.tmp_root) in rv.data.decode('utf-8')
 
 if __name__ == '__main__':
     unittest.main()
