@@ -1,0 +1,72 @@
+Filename	Category Code	Column number	Data label	Data Label Source	Control Vocab Cd
+Cell-line_clinical.txt	Subjects	1	SUBJ_ID		
+Cell-line_clinical.txt	Characteristics	1	\	2	
+Cell-line_clinical.txt	Characteristics	2	DATA_LABEL		
+Cell-line_clinical.txt	Characteristics	3	Organism		
+Cell-line_clinical.txt	Characteristics	4	Origin tissue		
+Cell-line_clinical.txt	Characteristics	5	Cell type		
+Cell-line_clinical.txt	Characteristics	6	Disease		
+Cell-line_clinical.txt	Characteristics	7	Race		
+Cell-line_clinical.txt	Characteristics	8	Age		
+Cell-line_clinical.txt	Characteristics	9	Gender		
+Cell-line_NHTMP.txt	Subjects	1	SUBJ_ID		
+Cell-line_NHTMP.txt	Molecular profiling\Non-highthroughput molecular profiling\Mutation_(DNA)\KRAS	2	General_call		
+Cell-line_NHTMP.txt	Molecular profiling\Non-highthroughput molecular profiling\Mutation_(DNA)\KRAS	3	Non-synonymous_mutations		
+Cell-line_NHTMP.txt	Molecular profiling\Non-highthroughput molecular profiling\Mutation_(DNA)\KRAS	4	Non-synonymous_mutations		
+Cell-line_NHTMP.txt	Molecular profiling\Non-highthroughput molecular profiling\Mutation_(DNA)\KRAS	5	Non-synonymous_mutations		
+Cell-line_NHTMP.txt	Molecular profiling\Non-highthroughput molecular profiling\Mutation_(DNA)\BRAF	6	General_call		
+Cell-line_NHTMP.txt	Molecular profiling\Non-highthroughput molecular profiling\Mutation_(DNA)\BRAF	7	Non-synonymous_mutations		
+Cell-line_NHTMP.txt	Molecular profiling\Non-highthroughput molecular profiling\Mutation_(DNA)\EGFR	8	General_call		
+Cell-line_NHTMP.txt	Molecular profiling\Non-highthroughput molecular profiling\Mutation_(DNA)\EGFR	9	Non-synonymous_mutations		
+Cell-line_NHTMP.txt	Molecular profiling\Non-highthroughput molecular profiling\Mutation_(DNA)\EGFR	10	Non-synonymous_mutations		
+Cell-line_NHTMP.txt	Molecular profiling\Non-highthroughput molecular profiling\Mutation_(DNA)\PIK3CA	11	General_call		
+Cell-line_NHTMP.txt	Molecular profiling\Non-highthroughput molecular profiling\Mutation_(DNA)\PIK3CA	12	Non-synonymous_mutations		
+Cell-line_NHTMP.txt	Molecular profiling\Non-highthroughput molecular profiling\Mutation_(DNA)\PIK3CA	13	Non-synonymous_mutations		
+Cell-line_NHTMP.txt	Molecular profiling\Non-highthroughput molecular profiling\Mutation_(DNA)\PIK3CA	14	Non-synonymous_mutations		
+Cell-line_NHTMP.txt	Molecular profiling\Non-highthroughput molecular profiling	15	Microsatellite_instability_(DNA)		
+Cell-line_NHTMP.txt	Molecular profiling\Non-highthroughput molecular profiling\Promotor_methylation_(DNA)	16	DCR1		
+Cell-line_NHTMP.txt	Molecular profiling\Non-highthroughput molecular profiling\Promotor_methylation_(DNA)	17	PHACTR3		
+Cell-line_NHTMP.txt	Molecular profiling\Non-highthroughput molecular profiling\Promotor_methylation_(DNA)	18	WRN		
+Cell-line_NHTMP.txt	Molecular profiling\Non-highthroughput molecular profiling\Copy_number_aberrations_(DNA)	19	MPLA-gain-P146		
+Cell-line_NHTMP.txt	Molecular profiling\Non-highthroughput molecular profiling\Copy_number_aberrations_(DNA)	20	MPLA-gain-P146		
+Cell-line_NHTMP.txt	Molecular profiling\Non-highthroughput molecular profiling\Copy_number_aberrations_(DNA)	21	MPLA-gain-P146		
+Cell-line_NHTMP.txt	Molecular profiling\Non-highthroughput molecular profiling\Copy_number_aberrations_(DNA)	22	MPLA-loss-X006		
+Cell-line_NHTMP.txt	Molecular profiling\Non-highthroughput molecular profiling\Copy_number_aberrations_(DNA)	23	MPLA-loss-X006		
+Cell-line_NHTMP.txt	Molecular profiling\Non-highthroughput molecular profiling\Copy_number_aberrations_(DNA)	24	MPLA-loss-X006		
+Cell-line_NHTMP.txt	Molecular profiling\Non-highthroughput molecular profiling\Expression_(mRNA)\AURKA_(Ct-ratio)\HCT116	25	MLH1 0-2 px+22		
+Cell-line_NHTMP.txt	Molecular profiling\Non-highthroughput molecular profiling\Expression_(mRNA)\AURKA_(Ct-ratio)\HCT116	26	MLH1 0-2+AURKA px+20		
+Cell-line_NHTMP.txt	Molecular profiling\Non-highthroughput molecular profiling\Expression_(mRNA)\AURKA_(Ct-ratio)\HCT116	27	MLH1 0-2+AURKA px+22		
+Cell-line_NHTMP.txt	Molecular profiling\Non-highthroughput molecular profiling\Expression_(mRNA)\AURKA_(Ct-ratio)\HCT116	28	MLH1 1-2 px+22		
+Cell-line_NHTMP.txt	Molecular profiling\Non-highthroughput molecular profiling\Expression_(mRNA)\AURKA_(Ct-ratio)\HCT116	29	MLH1 1-2+AURKA px+20		
+Cell-line_NHTMP.txt	Molecular profiling\Non-highthroughput molecular profiling\Expression_(mRNA)\AURKA_(Ct-ratio)\HCT116	30	MLH1 1-2+AURKA px+22		
+Cell-line_NHTMP.txt	Molecular profiling\Non-highthroughput molecular profiling\Expression_(mRNA)\TPX2_(Ct-ratio)\HCT116	31	pCMV6-GFP p130		
+Cell-line_NHTMP.txt	Molecular profiling\Non-highthroughput molecular profiling\Expression_(mRNA)\TPX2_(Ct-ratio)\HCT116	32	pCMV6-GFP p131		
+Cell-line_NHTMP.txt	Molecular profiling\Non-highthroughput molecular profiling\Expression_(mRNA)\TPX2_(Ct-ratio)\HCT116	33	TPX2-blunt p130		
+Cell-line_NHTMP.txt	Molecular profiling\Non-highthroughput molecular profiling\Expression_(mRNA)\TPX2_(Ct-ratio)\HCT116	34	TPX2-blunt p131		
+Cell-line_NHTMP.txt	Molecular profiling\Non-highthroughput molecular profiling\Expression_(mRNA)\TPX2_(Ct-ratio)\HCT116	35	TPX2-blunt p132		
+Cell-line_NHTMP.txt	Molecular profiling\Non-highthroughput molecular profiling\Expression_(mRNA)\TPX2_(Ct-ratio)\HCT116	36	TPX2-GFP p130		
+Cell-line_NHTMP.txt	Molecular profiling\Non-highthroughput molecular profiling\Expression_(mRNA)\TPX2_(Ct-ratio)\HCT116	37	TPX2-GFP p131		
+Cell-line_NHTMP.txt	Molecular profiling\Non-highthroughput molecular profiling\Expression_(mRNA)\TPX2_(Ct-ratio)\HCT116	38	TPX2-GFP p132		
+Cell-line_NHTMP.txt	Molecular profiling\Non-highthroughput molecular profiling\Expression_(mRNA)\TPX2_(Ct-ratio)\HCT116	39	TPX2-MCS p130		
+Cell-line_NHTMP.txt	Molecular profiling\Non-highthroughput molecular profiling\Expression_(mRNA)\TPX2_(Ct-ratio)\HCT116	40	TPX2-MCS p131		
+Cell-line_NHTMP.txt	Molecular profiling\Non-highthroughput molecular profiling\Expression_(mRNA)\TPX2_(Ct-ratio)\HCT116	41	Untreated p129		
+Cell-line_NHTMP.txt	Molecular profiling\Non-highthroughput molecular profiling\Expression_(mRNA)\TPX2_(Ct-ratio)\HCT116	42	Untreated p130		
+Cell-line_NHTMP.txt	Molecular profiling\Non-highthroughput molecular profiling\Expression_(mRNA)\TPX2_(Ct-ratio)\HCT116	43	Untreated p132		
+Cell-line_NHTMP.txt	Molecular profiling\Non-highthroughput molecular profiling\Expression_(mRNA)\TPX2_(Ct-ratio)\HCT116	44	MLH1 0-2+AURKA px+14		
+Cell-line_NHTMP.txt	Molecular profiling\Non-highthroughput molecular profiling\Expression_(mRNA)\TPX2_(Ct-ratio)\HCT116	45	MLH1 0-2+AURKA px+17		
+Cell-line_NHTMP.txt	Molecular profiling\Non-highthroughput molecular profiling\Expression_(mRNA)\TPX2_(Ct-ratio)\HCT116	46	MLH1 0-2+AURKA px+24		
+Cell-line_NHTMP.txt	Molecular profiling\Non-highthroughput molecular profiling\Expression_(mRNA)\TPX2_(Ct-ratio)\HCT116	47	MLH1 0-2+AURKA px+27		
+Cell-line_NHTMP.txt	Molecular profiling\Non-highthroughput molecular profiling\Expression_(mRNA)\TPX2_(Ct-ratio)\HCT116	48	MLH1 1-2+AURKA px+14		
+Cell-line_NHTMP.txt	Molecular profiling\Non-highthroughput molecular profiling\Expression_(mRNA)\TPX2_(Ct-ratio)\HCT116	49	MLH1 1-2+AURKA px+17		
+Cell-line_NHTMP.txt	Molecular profiling\Non-highthroughput molecular profiling\Expression_(mRNA)\TPX2_(Ct-ratio)\HCT116	50	MLH1 1-2+AURKA px+27		
+Cell-line_NHTMP.txt	Molecular profiling\Non-highthroughput molecular profiling\Expression_(mRNA)\TPX2_(Ct-ratio)\HCT116	51	MLH1 1-2+AURKA pCMV6-GFP px+24		
+Cell-line_NHTMP.txt	Molecular profiling\Non-highthroughput molecular profiling\Expression_(mRNA)\TPX2_(Ct-ratio)\HCT116	52	MLH1 1-2+AURKA pCMV6-GFP px+25		
+Cell-line_NHTMP.txt	Molecular profiling\Non-highthroughput molecular profiling\Expression_(mRNA)\TPX2_(Ct-ratio)\HCT116	53	MLH1 1-2+AURKA TPX2-blunt px+24		
+Cell-line_NHTMP.txt	Molecular profiling\Non-highthroughput molecular profiling\Expression_(mRNA)\TPX2_(Ct-ratio)\HCT116	54	MLH1 1-2+AURKA TPX2-blunt px+25		
+Cell-line_NHTMP.txt	Molecular profiling\Non-highthroughput molecular profiling\Expression_(mRNA)\TPX2_(Ct-ratio)\HCT116	55	MLH1 1-2+AURKA TPX2-GFP px+24		
+Cell-line_NHTMP.txt	Molecular profiling\Non-highthroughput molecular profiling\Expression_(mRNA)\TPX2_(Ct-ratio)\HCT116	56	MLH1 1-2+AURKA TPX2-GFP px+25		
+Cell-line_NHTMP.txt	Molecular profiling\Non-highthroughput molecular profiling\Expression_(mRNA)\TPX2_(Ct-ratio)\HCT116	57	MLH1 1-2+AURKA TPX2-MCS px+24		
+Cell-line_NHTMP.txt	Molecular profiling\Non-highthroughput molecular profiling\Expression_(mRNA)\TPX2_(Ct-ratio)\HCT116	58	MLH1 1-2+AURKA TPX2-MCS px+25		
+Cell-line_NHTMP.txt	Molecular profiling\Non-highthroughput molecular profiling\Expression_(mRNA)\TPX2_(Ct-ratio)\HCT116	59	MLH1 1-2+AURKA px+24		
+Cell-line_NHTMP.txt	Molecular profiling\Non-highthroughput molecular profiling\Expression_(mRNA)\TPX2_(Ct-ratio)\HCT116	60	and AURKA px+88		
+Cell-line_NHTMP.txt	Molecular profiling\Non-highthroughput molecular profiling\Expression_(mRNA)\TPX2_(Ct-ratio)\HCT116	61	and AURKA px+89		
