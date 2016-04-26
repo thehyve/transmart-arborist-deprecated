@@ -87,8 +87,11 @@ def subject_sample_to_tree(filename, tree_array):
 
                 i = 0
                 for header in subject_sample_map_headers:
-                    leafnode['data'][header] = line[i]
-                    i += 1
+                    if len(line) > i:
+                        leafnode['data'][header] = line[i]
+                        i += 1
+                    else:
+                        break
 
                 tree_array.append(leafnode)
 

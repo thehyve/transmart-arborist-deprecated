@@ -103,10 +103,10 @@ def columns_to_tree(filename):
                         columnnumberlabel: line[columnnumbercolumn],
                         datalabellabel:    line[datalabelcolumn]
                         }}
-                if len(line) > 4:
+                if len(line) > datalabelsourcecolumn:
                     leafnode['data'][datalabelsourcelabel] = \
                         line[datalabelsourcecolumn]
-                if len(line) > 5:
+                if len(line) > controlvocabcdcolumn:
                     leafnode['data'][controlvocabcdlabel] = \
                         line[controlvocabcdcolumn]
                 if text in ['SUBJ ID', 'STUDY ID', 'DATA LABEL', 'DATALABEL',
