@@ -1,42 +1,44 @@
 {% extends "layout.html" %}
 {% block title %}Studies overview{% endblock %}
 {% block content %}
-	<p>Studies are recognized based on the folder containing a <code>study.params</code> or <code>clinical.params</code> file.<br />
-		You are currently in the folder: '<code>/{{ studiesfolder }}</code>'.</p>
+	<p>Studies are recognized based on the folder containing a <code>clinical.params</code> file.<br />
+		You are currently in the folder: '<code>{{ studiesfolder }}</code>'.</p>
 
-	{% if not parentfolder == '' %}
+	{% if not rootfolder %}
 		{% set parenturl = url_for('studies_overview', studiesfolder=parentfolder) %}
-	{% else %}
-		{% set parenturl = url_for('studies_overview') %}
 	{% endif %}
 
-	{% if not studiesfolder == '' %}
+	{% if not rootfolder %}
 		{% set createfolderurl = url_for('create_folder', studiesfolder=studiesfolder) %}
 	{% else %}
 		{% set createfolderurl = url_for('create_folder') %}
 	{% endif %}
 
 	<p>
-	{% if not studiesfolder == '' %}
-	<a href="{{ parenturl }}" id="gotoparent">Go to parent directory</a> -
+	{% if not rootfolder %}
+	<a href="{{ parenturl }}" id="gotoparent">
+		<img style="padding-right:5px; vertical-align:middle;" src="{{ url_for('static', filename='img/folder.png') }}" />Go to parent directory</a> -
 	{% endif %}
-		<a id="newfolderlink" href="{{ createfolderurl }}">Create new folder</a>
+		<a id="newfolderlink" href="{{ createfolderurl }}">
+			<img style="padding-right:5px; vertical-align:middle;" src="{{ url_for('static', filename='img/addfolder.png') }}" />Create new folder</a> -
+		<a id="set_default_link" href="#">
+			<img style="padding-right:5px; vertical-align:middle;" src="{{ url_for('static', filename='img/pin.png') }}" />Set default folder</a>
+		<span style="padding-left: 5px;" id="feedback"></span>
 	</p>
 
 	<form method="post" id="newfolderform" action="{{ createfolderurl }}">
 		<input type="hidden" name="foldername" />
 	</form>
 
+	<form id="set_default_form" action="{{ set_default_url }}" >
+		<input type = 'hidden' name="defaultfolder"/>
+	</form>
+
 	<ul class="folderlist">
 	{% for study in studies %}
 
-		{% if not studiesfolder == '' %}
-			{% set folderurl = url_for('studies_overview', studiesfolder=(studiesfolder, study)|path_join) %}
-			{% set studyurl = url_for('study_page', studiesfolder=studiesfolder, study=study) %}
-		{% else %}
-			{% set folderurl = url_for('studies_overview', studiesfolder=study) %}
-			{% set studyurl = url_for('study_page', study=study) %}
-		{% endif %}
+		{% set folderurl = url_for('studies_overview', studiesfolder=(studiesfolder, study)|path_join) %}
+		{% set studyurl = url_for('study_page', studiesfolder=studiesfolder, study=study) %}
 
 		{% if studies[study]['type'] == 'study' %}
 
@@ -85,6 +87,42 @@ $('#newfolderlink').bind('click', function(event) {
 		$('#newfolderform').submit();
 	}
 });
+
+// Store the default folder
+$(function() {
+	$('a#set_default_link').bind('click', function() {
+
+		$.ajax({
+			method: "GET",
+			contentType: "application/json",
+			url: "{{ url_for('set_default_folder', studiesfolder=studiesfolder) }}"
+		})
+		.done(function( msg ) {
+			console.log( "Data Saved: " + msg.feedback );
+			feedback("Saved!", false)
+		})
+		.fail(function( ) {
+			console.log( "Something went wrong" );
+			feedback("Failed...", true)
+		});
+
+		return false;
+	});
+});
+
+function feedback(string, error) {
+	$( "span#feedback" ).html(string).show();
+	if (error) {
+		$( "span#feedback" ).css('color', 'red');
+	} else {
+		$( "span#feedback" ).css('color', 'green');
+	}
+	setTimeout(function() {
+		$( "span#feedback" ).fadeOut(function () {
+			$( "span#feedback" ).html("");
+		})
+	}, 2000);
+}
 
 </script>
 

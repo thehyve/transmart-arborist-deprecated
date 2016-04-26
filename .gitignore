@@ -2,7 +2,11 @@
 files/
 studies/
 # Virtual environment
-venv/
+venv*
 # Settings file
 arborist-settings.json
 *.pyc
+dist/
+*.egg*
+build/
+.idea/

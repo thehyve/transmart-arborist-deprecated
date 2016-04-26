@@ -4,7 +4,7 @@
 {% block title %}Study {{study}}{% endblock %}
 {% block content %}
 <p>The information below was found by scanning the <code>.params</code> files corresponding to the datatypes in the folder:<br />
-	'/<code>{{ (studiesfolder, study)|path_join }}</code>'.</p>
+	'<code>{{ (studiesfolder, study)|path_join }}</code>'.</p>
 	{% for datatype in possible_datatypes %}
 		<h2>{{ datatype|capitalize }} data</h2>
 		<p>{{ macros.feedbacklist(paramsdict[datatype]['feedback']) }}</p>
@@ -25,6 +25,10 @@
 		{% else %}
 			<a href="{{ url_for('create_params', studiesfolder=studiesfolder, study=study, datatype=datatype) }}">Create {{ datatype }}.params</a>
 		{% endif %}
+
+		<p><a href="https://github.com/thehyve/transmart-batch/blob/master/docs/{{datatype}}.md"
+			 target="_blank">
+			Read the {{datatype}}.params documentation</a></p>
 
 	{% endfor %}
 

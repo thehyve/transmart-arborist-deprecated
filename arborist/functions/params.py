@@ -1,13 +1,13 @@
 import os
 
-from exceptions import HyveException, HyveIOException
-from feedback import get_feedback_dict, merge_feedback_dicts
+from .exceptions import HyveException, HyveIOException
+from .feedback import get_feedback_dict, merge_feedback_dicts
 
 
 class Params(object):
     """Base class for all Params files"""
     def __init__(self, filename, datatype, possible_variables):
-        ''' Used to create a params representation
+        """ Used to create a params representation
 
         Args:
             filename (str): String representation of the path of the
@@ -20,8 +20,8 @@ class Params(object):
                 variable name as key and as value a dict containing the
                 variable parameters. All variable parameters are optional.
                 The variable parameters can include:
-                    obligatory (bool, default: False): Whether this variable
-                        is obligatory.
+                    mandatory (bool, default: False): Whether this variable
+                        is mandatory.
                     variable_type (str): The type of the variable. Should be
                         one of the following:
                         'filename': Indicates the variable is a filename. This
@@ -33,7 +33,26 @@ class Params(object):
                     default (str): The default value when the variable is not
                         set.
                     helptext (str): Description of the variable for the user.
-        '''
+        """
+
+        study_specific_possible_variables = {
+            "SECURITY_REQUIRED": {
+                'possible_values': ['Y', 'N'],
+                'default': 'N',
+                'helptext': ('Defines study as Private (Y) or Public (N).')
+            },
+            "TOP_NODE": {
+                'default': ('\(Public|Private) Studies\<STUDY_ID>'),
+                'helptext': 'The study top node.'
+            },
+            "STUDY_ID": {
+                'default': ('Uppercased parent directory name of the params'
+                            ' file is default.'),
+                'helptext': 'Identifier of the study.'
+            }
+        }
+
+        possible_variables.update(study_specific_possible_variables)
 
         self.directory = os.path.join(
                             os.path.dirname(os.path.abspath(filename)),
@@ -56,8 +75,8 @@ class Params(object):
                 self.set_variable(variable, value)
 
         for variable in possible_variables:
-            if 'obligatory' in possible_variables[variable]:
-                if possible_variables[variable]['obligatory']:
+            if 'mandatory' in possible_variables[variable]:
+                if possible_variables[variable]['mandatory']:
                     if self.get_variable(variable) is None or \
                             self.get_variable(variable) == '':
                         msg = "Mandatory variable {} not in {}".format(
@@ -158,88 +177,85 @@ class Params(object):
         handle.close()
 
 
-class Study_params(Params):
-    """Class for study.params file"""
-    def __init__(self, filename):
-        possible_variables = {
-                                'SECURITY_REQUIRED': {
-                                    'possible_values': ['Y', 'N'],
-                                    'default': 'N',
-                                    'helptext': ('Defines study as Private (Y)'
-                                                 ' or Public (N).')
-                                },
-                                'TOP_NODE': {
-                                    'default': ('\(Public|Private) Studies'
-                                                '\<STUDY_ID>'),
-                                    'helptext': 'The study top node.'
-                                },
-                                'STUDY_ID': {
-                                    'default': ('Uppercased parent directory'
-                                                'name of the params file is'
-                                                ' default.'),
-                                    'helptext': 'Identifier of the study.'
-                                }
-                             }
-        # Not a datatype, but to stay in line with the datatype params:
-        datatype = 'study'
-        super(Study_params, self).__init__(filename,
-                                           datatype,
-                                           possible_variables)
-
-
-class Clinical_params(Params):
+class ClinicalParams(Params):
     """Class for clinical.params file"""
     def __init__(self, filename):
         possible_variables = {
-                                'COLUMN_MAP_FILE': {
-                                    'obligatory': True,
-                                    'variable_type': 'filename',
-                                    'helptext': 'Points to the column file.'
-                                    },
-                                'WORD_MAP_FILE': {
-                                    'variable_type': 'filename',
-                                    'helptext': ('Points to the file with'
-                                                 ' dictionary to be used.')
-                                    },
-                                "XTRIAL_FILE": {
-                                    'helptext': ('Points to the cross study'
-                                                 ' concepts file.')
-                                },
-                                "TAGS_FILE": {
-                                    'variable_type': 'filename',
-                                    'helptext': ('Points to the concepts tags'
-                                                 ' file.')
-                                },
-                                "SECURITY_REQUIRED": {
-                                    'possible_values': ['Y', 'N'],
-                                    'default': 'N',
-                                    'helptext': ('Defines study as Private (Y)'
-                                                 ' or Public (N).')
-                                },
-                                "TOP_NODE": {
-                                    'default': ('\(Public|Private) Studies'
-                                                '\<STUDY_ID>'),
-                                    'helptext': 'The study top node.'
-                                },
-                                "STUDY_ID": {
-                                    'default': ('Uppercased parent directory'
-                                                'name of the params file is'
-                                                ' default.'),
-                                    'helptext': 'Identifier of the study.'
-                                }
+            'COLUMN_MAP_FILE': {
+                'mandatory': True,
+                'variable_type': 'filename',
+                'helptext': 'Points to the column file.'
+                },
+            'WORD_MAP_FILE': {
+                'variable_type': 'filename',
+                'helptext': ('Points to the file with dictionary to be used.')
+                },
+            "XTRIAL_FILE": {
+                'helptext': ('Points to the cross study concepts file.')
+            },
+            "TAGS_FILE": {
+                'variable_type': 'filename',
+                'helptext': ('Points to the concepts tags file.')
+            }
                               }
         datatype = 'clinical'
-        super(Clinical_params, self).__init__(filename,
-                                              datatype,
-                                              possible_variables)
+        super(ClinicalParams, self).__init__(filename,
+                                             datatype,
+                                             possible_variables)
+
+
+class ExpressionParams(Params):
+    """Class for expression.params file"""
+    def __init__(self, filename):
+        possible_variables = {
+            'DATA_FILE': {
+                'mandatory': True,
+                'variable_type': 'filename',
+                'helptext': 'Points to the HD data file.'
+                },
+            'DATA_TYPE': {
+                'mandatory': True,
+                'possible_values': ['R'],
+                'default': 'R',
+                'helptext': ('Must be R (raw values). Other types are not'
+                             ' supported yet.')
+                },
+            "LOG_BASE": {
+                'default': '2',
+                'helptext': ('If present must be 2. The log base for'
+                             ' calculating log values.')
+            },
+            "NODE_NAME": {
+                'default': '<HD data type name>',
+                'helptext': ('What to append to TOP_NODE for form the concept'
+                             ' path of the HD node (before the part generated'
+                             ' from category_cd).')
+            },
+            "MAP_FILENAME": {
+                'mandatory': True,
+                'variable_type': 'filename',
+                'helptext': ('Filename of the mapping file.')
+            },
+            "ALLOW_MISSING_ANNOTATIONS": {
+                'possible_values': ['Y', 'N'],
+                'default': 'N',
+                'helptext': ('Whether the job should be allowed to continue'
+                             ' when the data set doesn\'t provide data for all'
+                             ' the annotations (here probes).')
+            }
+                              }
+        datatype = 'expression'
+        super(ExpressionParams, self).__init__(filename,
+                                               datatype,
+                                               possible_variables)
 
 
 def get_study_id(studiesfolder, study):
-    # Try studies.param first
-    paramsfile = os.path.join(studiesfolder, study, 'study.params')
+    # Try clinical.params first
+    paramsfile = os.path.join(studiesfolder, study, 'clinical.params')
 
     if os.path.exists(paramsfile):
-        paramsobject = Study_params(paramsfile)
+        paramsobject = ClinicalParams(paramsfile)
         studyid = paramsobject.get_variable('STUDY_ID')
 
     try:

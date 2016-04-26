@@ -1,24 +1,47 @@
+#!/usr/bin/env python3
 import os
+import sys
 from collections import OrderedDict
 
 from flask import Flask, flash, request, redirect, url_for, render_template, \
                   json, Response, send_from_directory
 from werkzeug import secure_filename
+from werkzeug.routing import BaseConverter, ValidationError
 
 import urllib
 from markupsafe import Markup
 
-from functions.params import Study_params, Clinical_params, get_study_id
-from functions.exceptions import HyveException, HyveIOException
-from functions.clinical import columns_to_json, json_to_columns, getchildren, \
+from .functions.params import ClinicalParams, ExpressionParams, get_study_id
+from .functions.exceptions import HyveException, HyveIOException
+from .functions.clinical import columns_to_tree, json_to_columns, getchildren, \
                                get_datafiles, get_column_map_file, \
                                add_to_column_file, get_word_map
-from functions.feedback import get_feedback_dict, merge_feedback_dicts
+from .functions.feedback import get_feedback_dict, merge_feedback_dicts
+from .functions.highdim import subject_sample_to_tree, get_subject_sample_map
 
 STUDIES_FOLDER = 'studies'
-ALLOWED_EXTENSIONS = set(['txt', 'tsv'])
+ALLOWED_EXTENSIONS = ['txt', 'tsv']
 
-app = Flask(__name__)
+# See if the application is run from an executable.
+if sys.platform == 'win32' and (hasattr(sys, 'frozen') or hasattr(sys, 'importers')):
+    path = os.path.dirname(sys.executable)
+    app = Flask(__name__,
+                static_folder=os.path.join(path, 'static'),
+                template_folder=os.path.join(path, 'templates')
+                )
+
+# See if the application is run from inside a .app (MacOSX)
+elif sys.platform == 'darwin' and (hasattr(sys, 'frozen') or hasattr(sys, 'importers')):
+    path = os.path.dirname(os.path.realpath(__file__))
+    pos = path.rfind('lib/')
+    path = path[:pos]
+    app = Flask(__name__,
+                static_folder=os.path.join(path, 'static'),
+                template_folder=os.path.join(path, 'templates')
+                )
+else:
+    app = Flask(__name__)
+
 app.secret_key = 'not_so_secret'
 
 app.jinja_env.add_extension("jinja2.ext.do")
@@ -26,10 +49,46 @@ app.jinja_env.trim_blocks = True
 app.jinja_env.lstrip_blocks = True
 app.jinja_env.filters['path_join'] = lambda paths: os.path.join(*paths)
 
+
+def add_slash_if_not_windows(url_path):
+    if sys.platform != 'win32':
+        url_path = '/' + url_path
+    return url_path
+
+
+def single_forward_slashed(string):
+    """
+    Converts string so that all double and backslashes for a single forward slash.
+
+    :param string: input string
+    :return: returns the new string
+    """
+    string = string.replace('//', '/')
+    string = string.replace('\\', '/')
+    return string
+
+
+class FolderPathConverter(BaseConverter):
+    def __init__(self, url_map):
+        super(FolderPathConverter, self).__init__(url_map)
+        self.regex = '.*'
+
+    def to_python(self, value):
+        value = add_slash_if_not_windows(value)
+        value = single_forward_slashed(value)
+        return value
+
+    def to_url(self, value):
+        value = single_forward_slashed(value)
+        return value
+
+
+app.url_map.converters['folderpath'] = FolderPathConverter
+
 if not os.path.isdir(STUDIES_FOLDER):
     os.mkdir(STUDIES_FOLDER)
 
-possible_datatypes = ['study', 'clinical']
+possible_datatypes = ['clinical', 'expression']
 
 
 @app.template_filter('urlencode')
@@ -38,7 +97,10 @@ def urlencode_filter(s):
     if type(s) == 'Markup':
         s = s.unescape()
     s = s.encode('utf8')
-    s = urllib.quote_plus(s)
+    if sys.version_info.major == 2:
+        s = urllib.quote_plus(s)
+    else:
+        s = urllib.parse.quote_plus(s)
     return Markup(s)
 
 
@@ -49,59 +111,70 @@ def allowed_file(filename):
 
 @app.route('/')
 def index():
-    studiesfolder = os.path.abspath(STUDIES_FOLDER)
-    studiesfolder = studiesfolder.strip('/')
-    return redirect(url_for('studies_overview', studiesfolder=studiesfolder))
+    default_folder = request.cookies.get('default_folder')
+    if default_folder:
+        if default_folder.endswith(':/'):
+            default_folder = default_folder[:-1]+'\\'
+            default_folder = urlencode_filter(default_folder)
+        return redirect(url_for('studies_overview', studiesfolder=default_folder))
+    else:
+        studiesfolder = os.path.abspath(STUDIES_FOLDER)
+        studiesfolder = studiesfolder.strip('/')
+        return redirect(url_for('studies_overview', studiesfolder=studiesfolder))
 
 
-@app.route('/folder/create/', defaults={'studiesfolder': ''}, methods=['POST'])
-@app.route('/folder/<path:studiesfolder>/create/', methods=['POST'])
+@app.route('/folder/create/', defaults={'studiesfolder': '/'}, methods=['POST'])
+@app.route('/folder/<folderpath:studiesfolder>/create/', methods=['POST'])
 def create_folder(studiesfolder):
-    studiesfolder = '/'+studiesfolder
     if 'foldername' in request.form:
         foldername = os.path.join(studiesfolder,
                                   request.form['foldername'])
         if not os.path.exists(foldername):
+            # TODO handle case where no permission to create folder
             os.mkdir(foldername)
-
-    studiesfolder = studiesfolder.strip('/')
 
     return redirect(url_for('studies_overview', studiesfolder=studiesfolder))
 
 
-@app.route('/folder/', defaults={'studiesfolder': ''})
-@app.route('/folder/<path:studiesfolder>/')
+@app.route('/folder/', defaults={'studiesfolder': '/'})
+@app.route('/folder/<folderpath:studiesfolder>/')
 def studies_overview(studiesfolder):
-    studiesfolder = '/'+studiesfolder
-    parentfolder = os.path.abspath(os.path.join(studiesfolder, os.pardir))
+
     studies = {}
 
     for file in os.listdir(studiesfolder):
         filepath = os.path.join(studiesfolder, file)
         if os.path.isdir(filepath) and not file.startswith('.'):
             studies[file] = {'type': 'folder'}
-            studyparamsfile = os.path.join(filepath, 'study.params')
             clinicalparamsfile = os.path.join(filepath, 'clinical.params')
-            if os.path.exists(studyparamsfile) or \
-                    os.path.exists(clinicalparamsfile):
+            if os.path.exists(clinicalparamsfile):
                 studies[file]['type'] = 'study'
     orderedstudies = OrderedDict(sorted(studies.items(),
                                         key=lambda x: x[0].lower()))
 
-    studiesfolder = studiesfolder.strip('/')
-    parentfolder = parentfolder.strip('/')
+    rootfolder = False
+    parentfolder = ''
+    if studiesfolder == '/':
+        rootfolder = True
+    elif studiesfolder.endswith(':/'):  # Converted to have one / instead of \\
+        rootfolder = True
+        studiesfolder = studiesfolder[:-1]+'\\'
+        studiesfolder = urlencode_filter(studiesfolder)
+    else:
+        parentfolder = os.path.abspath(os.path.join(studiesfolder, os.pardir))
+        if parentfolder.endswith(':\\'):
+            parentfolder = urlencode_filter(parentfolder)
 
     return render_template('studiesoverview.html',
                            studiesfolder=studiesfolder,
                            parentfolder=parentfolder,
+                           rootfolder=rootfolder,
                            studies=orderedstudies)
 
 
 @app.route('/folder/s/<study>/', defaults={'studiesfolder': ''})
-@app.route('/folder/<path:studiesfolder>/s/<study>/')
+@app.route('/folder/<folderpath:studiesfolder>/s/<study>/')
 def study_page(studiesfolder, study):
-    studiesfolder = '/'+studiesfolder
-
     paramsdict = {}
 
     for datatype in possible_datatypes:
@@ -112,17 +185,17 @@ def study_page(studiesfolder, study):
 
         if os.path.exists(paramsfile):
             paramsdict[datatype]['exists'] = True
-            if datatype == 'study':
-                paramsobject = Study_params(paramsfile)
-            elif datatype == 'clinical':
-                paramsobject = Clinical_params(paramsfile)
+            if datatype == 'clinical':
+                paramsobject = ClinicalParams(paramsfile)
+            elif datatype == 'expression':
+                paramsobject = ExpressionParams(paramsfile)
             else:
                 feedback['errors'].append('Params file {} not supported'.
                                           format(paramsfile))
         else:
             paramsdict[datatype]['exists'] = False
-            feedback['errors'].append('No {} found'.
-                                      format(datatype+'.params'))
+            feedback['infos'].append('No {} found'.
+                                     format(datatype+'.params'))
 
         params = {}
         try:
@@ -139,8 +212,6 @@ def study_page(studiesfolder, study):
         paramsdict[datatype]['params'] = params
         paramsdict[datatype]['feedback'] = feedback
 
-    studiesfolder = studiesfolder.strip('/')
-
     return render_template('studypage.html',
                            studiesfolder=studiesfolder,
                            study=study,
@@ -148,9 +219,16 @@ def study_page(studiesfolder, study):
                            possible_datatypes=possible_datatypes)
 
 
-@app.route(('/folder/<path:studiesfolder>/s/<study>/clinical/create/'))
+@app.route('/folder/<folderpath:studiesfolder>/set_default/', methods=["GET"])
+def set_default_folder(studiesfolder):
+    feedback = "Saved "+studiesfolder
+    response = app.make_response((json.jsonify(feedback=feedback), 200))
+    response.set_cookie('default_folder', value=studiesfolder)
+    return response
+
+
+@app.route('/folder/<folderpath:studiesfolder>/s/<study>/clinical/create/')
 def create_mapping_file(studiesfolder, study):
-    studiesfolder = '/'+studiesfolder
     columnmappingfile = 'COLUMN_MAP_FILE'
     wordmappingfile = 'WORD_MAP_FILE'
 
@@ -179,9 +257,9 @@ def create_mapping_file(studiesfolder, study):
     return json.jsonify(mappingfilename=mappingfilename)
 
 
-@app.route('/folder/<path:studiesfolder>/s/<study>/params/<datatype>/create/')
+@app.route(('/folder/<folderpath:studiesfolder>/s/<study>/params/<datatype>/'
+            'create/'))
 def create_params(studiesfolder, study, datatype):
-    studiesfolder = '/'+studiesfolder
     feedback = get_feedback_dict()
     paramsfile = os.path.join(studiesfolder, study, datatype+'.params')
 
@@ -194,26 +272,24 @@ def create_params(studiesfolder, study, datatype):
         if not os.path.exists(datatypepath):
             os.mkdir(datatypepath)
 
-    studiesfolder = studiesfolder.strip('/')
     return redirect(url_for('edit_params',
                             studiesfolder=studiesfolder,
                             study=study,
                             datatype=datatype))
 
 
-@app.route('/folder/<path:studiesfolder>/s/<study>/params/<datatype>/',
+@app.route('/folder/<folderpath:studiesfolder>/s/<study>/params/<datatype>/',
            methods=['GET', 'POST'])
 def edit_params(studiesfolder, study, datatype):
-    studiesfolder = '/'+studiesfolder
     feedback = get_feedback_dict()
     paramsfile = os.path.join(studiesfolder, study, datatype+'.params')
 
     if request.method == 'POST':
         if os.path.exists(paramsfile):
-            if datatype == 'study':
-                paramsobject = Study_params(paramsfile)
-            elif datatype == 'clinical':
-                paramsobject = Clinical_params(paramsfile)
+            if datatype == 'clinical':
+                paramsobject = ClinicalParams(paramsfile)
+            elif datatype == 'expression':
+                paramsobject = ExpressionParams(paramsfile)
             else:
                 flash('Params file {} not supported'.
                       format(os.path.basename(paramsfile)), 'error')
@@ -234,10 +310,10 @@ def edit_params(studiesfolder, study, datatype):
             feedback = paramsobject.get_feedback()
 
     if os.path.exists(paramsfile):
-        if datatype == 'study':
-            paramsobject = Study_params(paramsfile)
-        elif datatype == 'clinical':
-            paramsobject = Clinical_params(paramsfile)
+        if datatype == 'clinical':
+            paramsobject = ClinicalParams(paramsfile)
+        elif datatype == 'expression':
+            paramsobject = ExpressionParams(paramsfile)
         else:
             flash('Params file {} not supported'.
                   format(os.path.basename(paramsfile)), 'error')
@@ -265,8 +341,6 @@ def edit_params(studiesfolder, study, datatype):
     variables = OrderedDict(sorted(variables.items(),
                                    key=lambda x: x[0].lower()))
 
-    studiesfolder = studiesfolder.strip('/')
-
     return render_template('params.html',
                            studiesfolder=studiesfolder,
                            study=study,
@@ -275,31 +349,35 @@ def edit_params(studiesfolder, study, datatype):
                            feedback=feedback)
 
 
-@app.route('/folder/<path:studiesfolder>/s/<study>/tree/')
+@app.route('/folder/<folderpath:studiesfolder>/s/<study>/tree/')
 def edit_tree(studiesfolder, study):
-    studiesfolder = '/'+studiesfolder
-
     columnsfile = get_column_map_file(studiesfolder, study)
     if columnsfile is not None:
-        json = columns_to_json(columnsfile)
+        tree_array = columns_to_tree(columnsfile)
         clinicaldatafiles = get_datafiles(columnsfile)
     else:
-        json = {}
+        tree_array = []
         clinicaldatafiles = []
 
-    studiesfolder = studiesfolder.strip('/')
+    # Get expression subject sample mapping and paths in there
+    subject_sample_map = get_subject_sample_map(studiesfolder,
+                                                study,
+                                                'expression')
+    if subject_sample_map is not None:
+        tree_array = subject_sample_to_tree(subject_sample_map, tree_array)
+
+    treejson = json.dumps(tree_array)
 
     return render_template('tree.html',
                            studiesfolder=studiesfolder,
                            clinicaldatafiles=clinicaldatafiles,
                            study=study,
-                           json=json)
+                           json=treejson)
 
 
-@app.route('/folder/<path:studiesfolder>/s/<study>/tree/add/',
+@app.route('/folder/<folderpath:studiesfolder>/s/<study>/tree/add/',
            methods=['POST'])
 def add_datafile(studiesfolder, study):
-    studiesfolder = '/'+studiesfolder
     file = request.files['file']
 
     if file and allowed_file(file.filename):
@@ -320,16 +398,15 @@ def add_datafile(studiesfolder, study):
     else:
         flash('File type not allowed', 'error')
 
-    studiesfolder = studiesfolder.strip('/')
     return redirect(url_for('edit_tree',
                             studiesfolder=studiesfolder,
                             study=study))
 
 
-@app.route('/folder/<path:studiesfolder>/s/<study>/tree/save_columnsfile/',
+@app.route(('/folder/<folderpath:studiesfolder>/s/<study>/tree/'
+            'save_columnsfile/'),
            methods=['POST'])
 def save_columnsfile(studiesfolder, study):
-    studiesfolder = '/'+studiesfolder
     feedback = get_feedback_dict()
 
     tree = request.get_json()
@@ -339,7 +416,7 @@ def save_columnsfile(studiesfolder, study):
 
     columnsfile = get_column_map_file(studiesfolder, study)
     if columnsfile is not None:
-        columnmappingfile = open(columnsfile, 'wb')
+        columnmappingfile = open(columnsfile, 'w')
         columnmappingfile.write(tree)
         columnmappingfile.close()
 
