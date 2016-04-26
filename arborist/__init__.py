@@ -156,7 +156,7 @@ def studies_overview(studiesfolder):
     parentfolder = ''
     if studiesfolder == '/':
         rootfolder = True
-    elif studiesfolder.endswith(':/'): # Converted to have one / instead of \\
+    elif studiesfolder.endswith(':/'):  # Converted to have one / instead of \\
         rootfolder = True
         studiesfolder = studiesfolder[:-1]+'\\'
         studiesfolder = urlencode_filter(studiesfolder)
