@@ -113,6 +113,7 @@ def win32_exe_build_options():
                                    'sys',
                                    'jinja2.ext',
                                    ],
+                      'excludes': ['tkinter', 'sqlite3'],
                       'dist_dir': DIST_DIR,
                       'bundle_files': 1,
                       }
