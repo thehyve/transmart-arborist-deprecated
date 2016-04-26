@@ -16,31 +16,6 @@
     {% endblock %}
 </head>
 <body>
-    <!--<div id="content">-->
-      <!--<h1>{{ self.title() }}</h1>-->
-      <!--<hr />-->
-
-      <!--{% with messages = get_flashed_messages(with_categories=true) %}-->
-        <!--{% if messages %}-->
-          <!--<ul class="feedback">-->
-            <!--{% for category, message in messages %}-->
-              <!--<li class="{{ category }}">{{ message }}</li>-->
-            <!--{% endfor %}-->
-          <!--</ul>-->
-        <!--{% endif %}-->
-      <!--{% endwith %}-->
-    <!--</div>-->
-
-  <h2>Data files</h2>
-  <ul>
-    {% for clinicaldatafile in clinicaldatafiles %}
-    <li>{{ clinicaldatafile }}</li>
-    {% endfor %}
-    <li><form action="{{ url_for('add_datafile', studiesfolder=studiesfolder, study=study) }}" method=post enctype=multipart/form-data>
-      <input type=file name=file>
-  		<input type=submit value="Add new datafile">
-  	</form></li>
-  </ul>
 
   <div id="treediv"></div>
 
@@ -91,42 +66,6 @@
 	<script src="/static/jstree/dist/jstree.min.js"></script>
 
 	<script>
-	// Send tree JSON to Python and create links to exorted files
-	$(function() {
-		$('button#save').bind('click', function() {
-			var v = $('#treediv').jstree(true).get_json()
-			var tree = JSON.stringify(v);
-
-			$.ajax({
-				method: "POST",
-				contentType: "application/json",
-				url: "{{ url_for('save_columnsfile', studiesfolder=studiesfolder, study=study) }}",
-				data: tree
-			})
-			.done(function( msg ) {
-				console.log( "Data Saved: " + msg.feedback.infos );
-				document.getElementById("feedbacksave").innerHTML = '<ul class="feedback" id="feedbacklist"></ul>';
-        for (i = 0; i < msg.feedback.errors.length; i++) {
-            $( "#feedbacklist" ).append( "<li class='error'>"+msg.feedback.errors[i]+"</li>" );
-        }
-        for (i = 0; i < msg.feedback.warnings.length; i++) {
-            $( "#feedbacklist" ).append( "<li class='warning'>"+msg.feedback.warnings[i]+"</li>" );
-        }
-        for (i = 0; i < msg.feedback.infos.length; i++) {
-            $( "#feedbacklist" ).append( "<li class='message'>"+msg.feedback.infos[i]+"</li>" );
-        }
-			})
-      .fail(function() {
-        document.getElementById("feedbacksave").innerHTML = '<ul class="feedback" id="feedbacklist"></ul>';
-        $( "#feedbacklist" ).append( "<li class='error'>Error encountered in saving column mapping file</li>" );
-      });
-
-			return false;
-		});
-	});
-
-	var node;
-
 	$(function() {
 		$('button#embeded_return').bind('click', function() {
 			var v = $('#treediv').jstree(true).get_json()
@@ -135,7 +74,7 @@
 			$.ajax({
 				method: "POST",
 				contentType: "application/json",
-				url: "{{ url_for('shutdown', mapfile=studiesfolder) }}",
+				url: "{{ url_for('shutdown', mapfile=mapfile) }}",
 				data: tree
 			})
 			.done(function( msg ) {

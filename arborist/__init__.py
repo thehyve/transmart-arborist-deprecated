@@ -332,9 +332,9 @@ def treeview(mapfile):
     treejson = json.dumps(tree_array)
 
     return render_template('jupyter_embeded.html',
-                           studiesfolder=mapfile,
-                           clinicaldatafiles=clinicaldatafiles,
-                           study='This content has to be removed.',
+                           mapfile=mapfile,
+                           # clinicaldatafiles=clinicaldatafiles,
+                           # study='This content has to be removed.',
                            json=treejson,
                            treeview=True)
 
