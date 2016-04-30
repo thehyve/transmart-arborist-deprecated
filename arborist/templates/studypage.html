@@ -26,9 +26,11 @@
 			<a href="{{ url_for('create_params', studiesfolder=studiesfolder, study=study, datatype=datatype) }}">Create {{ datatype }}.params</a>
 		{% endif %}
 
-		<p><a href="https://github.com/thehyve/transmart-batch/blob/master/docs/{{datatype}}.md"
+		{% set docslink = paramsdict[datatype]['docslink'] %}
+
+		<p><a href="https://github.com/thehyve/transmart-batch/blob/master/docs/{{docslink}}.md"
 			 target="_blank">
-			Read the {{datatype}}.params documentation</a></p>
+			Read the {{docslink}}.params documentation</a></p>
 
 	{% endfor %}
 

@@ -11,7 +11,8 @@ from werkzeug.routing import BaseConverter, ValidationError
 import urllib
 from markupsafe import Markup
 
-from .functions.params import ClinicalParams, ExpressionParams, get_study_id
+from .functions.params import StudyParams, ClinicalParams, ExpressionParams, \
+                                get_study_id
 from .functions.exceptions import HyveException, HyveIOException
 from .functions.clinical import columns_to_tree, json_to_columns, getchildren, \
                                get_datafiles, get_column_map_file, \
@@ -88,7 +89,7 @@ app.url_map.converters['folderpath'] = FolderPathConverter
 if not os.path.isdir(STUDIES_FOLDER):
     os.mkdir(STUDIES_FOLDER)
 
-possible_datatypes = ['clinical', 'expression']
+possible_datatypes = ['study', 'clinical', 'expression']
 
 
 @app.template_filter('urlencode')
@@ -185,7 +186,9 @@ def study_page(studiesfolder, study):
 
         if os.path.exists(paramsfile):
             paramsdict[datatype]['exists'] = True
-            if datatype == 'clinical':
+            if datatype == 'study':
+                paramsobject = StudyParams(paramsfile)
+            elif datatype == 'clinical':
                 paramsobject = ClinicalParams(paramsfile)
             elif datatype == 'expression':
                 paramsobject = ExpressionParams(paramsfile)
@@ -198,12 +201,14 @@ def study_page(studiesfolder, study):
                                      format(datatype+'.params'))
 
         params = {}
+        docslink = ''
         try:
             paramsobject
         except NameError:
             pass
         else:
             params = paramsobject.get_variables()
+            docslink = paramsobject.get_docslink()
             params_feedback = paramsobject.get_feedback()
             feedback = merge_feedback_dicts(feedback, params_feedback)
             params = OrderedDict(sorted(params.items(),
@@ -211,6 +216,7 @@ def study_page(studiesfolder, study):
 
         paramsdict[datatype]['params'] = params
         paramsdict[datatype]['feedback'] = feedback
+        paramsdict[datatype]['docslink'] = docslink
 
     return render_template('studypage.html',
                            studiesfolder=studiesfolder,
@@ -286,7 +292,9 @@ def edit_params(studiesfolder, study, datatype):
 
     if request.method == 'POST':
         if os.path.exists(paramsfile):
-            if datatype == 'clinical':
+            if datatype == 'study':
+                paramsobject = StudyParams(paramsfile)
+            elif datatype == 'clinical':
                 paramsobject = ClinicalParams(paramsfile)
             elif datatype == 'expression':
                 paramsobject = ExpressionParams(paramsfile)
@@ -310,7 +318,9 @@ def edit_params(studiesfolder, study, datatype):
             feedback = paramsobject.get_feedback()
 
     if os.path.exists(paramsfile):
-        if datatype == 'clinical':
+        if datatype == 'study':
+            paramsobject = StudyParams(paramsfile)
+        elif datatype == 'clinical':
             paramsobject = ClinicalParams(paramsfile)
         elif datatype == 'expression':
             paramsobject = ExpressionParams(paramsfile)

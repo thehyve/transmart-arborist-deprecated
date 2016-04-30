@@ -6,7 +6,7 @@ from .feedback import get_feedback_dict, merge_feedback_dicts
 
 class Params(object):
     """Base class for all Params files"""
-    def __init__(self, filename, datatype, possible_variables):
+    def __init__(self, filename, datatype, datatype_variables, docslink=None):
         """ Used to create a params representation
 
         Args:
@@ -35,7 +35,7 @@ class Params(object):
                     helptext (str): Description of the variable for the user.
         """
 
-        study_specific_possible_variables = {
+        possible_variables = {
             "SECURITY_REQUIRED": {
                 'possible_values': ['Y', 'N'],
                 'default': 'N',
@@ -52,7 +52,7 @@ class Params(object):
             }
         }
 
-        possible_variables.update(study_specific_possible_variables)
+        possible_variables.update(datatype_variables)
 
         self.directory = os.path.join(
                             os.path.dirname(os.path.abspath(filename)),
@@ -61,6 +61,11 @@ class Params(object):
         self.datatype = datatype
         self.possible_variables = possible_variables
         self.feedback = get_feedback_dict()
+
+        if docslink is None:
+            self.docslink = datatype
+        else:
+            self.docslink = docslink
 
         with open(filename, 'r') as handle:
             for line in handle.readlines():
@@ -168,6 +173,9 @@ class Params(object):
     def get_feedback(self):
         return self.feedback
 
+    def get_docslink(self):
+        return self.docslink
+
     def save_to_file(self):
         filename = os.path.join(self.study_directory,
                                 self.datatype+'.params')
@@ -177,10 +185,29 @@ class Params(object):
         handle.close()
 
 
+class StudyParams(Params):
+    """Class for study.params file"""
+    def __init__(self, filename):
+        datatype_variables = {
+            'STUDY_ID': {
+                'mandatory': True,
+                'default': ('Uppercased parent directory name of the params'
+                            ' file is default.'),
+                'helptext': 'Identifier of the study.'
+                }
+            }
+        datatype = 'study'
+        docslink = 'study-params'
+        super(StudyParams, self).__init__(filename,
+                                          datatype,
+                                          datatype_variables,
+                                          docslink)
+
+
 class ClinicalParams(Params):
     """Class for clinical.params file"""
     def __init__(self, filename):
-        possible_variables = {
+        datatype_variables = {
             'COLUMN_MAP_FILE': {
                 'mandatory': True,
                 'variable_type': 'filename',
@@ -201,13 +228,13 @@ class ClinicalParams(Params):
         datatype = 'clinical'
         super(ClinicalParams, self).__init__(filename,
                                              datatype,
-                                             possible_variables)
+                                             datatype_variables)
 
 
 class ExpressionParams(Params):
     """Class for expression.params file"""
     def __init__(self, filename):
-        possible_variables = {
+        datatype_variables = {
             'DATA_FILE': {
                 'mandatory': True,
                 'variable_type': 'filename',
@@ -247,7 +274,7 @@ class ExpressionParams(Params):
         datatype = 'expression'
         super(ExpressionParams, self).__init__(filename,
                                                datatype,
-                                               possible_variables)
+                                               datatype_variables)
 
 
 def get_study_id(studiesfolder, study):
